@@ -40,8 +40,184 @@ get_max: 获取当前滑动窗口最大值的操作直接获取front即可
 
 ### 二叉树
 
+#### [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
+
+只需要遍历每个节点, 操作是swap左右孩子即可, 所以直接递归前序即可(后序, 层序都可以)
+
+递归的中序不可以, 为什么呢?
+
+#### [101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/)
+
+之前的问题是: 我可以做到判断当前根节点的左右子树的两个根节点是否符合条件, 但是我总不能递归左根节点的左右孩子 / 右根节点的左右孩子吧? 因为这根本不对啊, 我不要求左右孩子的左右孩子是符合条件的, 而是要求左孩子的右孩子与右孩子的左孩子符合条件, 哈哈, 那这样不就成了吗
+
+对于二叉树是否对称，要比较的是根节点的左子树与右子树是不是相互翻转的，理解这一点就知道了**其实我们要比较的是两个树（这两个树是根节点的左右子树）**，所以在递归遍历的过程中，也是要同时遍历两棵树。
+
+```C++
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        if(root == nullptr) return true;
+        return isRight(root->left, root->right);
+        // 当前根节点不为空, 判断左右子树是否是翻转的
+    }
+    bool isRight(TreeNode *left, TreeNode *right) {
+        if((left && !right) || (right && !left)) return false;  // 不符合, 结束递归
+        if(!left && !right) return true;    // 都为空, 结束递归
+        if(left->val != right->val) return false;   // 不符合, 结束递归
+        // 两颗子树的根节点都不为空, 且值相等
+        // 要确定这两颗树互相反转, 除了这两棵树的根节点, 还要确保左子树的左子树与左子树的右子树互相反转
+        // 左子树的右子树与右子树的左子树互相反转, 所以递归
+        return isRight(left->left, right->right) && isRight(left->right, right->left);
+    }
+};
+```
+
+迭代的思想也值得学习, 利用队列的话很像层序, 但每一层并不是从左向右, 而是抽出这一层的两个节点进行判断, 并入队列这两个节点的下一层的四个(这两个不为空的情况下), 也不复杂, 其实重点还是两个节点: 左的左和右的右 右的左和左的右这一点很重要, 这也是对称的根本!
+
+#### [104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
+
+> 区分深度和高度
+>
+> 二叉树的 **最大深度** 是指从根节点到最远叶子节点的最长路径上的节点数。   根节点
+>
+> 深度, 越往下越深：指从根节点到该节点的最长简单路径边的条数或者节点数  => 根节点 - 该节点  那么最大深度当然就是根节点到最远叶子节点了
+>
+> 高度, 越往上越高：指从该节点到叶子节点的最长简单路径边的条数或者节点数   => 该节点 - 叶子节点  (也就是下面的第一个后序解法)
+>
+> **而根节点的高度就是二叉树的最大深度**
+>
+> 前序求的就是深度，使用后序求的是高度。
+
+这是后序, 求的是高度
+
+```C++
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if(!root) return 0;
+        int leftDepth = maxDepth(root->left);
+        int rightDepth = maxDepth(root->right);
+        return 1 + max(leftDepth, rightDepth);
+        // 这里本质是后序, 也就是左右中, 而对中的操作其实就是结合左右的结果加一个1
+    }
+};
+```
+
+前序
+
+严格来说, 这里求的才是深度的, 也就是用max_depth记录最大的深度, 逐步向下前序递归, 遍历时处理方法很简单就是更新max_depth
+
+而每个节点的深度用参数depth来记录, 向下递归时要+1, 回溯回来要减1
+
+```C++
+class Solution {
+public:
+    int max_depth;
+    int maxDepth(TreeNode* root) {
+        max_depth = 0;
+        if(root == nullptr) return max_depth;
+        func(root, 1);
+        return max_depth;
+    }
+    void func(TreeNode *root, int depth) {
+        // 比如第一次进入, 是根节点, 深度为1, 没毛病, 且不为空
+        if(depth > max_depth) max_depth = depth;
+        if(!root->left && !root->right)  return;  // 终止递归
+        if(root->left) {
+            depth++;  // 深度+1, 进入下一层
+            func(root->left, depth);
+            depth--;  // 回溯, 深度减1
+        }
+        if(root->right) {
+            depth++;  // 深度+1, 进入下一层
+            func(root->right, depth);
+            depth--;  // 回溯, 深度-1
+        }
+        return;
+    }
+};
+```
+
+层序
+
+当然用层序也可以, 每经过一层depth++
+
 #### [111. 二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
 
 这个当然可以按照层序的思想, 每一层遍历, 当某一层第一次出现左右孩子为空时, 直接返回这一层的层数即可, 这也就是遍历到这个节点所经过的最小深度~
 
 但是我采用了递归的方式, 这里需要注意的是若左右孩子只有一个不为空时, 不能直接返回1 + min(min(minDepth(root->left), minDepth(root->right));) 因为为空的一方会直接返回0, 这样就大错特错了, 0一定比另一方小的, 且你某一孩子为空, 你还递归它干嘛, 这一定不符合条件啊, 所以只能递归不为空的那一方, 每一次返回都加一个1, 这样每经过一个节点都会加一个1, 最终也就是最小深度了
+
+可以看出：**求二叉树的最小深度和求二叉树的最大深度的差别主要在于处理左右孩子不为空的逻辑。**
+
+```C++
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if(root == nullptr) return 0;
+        int leftDepth = minDepth(root->left); // 左边深度, 可能为0, 也就是没有意义
+        int rightDepth = minDepth(root->right); // 右边深度
+        // 这里是为了体现出后序, 实际上这两个可能不使用, 也就是为空, 没意义
+        if(root->left && root->right) {
+            return 1 + min(leftDepth, rightDepth);
+        }
+        if(root->left) {
+            return 1 + leftDepth;
+        }
+        else if(root->right) {
+            return 1 + rightDepth;
+        }
+        return 1;
+    }
+};
+```
+
+其实逻辑就是 每经过一个节点加一个1, 但是需要注意的就是若左为空, 返回1 + 右递归
+
+前序:
+
+```C++
+class Solution {
+public:
+    int min_depth;
+    int minDepth(TreeNode* root) {
+        min_depth = INT_MAX;
+        if(root == nullptr) return 0;
+        func(root, 1);
+        return min_depth;
+    }
+    void func(TreeNode *root, int depth) {
+        // depth是当前深度
+        if(root == nullptr) return;
+        if(!root->left && !root->right) {
+            // 叶子节点
+            if(depth < min_depth) min_depth = depth;
+        }
+        // 有孩子
+        func(root->left, depth+1);
+        func(root->right, depth+1);
+        // 这里可以不考虑直接递归, 是因为如果是空不做任何事就会返回
+        // 但如果想减少递归次数, 则可以判断一下
+    }
+};
+```
+
+真的太清楚了, 明朗了很多
+
+其实目的还是找一个叶子节点, 用min_depth记录就很方便, 前序就是先处理: 先判断嘛, 叶子节点就尝试更新
+
+然后递归, 这里不用判断(可以判断)是否为空, 因为递归进入也不会更新为0或者不恰当的值!!!!!
+
+#### [222. 完全二叉树的节点个数](https://leetcode.cn/problems/count-complete-tree-nodes/)
+
+这题就别想着递归遍历了, 时间复杂度不符合, 要利用完全二叉树的性质!
+
+完全二叉树要么是满二叉树要么不是满二叉树
+
+先判断这颗子树是不是满, 如果是, 则直接用公式求这颗子树的节点个数
+
+若不是, 则返回1 + 递归左 + 递归右
+
+每一次递归都是这样, 若满, 则直接求, 不满则递归, 最终当只有一个节点时, 就会符合满二叉树的性质~
+
+满二叉树  n = 2^(depth) - 1
