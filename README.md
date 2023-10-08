@@ -344,3 +344,27 @@ public:
 两个版本, 一个详细回溯版, 一个简略版
 
 核心就是一个前序即可, 之前就说过了前序求深度最合适
+
+#### [112. 路径总和](https://leetcode.cn/problems/path-sum/)
+
+前序, 要么空终止递归, 要么自己是叶子且值符合则成功, 否则递归左右子树, 没啥难的
+
+深度优先遍历!!!!!!
+
+```C++
+class Solution {
+public:
+    bool hasPathSum(TreeNode* root, int targetSum) {
+        return func(root, 0, targetSum);
+    }
+    bool func(TreeNode *root, int sum, int targetSum) {
+        if(root == nullptr) return false;
+        sum += root->val;
+        if(!root->left && !root->right && sum == targetSum) return true;
+        // 继续递归
+        bool b1 = func(root->left, sum, targetSum);
+        bool b2 = func(root->right, sum, targetSum);
+        return b1 || b2;
+    }
+};
+```
