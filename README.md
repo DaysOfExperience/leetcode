@@ -776,4 +776,37 @@ public:
 
 #### [538. 把二叉搜索树转换为累加树](https://leetcode.cn/problems/convert-bst-to-greater-tree/)
 
-反中序即可= =
+反中序即可= =, 还有就是其实不用维护vector
+
+#### [543. 二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/)
+
+这个题来说, 最先需要搞清楚的是直径怎么计算, 其实对于任何一个根节点来说, 经过此根节点的路径, 一定是左子树的最深节点到右子树的最深节点, 经过这个根节点的最长路径一定是这样的, 而对于整颗树来说, 最长路径可能并不经过根节点, 但是一定经过某颗子树的根节点!!!!
+
+
+
+所以, 后序遍历, 每个根节点求出左子树的最深叶子节点到根节点的节点个数, 右子树的最深叶子节点到根节点的个数
+
+而路径 = left + right + 1 - 1 第一个1是根节点, 第二个1是路径的边数 = 总节点个数 - 1
+
+说真的, 对后序回溯越来越熟练了, 而这个题最好的解法就是从下往上处理, 而不是从上往下, 因为前序从上往下时, 到了一个根节点并不知道这个子树的情况, 后序就很棒了
+
+思考的时候可以思考叶子节点的后序是怎么一个过程, 也就是空结点返回0, 而叶子节点以及其他节点当然就要返回1(自己) + max(leftNum, rightNum)了, 这样给父节点的就是这颗子树的最长的路径中的节点的个数!!!!
+
+```C++
+class Solution {
+public:
+    int max = -1;
+    int diameterOfBinaryTree(TreeNode* root) {
+        func(root);
+        return max;
+    }
+    int func(TreeNode *root) {
+        if(root == nullptr) return 0;
+        int leftDepth = func(root->left);  // 左子树中最长的有leftDepth个节点组成的路径(不包含自己)
+        int rightDepth = func(root->right);  // 右子树中最长的有rightDepth个节点组成的路径(不包含自己)
+        if(leftDepth + rightDepth > max) max = leftDepth + rightDepth;
+        return 1 + std::max(leftDepth, rightDepth);
+    }
+};
+```
+
