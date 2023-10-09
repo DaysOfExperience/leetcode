@@ -412,3 +412,57 @@ public:
 如果一方为空, 一方不为空, 是直接返回这个不为空的, 还是自己再复制一个新的这个不为空的
 
 如果后者, 就是完全构造一个新的二叉树出来~ 我都写了
+
+#### [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/)
+
+对于一般二叉树，递归过程中还有回溯的过程，例如走一个左方向的分支走到头了，那么要调头，在走右分支。
+
+而**对于二叉搜索树，不需要回溯的过程，因为节点的有序性就帮我们确定了搜索的方向。**
+
+例如要搜索元素为3的节点，**我们不需要搜索其他节点，也不需要做回溯，查找的路径已经规划好了。**
+
+中间节点如果大于3就向左走，如果小于3就向右走
+
+
+
+二叉搜索树的迭代不需要栈和队列, 因为二叉搜索树的搜索路径是确定的, 因为它本身的性质, 所以直接一路往下走即可
+
+#### [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
+
+```C++
+class Solution {
+public:
+    bool isValidBST(TreeNode* root) {
+        if(root == nullptr) return true;  // 终止
+        if((root->left != nullptr && root->left->val >= root->val)
+        || (root->right != nullptr && root->right->val <= root->val)) return false;  // 遍历操作
+        bool b1 = isValidBST(root->left);
+        bool b2 = isValidBST(root->right);
+        return b1 && b2;
+    }
+};
+```
+
+大错特错, 典中典的错误, 因为你不能通过每个节点的左右孩子符合就判断出整棵树符合, 因为完全可能右孩子大于自己, 但是右孩子的左孩子不大于自己, 且小于右孩子, 这样就典型的错误了.
+
+<img src="C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231009120557100.png" alt="image-20231009120557100" style="zoom:50%;" />
+
+正确解法: 利用搜索树的中序有序
+
+```C++
+class Solution {
+public:
+    TreeNode *pre = nullptr;
+    bool isValidBST(TreeNode* root) {
+        if(root == nullptr) return true;
+        bool b1 = isValidBST(root->left);
+        if(pre != nullptr && root->val <= pre->val) return false;
+        // 当前节点大于中序上一个, 则更新, 不管是第一个还是不是第一个都需要更新的
+        pre = root;
+        bool b2 = isValidBST(root->right);
+        return b1 && b2;
+    }
+};
+```
+
+中序遍历, 记录上一个中序的非空节点, 判断当前节点是否>中序上一个, 若有一个不符合则错误, 若都符合则正确
