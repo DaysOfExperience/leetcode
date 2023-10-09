@@ -576,3 +576,79 @@ public:
 不管怎样, 都直接返回这个不为空的, 若只有一个, 则这个节点的上方的另一边也会收到不为空
 
 若pq都在里面, 则一路向上返回即可, 好好想一下这个过程其实不难, 但是很难自己一开始就想到
+
+---
+
+这个还有一个思路: 就是, 直接求出pq的从根节点到它的路径, 存在一个vector里面, 然后相当于解决链表相交的问题
+
+#### [235. 二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+
+从根节点往下走的第一个符合中间值的节点一定是最近公共祖先
+
+这个道理很简单啊, 为什么我最开始没有想到呢?
+
+且根本不需要遍历左右子树, 因为可以判断往哪边走!
+
+1. 自己最开始想到的, 其实没啥问题, 从上往下嘛, 第一个就是最近公共祖先, 但是问题是我没有意识到可能存在相等的情况哈哈
+   其次是我没有利用二叉搜索树的性质简化递归过程
+
+```C++
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(root == nullptr) return nullptr;
+        if((root->val >= p->val && root->val <= q->val)
+        || (root->val <= p->val && root->val >= q->val)) {
+            return root;
+        }
+        auto ret = lowestCommonAncestor(root->left, p, q);
+        if(ret) return ret;
+        ret = lowestCommonAncestor(root->right, p, q);
+        return ret;
+    }
+};
+```
+
+```C++
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(root == nullptr) return nullptr;
+        if((root->val >= p->val && root->val <= q->val)
+        || (root->val <= p->val && root->val >= q->val)) {
+            return root;
+        }
+        if(root->val < p->val && root->val < q->val)
+            return lowestCommonAncestor(root->right, p, q);
+        if(root->val > p->val && root->val > q->val)
+            return lowestCommonAncestor(root->left, p, q);
+        return nullptr;  // bukeneng
+    }
+};
+```
+
+2. 迭代
+
+```C++
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        // 迭代法
+        while(true) {
+            if((root->val >= p->val && root->val <= q->val)
+            || (root->val <= p->val && root->val >= q->val)) {
+                return root;
+            }  // 此时一定是最高的, 也就是最近的公共祖先
+            // 比这个低的也可能符合条件, 但完全可能不是公共祖先
+            if(root->val < p->val && root->val < q->val) {
+                root = root->right;
+            }
+            if(root->val > p->val && root->val > q->val) {
+                root = root->left;
+            }
+        }
+    }
+};
+```
+
+所以, 几乎搜索树的很多问题都可以利用搜索树的性质来决定下次去左子树还是右子树, 不需要像普通二叉树那样
