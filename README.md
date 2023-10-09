@@ -466,3 +466,113 @@ public:
 ```
 
 中序遍历, 记录上一个中序的非空节点, 判断当前节点是否>中序上一个, 若有一个不符合则错误, 若都符合则正确
+
+#### [530. 二叉搜索树的最小绝对差](https://leetcode.cn/problems/minimum-absolute-difference-in-bst/)
+
+题目中要求在二叉搜索树上任意两节点的差的绝对值的最小值。
+
+**注意是二叉搜索树**，二叉搜索树可是有序的。
+
+遇到在二叉搜索树上求什么最值啊，差值之类的，就把它想成在一个有序数组上求最值，求差值，这样就简单多了。
+
+**遇到在二叉搜索树上求什么最值，求差值之类的，都要思考一下二叉搜索树可是有序的，要利用好这一特点。**
+
+同时要学会在递归遍历的过程中如何记录前后两个指针，这也是一个小技巧，学会了还是很受用的。
+
+#### [501. 二叉搜索树中的众数](https://leetcode.cn/problems/find-mode-in-binary-search-tree/)
+
+思路1 : 维护一个哈希表, 记录频率, 记录最大频率 但是需要额外空间
+
+思路2: 中序有序
+
+#### [236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
+
+遇到这个题目首先想的是要是能自底向上查找就好了，这样就可以找到公共祖先了。
+
+那么二叉树如何可以自底向上查找呢？
+
+回溯啊，二叉树回溯的过程就是从低到上。
+
+后序遍历（左右中）就是天然的回溯过程，可以根据左右子树的返回值，来处理中节点的逻辑。
+
+判断逻辑是 如果递归遍历遇到q，就将q返回，遇到p 就将p返回，那么如果 左右子树的返回值都不为空，说明此时的中节点，一定是q 和p 的最近祖先。
+
+---
+
+一个点很重要: 就是最近公共祖先的左子树(包括自己)有p/q 而右子树(包括自己)有q/p, 这是一定的,  且只有一个这样的节点存在, 但凡不是最近公共祖先, 都不会满足这个条件!!!!
+
+下面这个是自己写的
+
+```C++
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(root == nullptr) return nullptr;
+        if((root == p && hasNode(root, q))
+        || (root == q && hasNode(root, p))) {
+            return root;
+        }
+        else if((hasNode(root->left, p) && hasNode(root->right, q))
+        || (hasNode(root->left, q) && hasNode(root->right, p))) {
+            return root;
+        }
+        // 该节点不是最近公共祖先
+        TreeNode *r1 = lowestCommonAncestor(root->left, p, q);
+        if(r1 != nullptr) return r1;
+        TreeNode *r2 = lowestCommonAncestor(root->right, p, q);
+        return r2;
+    }
+    bool hasNode(TreeNode *root, TreeNode *target) {
+        // 判断root这颗树中是否有target
+        if(root == nullptr) return false;
+        if(root == target) return true;
+        // 根节点不是
+        // 前序
+        bool b1 = hasNode(root->left, target);
+        bool b2 = hasNode(root->right, target);
+        return b1 || b2;
+    }
+};
+```
+
+这个是比较好理解的, 前序遍历每个, 对每个都进行判断, 时间复杂度可能会很高
+
+```C++
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        // 后序回溯法
+        // 要么到了空结点, 要么自己就是目标节点
+        if(root == nullptr || root == p || root == q) return root;
+        // 没空, 且自己不是目标节点
+        TreeNode *left = lowestCommonAncestor(root->left, p, q);
+        TreeNode *right = lowestCommonAncestor(root->right, p, q);
+        // 左找到了一个, 右找到了一个(不会重复), 则自己就是最近公共祖先
+        if(left && right) return root;    
+        // 左没找到, 右找到了, 返回右
+        else if(!left && right) return right;
+        // 反之亦然
+        else if(left && !right) return left;
+        // 左右都没找到, 返回空
+        else return nullptr;
+    }
+};
+```
+
+这里是后序回溯法,  因为后序的回溯本身就是从下往上进行处理, 根据左右子树的返回情况, 来最终确定自己的返回值
+
+
+
+具体来说
+
+每个节点都是先看自己是不是pq之一, 是直接返回, 或者到了空也返回.
+
+那, 如果自己不是, 则要看左右情况, 所以后序先进行左右递归
+
+若左右都不是空, 说明左右各有一个p/q, 则自己就是最近公共祖先
+
+若左右有一个为空, 一个不为空, 此时情况不好说, 因为可能两个都在这个不为空的子树中, 也有可能只有p/q之一在里面
+
+不管怎样, 都直接返回这个不为空的, 若只有一个, 则这个节点的上方的另一边也会收到不为空
+
+若pq都在里面, 则一路向上返回即可, 好好想一下这个过程其实不难, 但是很难自己一开始就想到
