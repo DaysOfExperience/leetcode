@@ -773,3 +773,7 @@ public:
 > 所以可以这么写：`int mid = left + ((right - left) / 2);`
 
 上方内容指的是另外写一个函数进行递归处理 记得保持边界不变量, 左闭右闭 左闭右开, 要始终统一!
+
+#### [538. 把二叉搜索树转换为累加树](https://leetcode.cn/problems/convert-bst-to-greater-tree/)
+
+反中序即可= =
