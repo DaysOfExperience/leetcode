@@ -707,3 +707,26 @@ public:
 };
 ```
 
+下面是双指针的迭代法, 其实也是我记得搜索树中最初实现的insert的写法
+
+但是我感觉不如我最开始写的迭代法好理解, 因为这里需要维护cur 和 parent
+
+```C++
+class Solution {
+public:
+    TreeNode* insertIntoBST(TreeNode* root, int val) {
+        if(root == nullptr) return new TreeNode(val);
+        TreeNode *cur = root;
+        TreeNode *parent = nullptr;
+        while(cur) {
+            parent = cur;
+            if(val > cur->val) cur = cur->right;
+            else cur = cur->left;
+        }
+        if(val > parent->val) parent->right = new TreeNode(val);
+        else parent->left = new TreeNode(val);
+        return root;
+    }
+};
+```
+
