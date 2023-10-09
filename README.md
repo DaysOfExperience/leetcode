@@ -652,3 +652,58 @@ public:
 ```
 
 所以, 几乎搜索树的很多问题都可以利用搜索树的性质来决定下次去左子树还是右子树, 不需要像普通二叉树那样
+
+> 对于二叉搜索树的最近祖先问题，其实要比[普通二叉树公共祖先问题](https://programmercarl.com/0236.二叉树的最近公共祖先.html)简单的多。
+>
+> 不用使用回溯，二叉搜索树自带方向性，可以方便的从上向下查找目标区间，遇到目标区间内的节点，直接返回。
+>
+> 最后给出了对应的迭代法，二叉搜索树的迭代法甚至比递归更容易理解，也是因为其有序性（自带方向性），按照目标区间找就行了。
+
+#### [701. 二叉搜索树中的插入操作](https://leetcode.cn/problems/insert-into-a-binary-search-tree/)
+
+这完全就是搜索树的插入啊, 我之前实现过的, 但是竟然第一时间不会了= =
+
+稍微想了一下, 就ok了, 其实我之前的问题是 , 这个点可以在很多地方, 但是方便起见, 直到找到一个目标位置为空的, 即可很方便的插入
+
+迭代递归都有, 不难....
+
+```C++
+class Solution {
+public:
+    TreeNode* insertIntoBST(TreeNode* root, int val) {
+        if(root == nullptr) return new TreeNode(val);
+        insert(root, val);
+        return root;
+    }
+    void insert(TreeNode *cur, int val) {
+        if(val > cur->val && cur->right == nullptr) {
+            cur->right = new TreeNode(val);
+            return;
+        } else if(val < cur->val && cur->left == nullptr) {
+            cur->left = new TreeNode(val);
+            return;
+        }
+        if(val > cur->val) insert(cur->right, val);
+        else insert(cur->left, val);
+    }
+};
+```
+
+上面是自己写的
+
+下面是另一种写法, 其实不如我自己写的好理解
+
+```C++
+class Solution {
+public:
+    TreeNode* insertIntoBST(TreeNode* root, int val) {
+        if(root == nullptr) {
+            return new TreeNode(val);
+        }
+        if(val > root->val) root->right = insertIntoBST(root->right, val);
+        else root->left = insertIntoBST(root->left, val);
+        return root;
+    }
+};
+```
+
