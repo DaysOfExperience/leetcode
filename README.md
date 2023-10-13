@@ -1,6 +1,6 @@
 # 数组
 
-## [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
+### [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
 
 暴力解法O(N^2)
 
@@ -22,7 +22,7 @@
 
 # 栈与队列
 
-## [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
+### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
 
 滑动窗口向右滑动, 取出滑动窗口的最大值.
 
@@ -40,13 +40,13 @@ get_max: 获取当前滑动窗口最大值的操作直接获取front即可
 
 # 二叉树
 
-## [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
+### [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
 
 只需要遍历每个节点, 操作是swap左右孩子即可, 所以直接递归前序即可(后序, 层序都可以)
 
 递归的中序不可以, 为什么呢?
 
-## [101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/)
+### [101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/)
 
 之前的问题是: 我可以做到判断当前根节点的左右子树的两个根节点是否符合条件, 但是我总不能递归左根节点的左右孩子 / 右根节点的左右孩子吧? 因为这根本不对啊, 我不要求左右孩子的左右孩子是符合条件的, 而是要求左孩子的右孩子与右孩子的左孩子符合条件, 哈哈, 那这样不就成了吗
 
@@ -74,7 +74,7 @@ public:
 
 迭代的思想也值得学习, 利用队列的话很像层序, 但每一层并不是从左向右, 而是抽出这一层的两个节点进行判断, 并入队列这两个节点的下一层的四个(这两个不为空的情况下), 也不复杂, 其实重点还是两个节点: 左的左和右的右 右的左和左的右这一点很重要, 这也是对称的根本!
 
-## [104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
+### [104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
 
 > 区分深度和高度
 >
@@ -146,7 +146,7 @@ public:
 >
 > 前序是深度, 是从顶部开始计算的, 从上往下, 也就是从根节点向下, 下面 深
 
-## [111. 二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
+### [111. 二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
 
 这个当然可以按照层序的思想, 每一层遍历, 当某一层第一次出现左右孩子为空时, 直接返回这一层的层数即可, 这也就是遍历到这个节点所经过的最小深度~
 
@@ -216,7 +216,7 @@ public:
 
 然后递归, 这里不用判断(可以判断)是否为空, 因为递归进入也不会更新为0或者不恰当的值!!!!!
 
-## [222. 完全二叉树的节点个数](https://leetcode.cn/problems/count-complete-tree-nodes/)
+### [222. 完全二叉树的节点个数](https://leetcode.cn/problems/count-complete-tree-nodes/)
 
 这题就别想着递归遍历了, 时间复杂度不符合, 要利用完全二叉树的性质!
 
@@ -232,7 +232,7 @@ public:
 
 > 求深度可以从上到下去查 所以需要前序遍历（中左右），而高度只能从下到上去查，所以只能后序遍历（左右中）
 
-## [257. 二叉树的所有路径](https://leetcode.cn/problems/binary-tree-paths/)
+### [257. 二叉树的所有路径](https://leetcode.cn/problems/binary-tree-paths/)
 
 > 新的感悟: 前序是从上到下的遍历, 而后序大体是从下到上的, 所以, 像这种题注定是要用前序的, 因为字符串要从上到下遍历的时候累加, 到了叶子节点或者空结点终止遍历
 
@@ -319,7 +319,7 @@ public:
 
 写的真不错呀
 
-## [404. 左叶子之和](https://leetcode.cn/problems/sum-of-left-leaves/)
+### [404. 左叶子之和](https://leetcode.cn/problems/sum-of-left-leaves/)
 
 没难度, 前序即可
 
@@ -331,7 +331,7 @@ public:
 >
 > 希望通过这道题目，可以扩展大家对二叉树的解题思路。
 
-## [513. 找树左下角的值](https://leetcode.cn/problems/find-bottom-left-tree-value/)
+### [513. 找树左下角的值](https://leetcode.cn/problems/find-bottom-left-tree-value/)
 
 第一反应: 层序可以= =, 最后一层的第一个即可
 
@@ -345,7 +345,7 @@ public:
 
 核心就是一个前序即可, 之前就说过了前序求深度最合适
 
-## [112. 路径总和](https://leetcode.cn/problems/path-sum/)
+### [112. 路径总和](https://leetcode.cn/problems/path-sum/)
 
 前序
 
@@ -373,7 +373,7 @@ public:
 };
 ```
 
-## [106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
+### [106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
 
 ![image-20231008205858998](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231008205858998.png)
 
@@ -389,15 +389,13 @@ public:
 
 > 其实还是递归的思路, 首先我可以把根节点构造出来, 那么这个函数的参数就是两个数组, 我再把左右子树的数组找出来, 就可以递归构建了
 
-## [654. 最大二叉树](https://leetcode.cn/problems/maximum-binary-tree/)
+### [654. 最大二叉树](https://leetcode.cn/problems/maximum-binary-tree/)
 
 输入是一个数组, 那么, 找到根之后构建根节点, 递归的思路很显然就可以想到, 找出左右子树的数组就可以递归了
 
 最终的叶子节点的左右子树的数组为空, 这其实也是递归的终止条件嘛, 返回nullptr即可
 
 每次递归都是 : 构建根节点, 递归左右子树, 就是这样的
-
-## [654. 最大二叉树](https://leetcode.cn/problems/maximum-binary-tree/)
 
 说实话没啥难度, 只是可以再稍微优化一下, 不用构造新的数组, 直接在原数组中处理
 
@@ -407,13 +405,13 @@ public:
 >
 > 其实就是不同代码风格的实现，**一般情况来说：如果让空节点（空指针）进入递归，就不加if，如果不让空节点进入递归，就加if限制一下， 终止条件也会相应的调整。**
 
-## [617. 合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/)
+### [617. 合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/)
 
 如果一方为空, 一方不为空, 是直接返回这个不为空的, 还是自己再复制一个新的这个不为空的
 
 如果后者, 就是完全构造一个新的二叉树出来~ 我都写了
 
-## [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/)
+### [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/)
 
 对于一般二叉树，递归过程中还有回溯的过程，例如走一个左方向的分支走到头了，那么要调头，在走右分支。
 
@@ -427,7 +425,7 @@ public:
 
 二叉搜索树的迭代不需要栈和队列, 因为二叉搜索树的搜索路径是确定的, 因为它本身的性质, 所以直接一路往下走即可
 
-## [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
+### [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
 
 ```C++
 class Solution {
@@ -467,7 +465,7 @@ public:
 
 中序遍历, 记录上一个中序的非空节点, 判断当前节点是否>中序上一个, 若有一个不符合则错误, 若都符合则正确
 
-## [530. 二叉搜索树的最小绝对差](https://leetcode.cn/problems/minimum-absolute-difference-in-bst/)
+### [530. 二叉搜索树的最小绝对差](https://leetcode.cn/problems/minimum-absolute-difference-in-bst/)
 
 题目中要求在二叉搜索树上任意两节点的差的绝对值的最小值。
 
@@ -479,13 +477,13 @@ public:
 
 同时要学会在递归遍历的过程中如何记录前后两个指针，这也是一个小技巧，学会了还是很受用的。
 
-## [501. 二叉搜索树中的众数](https://leetcode.cn/problems/find-mode-in-binary-search-tree/)
+### [501. 二叉搜索树中的众数](https://leetcode.cn/problems/find-mode-in-binary-search-tree/)
 
 思路1 : 维护一个哈希表, 记录频率, 记录最大频率 但是需要额外空间
 
 思路2: 中序有序
 
-## [236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
+### [236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
 
 遇到这个题目首先想的是要是能自底向上查找就好了，这样就可以找到公共祖先了。
 
@@ -581,7 +579,7 @@ public:
 
 这个还有一个思路: 就是, 直接求出pq的从根节点到它的路径, 存在一个vector里面, 然后相当于解决链表相交的问题
 
-## [235. 二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+### [235. 二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 从根节点往下走的第一个符合中间值的节点一定是最近公共祖先
 
@@ -659,7 +657,7 @@ public:
 >
 > 最后给出了对应的迭代法，二叉搜索树的迭代法甚至比递归更容易理解，也是因为其有序性（自带方向性），按照目标区间找就行了。
 
-## [701. 二叉搜索树中的插入操作](https://leetcode.cn/problems/insert-into-a-binary-search-tree/)
+### [701. 二叉搜索树中的插入操作](https://leetcode.cn/problems/insert-into-a-binary-search-tree/)
 
 这完全就是搜索树的插入啊, 我之前实现过的, 但是竟然第一时间不会了= =
 
@@ -730,7 +728,7 @@ public:
 };
 ```
 
-## [450. 删除二叉搜索树中的节点](https://leetcode.cn/problems/delete-node-in-a-bst/)
+### [450. 删除二叉搜索树中的节点](https://leetcode.cn/problems/delete-node-in-a-bst/)
 
 两种, 一种迭代删除, 也是最原始的
 
@@ -742,7 +740,7 @@ public:
 
 而递归法不需要记录父节点, 递归到要删除的节点时, 直接把当前这个root删掉, 然后返回应该返回的, 而具体返回什么就要看root的孩子的情况了~
 
-## [669. 修剪二叉搜索树](https://leetcode.cn/problems/trim-a-binary-search-tree/)
+### [669. 修剪二叉搜索树](https://leetcode.cn/problems/trim-a-binary-search-tree/)
 
 思路:
 
@@ -758,7 +756,7 @@ public:
 
 把这两个过程一想就清楚很多了
 
-## [108. 将有序数组转换为二叉搜索树](https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/)
+### [108. 将有序数组转换为二叉搜索树](https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/)
 
 高度平衡, 所以简单来说, 只要每棵树的左右都平衡, 整棵树就平衡了, 最多是左一个孩子, 右没有呗, 这样其实就是 12345
 
@@ -774,11 +772,11 @@ public:
 
 上方内容指的是另外写一个函数进行递归处理 记得保持边界不变量, 左闭右闭 左闭右开, 要始终统一!
 
-## [538. 把二叉搜索树转换为累加树](https://leetcode.cn/problems/convert-bst-to-greater-tree/)
+### [538. 把二叉搜索树转换为累加树](https://leetcode.cn/problems/convert-bst-to-greater-tree/)
 
 反中序即可= =, 还有就是其实不用维护vector
 
-## [543. 二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/)
+### [543. 二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/)
 
 这个题来说, 最先需要搞清楚的是直径怎么计算, 其实对于任何一个根节点来说, 经过此根节点的路径, 一定是左子树的最深节点到右子树的最深节点, 经过这个根节点的最长路径一定是这样的, 而对于整颗树来说, 最长路径可能并不经过根节点, 但是一定经过某颗子树的根节点!!!!
 
@@ -944,6 +942,24 @@ n*n 则dp 为n+2 * n+2 dp[i]\[j] 表示到达ij下标时的下降路径最小和
 
 状态表示: 为什么说多状态呢? 因为每个地方的dp值都有两个状态, 也就是, 选还是不选, 选的最大预约时长 , 不选的最大预约时长
 
-则每个下标都需要存储两个值, 选择该位置的情况下的最大预约时长, 不选该位置的情况下的最大预约时长
+则每个下标都对应存储两个值, 选择该位置的情况下的最大预约时长, 不选该位置的情况下的最大预约时长
 
 状态转移方程: 选的dp值 dp[i] = 不选上一个的最大预约时长 + 自己的值  不选的dp = 上一个的最大预约时长(两个状态的较大值) + 自己的值
+
+所以返回值也就是最后一个位置的两个状态的最大预约时长的较大值~
+
+> 关键在于, 其实如果前面一个位置的两个状态的最大值确定了, 那么后面一个位置的也就确定了, 因为根据状态转移方程得知每个位置的选或不选的最大结果都只和前一个位置有关, 所以层层后移推导, 就会得出最终结果~
+
+### [198. 打家劫舍](https://leetcode.cn/problems/house-robber/)
+
+和上一个一模一样=. =
+
+### [213. 打家劫舍 II](https://leetcode.cn/problems/house-robber-ii/)
+
+和上一个太像了, 唯一不同就是首尾连接
+
+思路是没想到的, 其实Ⅰ和Ⅱ的唯一区别就是, 比如0号偷, 那么尾是不受影响的, 只要n-2不偷, n-1就可以偷, 也就是0和n-1可以同时偷, 而打家劫舍Ⅱ中的首偷了, 则1和n-1都不能偷, 其实这就是唯一的区别的, 没有其他区别了!!!!  认识到这点很重要, 所以这个题可以转化为打家劫舍Ⅰ的问题
+
+所以, 0号偷, 则1 n-1不能偷, 中间的2 - n-2为线性问题, 转化为打家劫舍Ⅰ   而0号不偷, 则首尾不需要再注意了, 所以1 - n-1为线性问题
+
+这个思路确实牛, 没想到, 可以学习理解一下
