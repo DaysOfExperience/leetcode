@@ -1456,7 +1456,9 @@ public:
 };
 ```
 
+#### [646. 最长数对链](https://leetcode.cn/problems/maximum-length-of-pair-chain/)
 
+> 不会
 
 ### [1218. 最长定差子序列](https://leetcode.cn/problems/longest-arithmetic-subsequence-of-given-difference/)
 
@@ -1476,3 +1478,9 @@ public:
 所以, 用哈希表做dp能成功主要是因为这里的diff已经给了!!!!!
 
 ![image-20231015215143501](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231015215143501.png)
+
+### [873. 最长的斐波那契子序列的长度](https://leetcode.cn/problems/length-of-longest-fibonacci-subsequence/)
+
+这个dp表不能只存最长长度了, 因为i要遍历0 - i-1, 每个要存长度, 还有自己的这个最长序列的上一个的值, 然后才能判断是否符合斐波那契序列的条件
+
+其实之前也见过这样的题, 也就是除了dp值外, 还要存一些用于判断条件是否成立的值, 这是子序列问题的常见问题和套路
