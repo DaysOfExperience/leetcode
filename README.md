@@ -1398,3 +1398,61 @@ dp[i]是一个pair, first表示以i下标元素为结尾的最长摆动序列的
 和上一个题一样, 序列问题到i元素时都需要遍历0 - i-1, 当摆动条件符合(借助dp[i].second)时更新dp[i]的first和second
 
 这个second挺秒的, 主要是因为你这个序列的元素可能在原数组中不相邻, 所以摆动条件不好判断, 加个这个直接解决~
+
+### [673. 最长递增子序列的个数](https://leetcode.cn/problems/number-of-longest-increasing-subsequence/)
+
+状态表示:
+
+dp[i]是一个pair, pair之一的元素表示以i下标元素为结尾的最长递增子序列的个数, 这个完完全全可能不止一个 比如 1 3 5 4 7 则7的最长长度为4, 但是个数为2
+
+> 不对, 这个除了记录以i下标结尾的最长递增子序列的个数, 还要记录这个最长递增子序列的长度, 因为可能有多个元素的长度一样, 这样返回值就需要相加了,  这个其实用处很大
+
+但是不能只存储个数, 还要存储这个最长递增子序列的长度, 这是肯定的
+
+状态转移方程:
+
+> dp[i]这里, 因为是序列问题嘛, 所以肯定是要遍历0 - i-1的
+>
+> 若符合大于的关系, 则更新dp[i]呗, 这么简单???
+
+在求dp[i]时, 遍历0 - i-1
+
+没到一个元素, 记为j, 则先比较, 若大于, 也就是j为结尾的递增子序列此时来了一个新的值, 但是只有当这个新的长度大于i保存的最长底层子序列的长度时, dp[i]的记录的长度才需要更新, 因为存储的是最长的嘛
+
+除了大于, 当等于时也需要更新, 因为这里需要记录个数
+
+而每处理完一个dp[i], 就更新全局的最大长度和最大长度的子序列的个数, 最后直接返回这个个数~
+
+```C++
+class Solution {
+public:
+    int findNumberOfLIS(vector<int>& nums) {
+        int n = nums.size();
+        vector<pair<int, int>> dp(n, {1, 1});   // first: 个数, second: 长度
+        int max_num = dp[0].first;   // 总的最长递增子序列的个数
+        int max_len = dp[0].second;  // 整个数组中的最长递增子序列的长度
+        for(int i = 1; i < n; ++i) {
+            for(int j = i - 1; j >= 0; --j) {
+                if(nums[i] > nums[j]) {
+                    if(dp[j].second + 1 > dp[i].second) {
+                        dp[i].second = dp[j].second + 1;   // 新的更长的子序列
+                        dp[i].first = dp[j].first;  // 新的更长子序列的个数
+                    } else if(dp[j].second + 1 == dp[i].second) {
+                        dp[i].first += dp[j].first;
+                    }
+                }
+            }
+            // dp[i]处理完了
+            if(dp[i].second > max_len) { // 有了新的更长的子序列
+                max_len = dp[i].second;
+                max_num = dp[i].first;
+            }
+            else if(dp[i].second == max_len) {
+                max_num += dp[i].first;
+            }
+        }
+        return max_num;
+    }
+};
+```
+
