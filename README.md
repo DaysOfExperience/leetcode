@@ -1233,3 +1233,85 @@ fg数组都是二维的, 因为有两个因素: 哪一天, 具体哪个状态
 所以需要维护两个dp表
 
 并且这里还有一些情况, 当维护f表和g表时, 比如如果nums[i] > 0, 则g[i] 应该是g[i-1] + 1, 但是不能直接这样, 因为如果g[i-1]为0, 则g[i]应该为0, 而不是1, 这个我也考虑到了
+
+### [413. 等差数列划分](https://leetcode.cn/problems/arithmetic-slices/)
+
+状态表示: 以某元素为结尾, 巴拉巴拉
+
+dp[i] 表示 以i元素为结尾的等差数列的个数
+
+状态转移方程: 若nums[i] - nums[i - 1] == nums[i -  1] - nums[i - 2]; 则dp[i] = dp[i - 1] + 1;
+
+否则 dp[i] = 0;
+
+没错, 就是这么简单, 其实很简单啊, 如果确实三个元素等差, 则至少有一个新的吧, 然后dp[i-1]为以i-1为结尾的所有等差数列的个数, 这些等差数列都可以加一个nums[i]嘛, 所以就都变成了一个新的等差数列, 再加上一个三元素的, 所以就是dp[i - 1] + 1了
+
+即使dp[i - 1]=0, 也没事的, 如果条件成立就是一个新的呗
+
+### [978. 最长湍流子数组](https://leetcode.cn/problems/longest-turbulent-subarray/)
+
+> 首先明确什么是湍流子数组, 也就是元素之间的比较符号一直颠倒
+>
+> 若只有一个, 则一个也是
+>
+> 若两个, 且不相等, 就是2
+>
+> 若三个, 则必须相互颠倒了
+
+状态表示: dp[i]表示以i元素为结尾的最长湍流子数组
+
+```C++
+class Solution {
+public:
+    int maxTurbulenceSize(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> dp(n);
+        dp[0] = 1;
+        int m = dp[0];
+        for(int i = 1; i < n; ++i) {
+            if(dp[i - 1] == 1 && arr[i] != arr[i - 1]) dp[i] = 2;
+            else if(dp[i - 1] == 1 && arr[i] == arr[i - 1]) dp[i] = 1;
+            else {
+                // 不管是2, 3, 4都一样
+                // 1 5 2
+                if(arr[i] == arr[i - 1]) dp[i] = 1;
+                else if(arr[i] > arr[i - 1] && arr[i - 1] < arr[i - 2]) dp[i] = dp[i - 1] + 1;
+                else if(arr[i] < arr[i - 1] && arr[i - 1] > arr[i - 2]) dp[i] = dp[i - 1] + 1;
+                else dp[i] = 2;
+            }
+            if(dp[i] > m) m = dp[i];
+        }
+        return m;
+    }
+};
+```
+
+状态转移方程: 分情况, 其实上面写的还不错, 但是可能是有优化空间
+
+当nums[i] == nums[i - 1] 则直接dp[i] = 1; 不用考虑
+
+下面的就是不相等的情况下
+
+若dp[i-1] == 1则dp[i] = 2;
+
+若不是1, 则肯定>=2, 则直接湍流判断, 若成立 则dp[i] = dp[i-1] + 1 不成立, 则dp[i] = 2
+
+> 除非第一个元素, 或者前一个等于它, 不然不会是1的
+
+略微优化
+
+```C++
+if(arr[i] == arr[i - 1]) dp[i] = 1;
+else {
+    if(dp[i - 1] == 1) dp[i] = 2;
+    else {
+        // 不相等, 且dp[i - 1] != 1
+        if((arr[i] > arr[i - 1] && arr[i - 1] < arr[i - 2])
+        || (arr[i] < arr[i - 1] && arr[i - 1] > arr[i - 2]))
+            dp[i] = dp[i - 1] + 1;
+        else
+            dp[i] = 2;
+    }
+}
+```
+
