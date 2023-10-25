@@ -66,6 +66,12 @@
 
 挺有意思, 维护好up down left right就好, 这个是边界, 有四个方向的for, 从左到右up++, 从上到下right--, 从右到左down--, 从下到上left++, 四个for是一个大循环, 每一次for都有一个边界变换
 
+# 链表
+
+### [203. 移除链表元素](https://leetcode.cn/problems/remove-linked-list-elements/)
+
+秒了, 直接搞一个哨兵节点会好做很多, 每次判断当前节点的next即可
+
 # 栈与队列
 
 ### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
