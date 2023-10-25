@@ -72,6 +72,16 @@
 
 秒了, 直接搞一个哨兵节点会好做很多, 每次判断当前节点的next即可
 
+### [707. 设计链表](https://leetcode.cn/problems/design-linked-list/)
+
+浪费好长时间, 其实没什么问题, 主要是双向链表在初始化时, sentinel的next和prev要初始化为sentinel本身, 这样在链表为空时才好复用不为空时的头插和尾插代码
+
+也算是对链表操作的回顾吧, 其实不难, 就那样
+
+## [206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
+
+三个指针, prev cur next往后遍历就行了
+
 # 栈与队列
 
 ### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
