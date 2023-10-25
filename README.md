@@ -1,6 +1,6 @@
 # 数组
 
-## [704. 二分查找](https://leetcode.cn/problems/binary-search/)
+### [704. 二分查找](https://leetcode.cn/problems/binary-search/)
 
 > 二分查找涉及的很多的边界条件，逻辑比较简单，但就是写不好。例如到底是 `while(left < right)` 还是 `while(left <= right)`，到底是`right = middle`呢，还是要`right = middle - 1`呢？
 >
@@ -11,6 +11,18 @@
 二刷还是三刷了, 竟然还是不能一次过, 原因是没有在循环中更新mid...
 
 每次搜索区间都会变, 不更新mid可还行???? 不更新的话那不是妥妥的死循环吗?
+
+### [27. 移除元素](https://leetcode.cn/problems/remove-element/)
+
+双指针 - 快慢指针
+
+一个快指针, 遍历整个数组
+
+一个慢指针, 指向下一个非排除元素即将放入的位置
+
+> 直接秒了
+
+其实搞清楚这两个指针的职责, 就ok了
 
 ### [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
 
