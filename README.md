@@ -1,5 +1,17 @@
 # 数组
 
+## [704. 二分查找](https://leetcode.cn/problems/binary-search/)
+
+> 二分查找涉及的很多的边界条件，逻辑比较简单，但就是写不好。例如到底是 `while(left < right)` 还是 `while(left <= right)`，到底是`right = middle`呢，还是要`right = middle - 1`呢？
+>
+> 大家写二分法经常写乱，主要是因为**对区间的定义没有想清楚，区间的定义就是不变量**。要在二分查找的过程中，保持不变量，就是在while寻找中每一次边界的处理都要坚持根据区间的定义来操作，这就是**循环不变量**规则。
+>
+> 写二分法，区间的定义一般为两种，左闭右闭即[left, right]，或者左闭右开即[left, right)。
+
+二刷还是三刷了, 竟然还是不能一次过, 原因是没有在循环中更新mid...
+
+每次搜索区间都会变, 不更新mid可还行???? 不更新的话那不是妥妥的死循环吗?
+
 ### [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
 
 暴力解法O(N^2)
