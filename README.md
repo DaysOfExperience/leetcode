@@ -78,9 +78,106 @@
 
 也算是对链表操作的回顾吧, 其实不难, 就那样
 
-## [206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
+### [206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
 
 三个指针, prev cur next往后遍历就行了
+
+### [24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
+
+依旧是搞一个哨兵节点
+
+### [19. 删除链表的倒数第 N 个结点](https://leetcode.cn/problems/remove-nth-node-from-end-of-list/)
+
+这题一看就是俩解法
+
+1.计算总长度, 然后计算走几步可以到达第N个节点的前一个结点, 然后删除即可
+
+```C++
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        // 如果是先找总个数, 再走num - n - 1步, 找到要删除的结点的前一个
+        // 就不太容易了, 因为这种仅限于不删除头结点的情况下
+        // 若删除头结点, 则num=n
+        // 则走-1步显然不合适, 其实就是要找出头结点的前一个
+        // 所以, 如果非要采取这种方法, 设置哨兵结点是很合适的
+        // 此时只需要从哨兵结点开始走nnum-n步即可找到要删除结点的前一个结点
+        ListNode *sentinel = new ListNode(0, head);
+        int num = 0;
+        ListNode *cur = sentinel->next;
+        while(cur) {
+            ++num;
+            cur = cur->next;
+        }
+        // num个
+        // 走num - n - 1步, 从头结点开始
+        // 从哨兵开始, 则num - n步
+        num -= n;
+        cur = sentinel;
+        while(num--) {
+            cur = cur->next;
+        }
+        cur->next = cur->next->next;  // 内存泄漏= =
+        return sentinel->next;
+    }
+};
+```
+
+2.控制距离相等, 双指针
+
+比如删除倒数第2个, 就要找到倒数第3个, 如果一共5个, 删除倒数第5个, 就要找到倒数第6个, 没有, 就设置哨兵呗
+
+其实相比于第一种, 只是找前一个结点的方式变了
+
+### [面试题 02.07. 链表相交](https://leetcode.cn/problems/intersection-of-two-linked-lists-lcci/)
+
+没难度, 秒了
+
+先求两个的长度, 然后求差值, 然后较长的先走差值步, 然后再一起走, 直到相等, 可能为空, 那就没有相交, 可能不为空, 那就相交
+
+### [142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/)
+
+- set可以去重
+- 数学公式 - 不想搞
+- 先求一个环形内的结点, 然后直接把该节点与next断开, 以next为头, 另一条以head为头, 转化为链表相交问题
+
+# 哈希表
+
+### [242. 有效的字母异位词](https://leetcode.cn/problems/valid-anagram/)
+
+最简单的哈希, 26个字母对应数组的每个下标, 然后哈希统计即可, key就是下标, value就是出现的次数
+
+### [1002. 查找共用字符](https://leetcode.cn/problems/find-common-characters/)
+
+第一思路: 统计每个字符串中26个字母的出现次数, 然后每个字母都取这些出现次数里面的最小值即可
+
+这里可以维护n个vector, 每个vector, 26个元素, 初始化为0, 记录频率, n等于字符串的个数
+
+最后求这n个, 里面每个字母的出现频率的最小值即可, 然后插入最小值次数个对应字母生成的string到ret中
+
+```C++
+            while(min--) ret.push_back(string(1, 'a' + i));
+```
+
+这是插入一个char组成的string的方法
+
+### [349. 两个数组的交集](https://leetcode.cn/problems/intersection-of-two-arrays/)
+
+没难度, 用set / unordered_set都可以, 或者用原生数组也可以
+
+### [第202题. 快乐数](https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0202.快乐数.md#第202题-快乐数)
+
+用set去重, 这个题的关键是, 无限循环, 那么用set就是最合适的
+
+### [1. 两数之和](https://leetcode.cn/problems/two-sum/)
+
+利用哈希
+
+其实, 考虑的一个问题是, 如果有多个元素相等, 怎么办?
+
+其实没问题的, 比如现在要找3, 且过往有多个3, 没事的, 因为我们的目标是找到一个3即可, map只存后来的3的下标
+
+且这个题本身就说了只有一个正确答案
 
 # 栈与队列
 
