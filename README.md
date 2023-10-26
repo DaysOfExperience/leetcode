@@ -309,6 +309,67 @@ public:
 
 > 事实证明, 刷题还是很有用的, 我这次做, 几乎每一个细节都和上一次一样, 说明留下了印象, 起到了作用
 
+### [LCR 182. 动态口令](https://leetcode.cn/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/)
+
+做不了, 没题
+
+输入: s = "abcdefg", k = 2
+
+思路: 反转整体, gfedcba 然后最后k个进行反转, 整体减最后k个, 进行反转
+
+ok 过了
+
+```C++
+class Solution {
+public:
+    string dynamicPassword(string password, int target) {
+        func(password, 0, password.size());
+        int sub = password.size() - target;
+        func(password, 0, sub);
+        func(password, sub, password.size());
+        return password;
+    }
+    void func(string &s, int begin, int end) {
+        // 左闭右开
+        for(int l = begin, r = end - 1; l < r; ++l, --r) {
+            swap(s[l], s[r]);
+        }
+    }
+};
+```
+
+看起来还挺美丽的
+
+### [28. 实现 strStr()](https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0028.实现strStr.md#28-实现-strstr)
+
+?
+
+### [459.重复的子字符串](https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0459.重复的子字符串.md#459重复的子字符串)
+
+?
+
+# 双指针
+
+### [27. 移除元素](https://leetcode.cn/problems/remove-element/)
+
+### [344. 反转字符串](https://leetcode.cn/problems/reverse-string/)
+
+### 剑指offer替换空格
+
+### [151. 反转字符串中的单词](https://leetcode.cn/problems/reverse-words-in-a-string/)
+
+### [206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
+
+### [19. 删除链表的倒数第 N 个结点](https://leetcode.cn/problems/remove-nth-node-from-end-of-list/)
+
+### [面试题 02.07. 链表相交](https://leetcode.cn/problems/intersection-of-two-linked-lists-lcci/)
+
+### [142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/)
+
+### [15. 三数之和](https://leetcode.cn/problems/3sum/)
+
+### [18. 四数之和](https://leetcode.cn/problems/4sum/)
+
 # 栈与队列
 
 ### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
