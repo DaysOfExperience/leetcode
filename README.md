@@ -179,6 +179,72 @@ public:
 
 且这个题本身就说了只有一个正确答案
 
+### [454. 四数相加 II](https://leetcode.cn/problems/4sum-ii/)
+
+还是利用哈希, 两两一组, 思路直接就出来了
+
+其实就是四数相加为0, 转化为两数相加为0, 两个数组组成一个数组, 一个数字在两个数组中可能不止一个频率, 比如两个数组里面的23 下标和46下标的和都是一样的, 那么就是2次一样的数
+
+而如果剩下两个数组对应的值, 也有两次, 比如前两个数组的3出现2次, 后两个数组的-3出现2次, 那么3, -3组成的0 就一共出现4次
+
+所以主要的哈希是: key值 : value频率
+
+### [383. 赎金信](https://leetcode.cn/problems/ransom-note/)
+
+没意思了, 典型的26个小写字母, 记录频率, key字母 : value频率
+
+### [15. 三数之和](https://leetcode.cn/problems/3sum/)
+
+二刷有点坎坷
+
+先说思路: 三数之和等于0, 且三元组不能重复, 这里用的是双指针的思路: 先排序整个数组, 一个元素先遍历, 然后该元素右边的剩余元素为left 和 right的起始范围
+
+外面一个for, 里面的每个a是固定的, 然后双指针开始while循环, 条件是left < right
+
+每次循环: 如果小于0, 则应该增大, left++, 如果大于0, 则应该减小, right--
+
+但是这里有个点很重要, 就是需要进行去重, a去重很简单, 每次for进入时即可去重, bc去重需要在while里面
+
+如果大于0或者小于0, 此时left或right变化, 此时不需要考虑去重, 因为此时即使下一个重复, 依然会不等于0, 自动left或right移动
+
+其实去重, 指的是最终的结果中, 相加为0的三元组不能重复, 所以只需要在相加等于0时, 进行bc的去重逻辑即可
+
+当相加等于0, leftright都移动, 此时需要处理, 移动后bc仍不变的情况, 处理了这个情况, bc去重就处理好了
+
+直接两个while就解决了: 先left++ right--, 然后两个while, 即可
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<vector<int>> ret;
+        // -4 -4 -3 -2 -1 0 1 2 3 4 4 4 5 5 5
+        for(int i = 0; i < nums.size(); ++i) {
+            if(nums[i] > 0) break;
+            if(i != 0 && nums[i] == nums[i - 1]) continue;  // 去重a
+            int left = i + 1;
+            int right = nums.size() - 1;
+            while(left < right) {
+                int a = nums[i], b = nums[left], c = nums[right];
+                if(a + b + c > 0) right--;
+                else if(a + b + c < 0) left++;
+                // 即使下一次相等, bc其中之一和之前的重复, 也没事
+                else {
+                    // 相加等于0, 找到了目标三元组
+                    ret.push_back({a, b, c});
+                    left++;
+                    right--;
+                    while(left < right && nums[left] == nums[left - 1]) left++;
+                    while(left < right && nums[right] == nums[right + 1]) right--;
+                }
+            }
+        }
+        return ret;
+    }
+};
+```
+
 # 栈与队列
 
 ### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
