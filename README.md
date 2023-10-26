@@ -245,6 +245,50 @@ public:
 };
 ```
 
+### [18. 四数之和](https://leetcode.cn/problems/4sum/)
+
+是否可以借鉴上一题的经验?
+
+先排序, 然后一个i遍历, j从i + 1开始遍历, 这是n^2了, 然后剩余元素进行双指针操作, 可以?
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        vector<vector<int>> ret;
+        sort(nums.begin(), nums.end());
+        for(int i = 0; i < nums.size(); ++i) {
+            if(i != 0 && nums[i] == nums[i - 1]) continue;   // a去重
+            for(int j = i + 1; j < nums.size(); ++j) {
+                if(j != i + 1 && nums[j] == nums[j - 1]) continue;  // b去重
+                int left = j + 1;
+                int right = nums.size() - 1;
+                while(left < right) {
+                    int a = nums[i], b = nums[j], c = nums[left], d = nums[right];
+                    if((long)a + b + c + d < target) {
+                        left++;
+                    } else if((long)a + b + c + d > target) {
+                        right--;
+                    } else {
+                        // 找到了四元组
+                        ret.push_back({a, b, c, d});
+                        // 去重?
+                        left++;
+                        right--;
+                        // 此时可能移动后的值依旧等于之前的值
+                        while(left < right && nums[left] == nums[left - 1]) left++;
+                        while(left < right && nums[right] == nums[right + 1]) right--;
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+};
+```
+
+ 没错, 确实可以, 那么5数之和, 就是三个循环+双指针喽~
+
 # 栈与队列
 
 ### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
