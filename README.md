@@ -289,6 +289,26 @@ public:
 
  没错, 确实可以, 那么5数之和, 就是三个循环+双指针喽~
 
+# 字符串
+
+### [344. 反转字符串](https://leetcode.cn/problems/reverse-string/)
+
+.
+
+### [541. 反转字符串 II](https://leetcode.cn/problems/reverse-string-ii/)
+
+.
+
+### 剑指offer替换空格
+
+做不了
+
+### [151. 反转字符串中的单词](https://leetcode.cn/problems/reverse-words-in-a-string/)
+
+思路: 处理空格, 整体reverse, 再reverse每个单词即可
+
+> 事实证明, 刷题还是很有用的, 我这次做, 几乎每一个细节都和上一次一样, 说明留下了印象, 起到了作用
+
 # 栈与队列
 
 ### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
