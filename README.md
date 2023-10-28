@@ -239,6 +239,12 @@ public:
 
 老子终于过了, 妈的, 其实就是非递归版本的归并排序~
 
+也算是对归并排序进行了复习了, emmmm, 其实归并并不难的, 如果是递归版本就是很像二叉树的后序遍历, 也就是先左右后根节点
+
+非递归的话, 思路来说就是, 11归并, 22归并, 44归并, 也就是递归版是从上至下, 而非递归就是从下至上. 
+
+具体来说非递归现在来看就是有两个方法, 一种是最初学习的那种, 每次ii归并, 把两个begin, 两个end维护好, 然后处理边界. 如果是这个链表排序这里的话, 就只维护两个begin, 具体的end, 由两个计数来处理即可, 当然还要处理两个begin为空的情况, 这其实就是说明此次的ii归并, 并不足2*i个元素
+
 # 哈希表
 
 ### [242. 有效的字母异位词](https://leetcode.cn/problems/valid-anagram/)
@@ -386,6 +392,35 @@ public:
 ```
 
  没错, 确实可以, 那么5数之和, 就是三个循环+双指针喽~
+
+### [49. 字母异位词分组](https://leetcode.cn/problems/group-anagrams/)
+
+思路: 肯定要统计字符串的各个字母的个数, 然后组成一个vector<int\>, 但是, unordered_map的key可以是一个vector吗?
+
+如果可以, 那么就很简单了, key : vector<int\> value : vector<string\>   key是对应的单词组成, value是对应所有的字符串
+
+---
+
+重点:
+
+unordered_map本身并不支持vector<int\> 类型的key, 如果需要这样的key, 需要自己定义哈希函数
+
+```C++
+namespace std {
+    template <>
+    struct hash<std::vector<int>> {
+        size_t operator()(const std::vector<int>& v) const {
+            size_t hash = 0;
+            for (int elem : v) {
+                hash ^= std::hash<int>()(elem);
+            }
+            return hash;
+        }
+    };
+}
+```
+
+在std命名空间中, 加一个这样的自定义的哈希函数即可
 
 # 字符串
 
