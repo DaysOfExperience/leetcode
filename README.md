@@ -637,6 +637,18 @@ vector<pair<int, int>> 行不行? 感觉可以呀
 3. 求K个, 怎么保证堆里面只有K个? 其实很简单, 一直push就行, 当size > K时pop即可, 因为是小根堆, 所以K+1个, pop一个, 一定pop最小的, 留下的就是K个最大的!!!!!!!!!
 4. 大根堆的pop一定会pop最大的, 小根堆pop最小的, 这也是第一点的原因
 
+### [155. 最小栈](https://leetcode.cn/problems/min-stack/)
+
+.... 为什么还是不会???
+
+思路: stack存pair first是元素, second表示当该元素是栈顶元素, 即将pop时, 栈中的最小值
+
+因此, push就很简单了, first固定, second只需要判断栈中已有的所有元素中的最小值和当前元素哪个小, 取较小值即可
+
+pop很简单, top很简单, min也就依靠这个second实现了
+
+对呀, 这个其实很简单的啊?? = == = = = = = =
+
 # 二叉树
 
 ### [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
