@@ -578,6 +578,32 @@ ok, 过了, 现在有个注意点是, 如果现在已经满足条件, 则窗口�
 
 # 栈与队列
 
+### [232. 用栈实现队列](https://leetcode.cn/problems/implement-queue-using-stacks/)
+
+其实这种问题是很好思考的: 两个栈实现队列怎么实现? 栈的push, 先往一个栈里面入栈, 可是pop的时候, 要出栈低的, 无法直接出, 怎么办? 用另一个栈辅助呗: 把有元素的栈的所有元素入栈到另一个栈, 这时原本栈低的就在栈顶了
+
+入栈只在s1入, 出栈在s2出, 直到出栈时s2的元素没有了, 就s1的重新入到s2里面进行出栈
+
+### [225. 用队列实现栈](https://leetcode.cn/problems/implement-stack-using-queues/)
+
+两个队列实现栈, 一个队列先入呗, 考虑出的时候, 要队尾的, 怎么办? 只能出队头的, 那就出到只剩一个不就行了
+
+其实一个队列足矣, 也就是pop的时候, 把前面的n-1个元素都重新入到队尾即可喽. 两个队列就入到另一个队列中呗
+
+### [20. 有效的括号](https://leetcode.cn/problems/valid-parentheses/)
+
+我记得之前这个题踩过坑
+
+过了... 很简单啊, 其实稍微需要注意的就是"((((({{{"这种情况
+
+### [1047. 删除字符串中的所有相邻重复项](https://leetcode.cn/problems/remove-all-adjacent-duplicates-in-string/)
+
+easy, 典型的栈...
+
+### [150. 逆波兰表达式求值](https://leetcode.cn/problems/evaluate-reverse-polish-notation/)
+
+east, 典型的栈...
+
 ### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
 
 滑动窗口向右滑动, 取出滑动窗口的最大值.
@@ -593,6 +619,23 @@ pop: 如果要弹出的元素, 也就是滑动窗口右移之后不包含的元�
 get_max: 获取当前滑动窗口最大值的操作直接获取front即可
 
 每次如果新值是最小的, 直接入队列尾部即可, 因为之后窗口右移到以这个值为第一个值的时候, 它可能是最大的
+
+### [347. 前 K 个高频元素](https://leetcode.cn/problems/top-k-frequent-elements/)
+
+前K个高频元素, map, 记录频率, 然后求前K个最高频的, 怎么求?其实可以排序一下呀好像, 那如果用优先级队列, 也就是堆, 好像也行
+
+vector<pair<int, int>> 行不行? 感觉可以呀
+
+那如果是堆呢? 求最大的K个, 则小根堆, 求最小的K个, 则大根堆
+
+我他妈这个废物, priority_queue, 第三个参数, less大根堆, greater小根堆, 我为什么一直记不住????????????
+
+---
+
+1. 堆的知识: K个最大 小根堆, greater K个最小 大根堆, less
+2. priority_queue没有迭代器, 不能范围for
+3. 求K个, 怎么保证堆里面只有K个? 其实很简单, 一直push就行, 当size > K时pop即可, 它自然会保存K个最大的
+4. 优先级队列的pop一定会pop出当前所有中的最小的
 
 # 二叉树
 
