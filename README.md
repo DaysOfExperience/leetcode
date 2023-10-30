@@ -12,6 +12,10 @@
 
 每次搜索区间都会变, 不更新mid可还行???? 不更新的话那不是妥妥的死循环吗?
 
+### [35. 搜索插入位置](https://leetcode.cn/problems/search-insert-position/)
+
+比普通的二分多了一点条件判断
+
 ### [27. 移除元素](https://leetcode.cn/problems/remove-element/)
 
 思路一:
@@ -577,6 +581,16 @@ ok, 过了, 现在有个注意点是, 如果现在已经满足条件, 则窗口�
 ---
 
 上面两个题, 因为都是求子串的问题, 所以我都用到了队列这个结构, 一方面用vector来判断条件, 一方面用queue来记录子串, 这样其实这个queue也就是窗口, 也方便右移, 只需要pop即可, 因为队列先进先出
+
+# 二分查找
+
+### [35. 搜索插入位置](https://leetcode.cn/problems/search-insert-position/)
+
+### [74. 搜索二维矩阵](https://leetcode.cn/problems/search-a-2d-matrix/)
+
+两个思路: 1. 直接在二维矩阵中找   2. 把二维先搞成一维
+
+过了. 每一行挨个二分就行
 
 # 栈与队列
 
