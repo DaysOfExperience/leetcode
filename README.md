@@ -715,6 +715,12 @@ public:
 
 = =, 纯纯的单调递增栈问题, 也就是求每个元素的右边第一个比它大的元素, 不是求距离, 而是求第一个比它大的那个值, 没有区别
 
+### [503. 下一个更大元素 II](https://leetcode.cn/problems/next-greater-element-ii/)
+
+....没差别啊, 直接数组扩容二倍不就行了, 最后ret.resize(nums.size() / 2);
+
+= = 
+
 # 二叉树
 
 ### [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
