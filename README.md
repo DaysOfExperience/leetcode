@@ -689,6 +689,26 @@ ok 过了, 怎么说呢... 其实不算特别难, 但是很多小细节需要处
 
 ---
 
+```C++
+class Solution {
+public:
+    vector<int> dailyTemperatures(vector<int>& temperatures) {
+        stack<int> st;
+        vector<int> ret(temperatures.size(), 0);
+        for(int i = 0; i < temperatures.size(); ++i) {
+            while(!st.empty() && temperatures[i] > temperatures[st.top()]) {
+                // 栈不为空, 且栈顶元素 < 新元素
+                // 栈顶元素的右边第一个比它大的找到了, 就是这个新元素
+                ret[st.top()] = i - st.top();
+                st.pop();
+            }
+            st.push(i);   // 此时要么栈为空, 要么栈顶元素 >= 新元素, 这就是单调递增栈
+        }
+        return ret;
+    }
+};
+```
+
 
 
 # 二叉树
