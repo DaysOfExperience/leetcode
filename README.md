@@ -522,6 +522,8 @@ public:
 
 ### [18. 四数之和](https://leetcode.cn/problems/4sum/)
 
+### [42. 接雨水](https://leetcode.cn/problems/trapping-rain-water/)
+
 # 滑动窗口
 
 ### [3. 无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)
@@ -659,6 +661,8 @@ ok 过了, 怎么说呢... 其实不算特别难, 但是很多小细节需要处
 
 也就是每次遇到], 就处理一下, 然后得到一个结果, 现在需要考虑的是, 可能这个是另一个的string的一部分, 然后整体再乘倍数, 那如果不是, 其实就是最终字符串的一部分了, 这个使用stack就可以完美处理掉, 就是我也不知道这是其他的一部分还是最终的一部分, 无妨, 利用stack就可以完美解决
 
+## 单调栈
+
 ### [739. 每日温度](https://leetcode.cn/problems/daily-temperatures/)
 
 <u>**单调栈: 用于求解当前元素左面或者右面第一个比他大或者第一个比他小的元素!!!!!!**</u>
@@ -719,7 +723,13 @@ public:
 
 ....没差别啊, 直接数组扩容二倍不就行了, 最后ret.resize(nums.size() / 2);
 
-= = 
+### [42. 接雨水](https://leetcode.cn/problems/trapping-rain-water/)
+
+用单调栈的思路来解: 
+
+第一点: 求出右边第一个>=这个元素的元素, 可是问题是, 找到了之后, 比如高度是2, 可问题是, 并不一定就能接2 * 距离的雨水, 因为中间可能还有黑色部分, 这个怎么解决? 其实很简单, 直接减去中间黑色面积即可~~
+
+第二点: 如果右边没有>=的, 小于的其实也可以, 这个该怎么办呢?
 
 # 二叉树
 
