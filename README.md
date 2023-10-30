@@ -737,11 +737,11 @@ public:
 
 过了, 但是并不是完全明白, 其实基本都懂, 但是难道不需要考虑很多种情况吗?
 
-![image-20231030154326953](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231030154326953.png)
+<img src="C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231030154326953.png" alt="image-20231030154326953" style="zoom:67%;" />
 
 比如这个, 一直小, 一直入栈, 也就是单调递增栈, 来了一个大于栈顶的, 若栈顶的下方有值, 一定比它大, 这就是凹槽, 此时接的雨水是1部分, 然后凹槽底部pop, while循环判断, 接2部分, while循环, 直到4部分完了, 因为栈只有一个, 就不能接了, 此时属于只有凹槽的右半段.
 
-![image-20231030154543301](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231030154543301.png)
+<img src="C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231030155106538.png" alt="image-20231030155106538" style="zoom: 67%;" />
 
 如果这种情况, 其实e进栈的时候, 判断等于栈顶, 可以直接把d弹出, e进入, 这样最后算的就是1这个部分的雨水
 
@@ -754,6 +754,46 @@ public:
 接雨水这个题要想过了, 直接用单调栈的逻辑来就行了, 找出大于的情况, 生成凹槽, 计算雨水量就完事了
 
 记住, 用单调栈解这个题时, 是按照横向来接雨水的!!!!, 找到凹槽计算就完事了
+
+---
+
+双指针解法, 也就是说, 按照纵向取接雨水, 每次计算这一列可以接多少雨水, 这个逻辑是很简单的, 直接计算第i列的左右两边最高列, 然后取两者较小值, min - 第i列的高度, 就是第i列接的雨水, 因为宽度永远是1
+
+所以, 现在问题转化为, 怎么求某一列的两端的最高列, 如果暴力就是O(n^2), 且第一列和最后一列是不接雨水的
+
+ok, 暴力求左右最高很简单, 但是超时
+
+如何优化?
+
+其实第i位置的左右最高高度, 可以从i-1位置的左边最高高度求出, i位置左边最高高度 = i-1位置左边的最高高度和i-1位置的高度的较大值, 没错吧?
+
+这样一来, O(N)求出每个位置的左右最大高度, 然后再O(N)求出结果, 不就O(N)了
+
+```C++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        vector<int> maxLeft(height.size(), 0), maxRight(height.size(), 0);
+        // 0, n-1两个位置不接雨水, 也就是两个位置不用求左右最大值, 所以
+        maxLeft[0] = height[0];
+        maxRight[height.size() - 1] = height.back();
+        for(int i = 1; i < height.size() - 1; ++i) {
+            maxLeft[i] = max(maxLeft[i - 1], height[i - 1]);
+        }
+        for(int i = height.size() - 2; i > 0; --i) {
+            maxRight[i] = max(maxRight[i + 1], height[i + 1]);
+        }
+        int ret = 0;
+        for(int i = 1; i < height.size() - 1; ++i) {
+            int num = min(maxLeft[i], maxRight[i]);
+            if(num > height[i]) ret += num - height[i];
+        }
+        return ret;
+    }
+};
+```
+
+接雨水就这?????
 
 # 二叉树
 
