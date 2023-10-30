@@ -795,6 +795,118 @@ public:
 
 接雨水就这?????
 
+### [84. 柱状图中最大的矩形](https://leetcode.cn/problems/largest-rectangle-in-histogram/)
+
+思路:
+
+接雨水的非单调栈解法是找左右最高的
+
+而这个题的非单调栈解法是找左右比它低的
+
+<img src="C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231030165732729.png" alt="image-20231030165732729" style="zoom:50%;" />
+
+也就是, i下标的柱子, 尽量向左向右扩展, 直到有比它低的, 就不能扩展了, 如2不能扩展, 1可以一直扩展, 5可以扩展到6, 6不能, 2扩展到5623, 3不能
+
+这样一来, 这里面的最大值, 其实就是最大的矩阵面积
+
+暴力O(N^2), 就是左右找比它低的, 但是超时
+
+双指针, 就是和接雨水的双指针一样, 先把左右比它低的处理好, 再O(N)求最终结果
+
+但是, 问题是, 怎么不暴力来找出左右比它小的呢?
+
+很简单(下方有代码), 比如 求i位置的值, 先看i-1, 若i-1不是小于i位置, 则不符合嘛, 此时i-1位置存的就是i-1处的左边第一个比i-1小的, 然后就看leftLess[i - 1]
+
+那, 这样和暴力有什么区别呢?是有区别的, 暴力若没有遇到小的, 就挨个往左走
+
+比如  5 6 7 8 9 10 3, 求3的时候, 效率和暴力一样, 但是    10 9 8 7 6 5 4的时候, 求4就会直接得到5下标处的-1, 也就是左边没有比它小的
+
+或者     5   33 44  7 66 9   6    求6的时候, 就是找9, 找7, 找5, 不用遍历!!!!!
+
+还有就是最终求结果时, 左右比它小的下标有了, 但是距离不好算, 需要细心一些~
+
+```C++
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        vector<int> leftLess(heights.size(), -1);  // 记录每一个柱子的左边第一个小于该柱子的下标
+        vector<int> rightLess(heights.size(), -1);  // 记录每一个柱子的右边第一个小于该柱子的下标
+        // 规定, 如果是-1, 则表示该方向没有比它小的
+        int n = heights.size();
+        for(int i = 1; i < n; ++i) {
+            int pos = i - 1;
+            while(pos >= 0 && heights[pos] >= heights[i]) pos = leftLess[pos];
+            // 此时pos可能是-1, 若不是-1, 则就是左边第一个小于i处柱子的下标o
+            leftLess[i] = pos;
+        }
+        for(int i = n - 2; i >= 0; --i) {
+            // 找右边第一个小于的
+            int pos = i + 1;
+            while(pos >= 0 && pos < n && heights[pos] >= heights[i]) pos = rightLess[pos];
+            rightLess[i] = pos;
+        }
+        int ret = 0;
+        for(int i = 0; i < n; ++i) {
+            int l = 0, r = 0;  // 左右两端可扩展的宽度
+            if(leftLess[i] == -1) l = i - 0;
+            else l = i - leftLess[i] - 1;
+            if(rightLess[i] == -1) r = n - (i + 1);
+            else r = rightLess[i] - i - 1;
+            ret = max((l + r + 1) * heights[i], ret);
+        }
+        return ret;
+    }
+};
+```
+
+那, 用单调栈怎么解这个题?
+
+其实目的还是找每个位置左右两端第一个比它小的, 这也就应对了单调栈的作用
+
+找第一个大于的, 就是递增栈, 找第一个小于的就是递减栈
+
+注意, 虽然是左右两端, 但是不需要进行两次, 一次即可
+
+> 在题解42. 接雨水中我讲解了接雨水的单调栈从栈头（元素从栈头弹出）到栈底的顺序应该是从小到大的顺序。
+>
+> 那么因为本题是要找每个柱子左右两边第一个小于该柱子的柱子，所以从栈头（元素从栈头弹出）到栈底的顺序应该是从大到小的顺序！
+
+单调递减栈
+
+栈顶和栈顶的下一个元素以及要入栈的三个元素组成了我们要求最大面积的高度和宽度
+
+```C++
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        // 核心目的: 找左右两边第一个比它小的
+        stack<int> st;
+        heights.insert(heights.begin(), 0); // 数组头部加入元素0
+        heights.push_back(0); // 数组尾部加入元素0
+        st.push(0);
+        int ret = 0;
+        for(int i = 1; i < heights.size(); ++i) {
+            // 数组头尾加了个0, 从第一个开始
+            // 找左右第一个小于i的
+            while(heights[i] < heights[st.top()]) {
+                // st.top这里的元素找到了左右小于的
+                int pos = st.top();
+                st.pop();   // 这个元素处理完了
+                int w = i - st.top() - 1;  // 宽度
+                int h = heights[pos];
+                ret = max(h * w, ret);
+            }
+            st.push(i);
+        }
+        return ret;
+    }
+};
+```
+
+有点晕炫= =
+
+搞得我有点晕了, 妈的
+
 # 二叉树
 
 ### [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
