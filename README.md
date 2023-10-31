@@ -70,6 +70,12 @@
 
 挺有意思, 维护好up down left right就好, 这个是边界, 有四个方向的for, 从左到右up++, 从上到下right--, 从右到左down--, 从下到上left++, 四个for是一个大循环, 每一次for都有一个边界变换
 
+### [56. 合并区间](https://leetcode.cn/problems/merge-intervals/)
+
+思路一: 可以先按照first进行排序一下, 然后再O(n)进行合并
+
+我好强啊~~~~
+
 # 链表
 
 ### [203. 移除链表元素](https://leetcode.cn/problems/remove-linked-list-elements/)
