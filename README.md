@@ -80,6 +80,24 @@
 
 我好强啊~~~~
 
+### [189. 轮转数组](https://leetcode.cn/problems/rotate-array/)
+
+似曾相识....
+
+1. 三次reverse即可
+2. 暴力移动, O(N*K)
+3. 借助额外空间, O(N), O(N)
+
+### [238. 除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/)
+
+本来没想到这个题怎么解
+
+直到看到6个字 : 前缀积 & 后缀积
+
+为什么我一开始没有想到呢?????
+
+其实i位置的结果就是前面的积乘后面的积呀, 对吧, 为什么就想不到前缀积和后缀积呢??
+
 # 链表
 
 ### [203. 移除链表元素](https://leetcode.cn/problems/remove-linked-list-elements/)
