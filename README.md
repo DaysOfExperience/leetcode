@@ -1256,6 +1256,64 @@ public:
 
 怎么才能彻底记住呢...   核心思路就是: 遇到某根节点, 不能直接处理它, 而是沿着左子树一直遍历下去, 一直入栈, 最终后进先出, 最终出栈时的处理顺序才是正确的中序处理顺序
 
+### [102. 二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/)
+
+2 : 现在再看已经了然于胸了, 很简单, 先入根, 这个就是第一层, 然后每次while(!que.empty()) 进入循环, 就看que中结点个数, 这个个数就是这一层的结点个数, 对于每个都是, 先入到这个层的vector中, 然后把非空的孩子结点入队列, 以供下次处理下一层
+
+整体利用的就是队列的先进先出, 整体就是层序的顺序!!!
+
+重点其实就是, 一层一层处理, 以que.size()获取这一层的节点个数, 每次while循环进入都是一层, 对应一个vector~
+
+### [199. 二叉树的右视图](https://leetcode.cn/problems/binary-tree-right-side-view/)
+
+层序
+
+### [114. 二叉树展开为链表](https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/)
+
+如果可以递归
+
+```C++
+class Solution {
+public:
+    TreeNode *prev = nullptr;
+    void flatten(TreeNode* root) {
+        if(root == nullptr) return;
+        TreeNode *right = root->right;
+        if(prev != nullptr) prev->left = nullptr, prev->right = root;
+        prev = root;
+        flatten(root->left);
+        flatten(right);
+    }
+};
+```
+
+其实这个递归思路很简单, 都说了要前序的顺序构造, 所以就前序遍历呗, 到了前序的下一个就会改变上一个的左右结构, 比如根节点递归左之后, 其实它的左右就被改变了, 所以提前保存好右, 然后递归右, 整个处理顺序就是前序的顺序, 这个prev指针就很不错
+
+如果不可以递归
+
+```C++
+class Solution {
+public:
+    void flatten(TreeNode* root) {
+        while(root) {
+            if(root->left) {
+                TreeNode *left = root->left;
+                while(left->right) {
+                    left = left->right;
+                }
+                // 此时left为左子树的最右结点
+                left->right = root->right;
+                root->right = root->left;
+                root->left = nullptr;
+            }
+            root = root->right;
+        }
+    }
+};
+```
+
+这个有点难想到... 但是可以学习学习, 就是别忘了把左置空
+
 ### [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
 
 只需要遍历每个节点, 具体处理方式是swap左右孩子即可, 所以直接递归前序即可(后序, 层序都可以)
@@ -1266,7 +1324,7 @@ public:
 
 之前的问题是: 我可以做到判断当前根节点的左右子树的两个根节点是否符合条件, 但是我总不能递归左根节点的左右孩子 / 右根节点的左右孩子吧? 因为这根本不对啊, 我不要求左右孩子的左右孩子是符合条件的, 而是要求左孩子的右孩子与右孩子的左孩子符合条件, 哈哈, 那这样不就成了吗
 
-对于二叉树是否对称，要比较的是根节点的左子树与右子树是不是相互翻转的(对于每个根节点都是这样的)，理解这一点就知道了**其实我们要比较的是两个子树（这两个树是根节点的左右子树）**，所以在递归遍历的过程中，也是要同时遍历两棵树。
+2 : 实际上, 是要判断根节点的左右子树是否是对称的二叉树, 所以先判断两个子树的根节点, 然后如果两个子树要互相对称, 还要判断第一颗树的左子树与第二棵树的右子树是否互相对称, 第一棵树的右子树与第二棵树的左子树是否互相对称. 若这两对都对称, 才整体对称. 这才是整个题的递归逻辑
 
 ```C++
 class Solution {
@@ -1614,6 +1672,24 @@ public:
 };
 ```
 
+### [437. 路径总和 III](https://leetcode.cn/problems/path-sum-iii/)
+
+挺有意思
+
+前序遍历, 比如根节点到某节点的路径为 12345  则vector记录 1+2+3+4 2+3+4 3+4 4, 到了5这里, 其实它可以组成的路径之和一共有5中可能, 它自己, 或者与前面的4总和, 与4与3, 与4与3与2, 与4与3与2与1, 判断这5种有几种 == target, 即可
+
+也就是从根结点到某结点若一共有x个结点, 则包含该结点的路径总和共有x种可能, 用vector记录即可
+
+### [105. 从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+题目类型: 根据数组, 构造二叉树
+
+根据前序第一个获取根节点, 然后划分中序序列为左右两个数组, 再根据中序的左右两个数组, 获取到前序的左右子树数组, 再递归呗
+
+前序数组: 根节点, 左子树区间, 右子树区间
+
+中序数组: 左子树区间, 根节点, 右子树区间
+
 ### [106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
 
 ![image-20231008205858998](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231008205858998.png)
@@ -1705,6 +1781,18 @@ public:
 ```
 
 中序遍历, 记录上一个中序的非空节点, 判断当前节点是否>中序上一个, 若有一个不符合则错误, 若都符合则正确
+
+2 : 对于每一棵子树, 一个根节点, 都是需要处理左, 自己, 右之后, 再将整体结果返回, 如果有任何一个不是升序, 也就是不满足搜索树的性质, 就最终会返回false, 这个是没问题的, 比如根节点来说, 左子树整体满足, 且根节点满足大于左子树的那个结点(中序的前一个), 且右子树整体满足, 且右子树的中序下一个大于根节点, 那么最终就会返回true
+
+### [230. 二叉搜索树中第K小的元素](https://leetcode.cn/problems/kth-smallest-element-in-a-bst/)
+
+中序即可啦
+
+![image-20231102183818106](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231102183818106.png)
+
+可以看出, 哈哈, 左边是很久之前写的, 比较...原始
+
+右边, 其实ret只会更新一次, 根节点最终中序遍历完一定会返回正确的ret, 其他的可能返回0, 可能返回正确的ret, 都无所谓
 
 ### [530. 二叉搜索树的最小绝对差](https://leetcode.cn/problems/minimum-absolute-difference-in-bst/)
 
@@ -1804,17 +1892,35 @@ public:
 
 具体来说
 
-每个节点都是先看自己是不是pq之一, 是直接返回, 或者到了空也返回.
+2 : 其实这个逻辑好好想一想 很简单
 
-那, 如果自己不是, 则要看左右情况, 所以后序先进行左右递归
+1. 先看自己是不是pq之一, 如果是, 直接返回自己
+   当然可能自己就是最近公共祖先(另一方在自己的左右子树之中), 或者自己不是 都无所谓
 
-若左右都不是空, 说明左右各有一个p/q, 则自己就是最近公共祖先
+以下情况基于自己不是pq之一, 肯定就要后序了, 根据左右子树返回值
 
-若左右有一个为空, 一个不为空, 此时情况不好说, 因为可能两个都在这个不为空的子树中, 也有可能只有p/q之一在里面
+2. 如果左右返回都不为空, 则自己就是最近公共祖先, 返回自己(那么, 自己的上方一系列其实就会返回自己)
+3. 左右一方为空, 一方不为空, 则返回这个不为空的
+   此返回情况可能是情况2演变而来的, 可能是情况1演变而来的
+4. 双方都为空, 则直接返回nullptr, 说明自己这颗子树里面没有p以及q
 
-不管怎样, 都直接返回这个不为空的, 若只有一个, 则这个节点的上方的另一边也会收到不为空
+其实这个每种情况之间都是有联系的, 总之, 最终根节点返回的一定是这个最近公共祖先, 这个过程想一想还挺有意思
 
-若pq都在里面, 则一路向上返回即可, 好好想一下这个过程其实不难, 但是很难自己一开始就想到
+```C++
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(root == nullptr) return nullptr;
+        TreeNode *ret1 = lowestCommonAncestor(root->left, p, q);
+        TreeNode *ret2 = lowestCommonAncestor(root->right, p, q);
+        if(root == p || root == q) return root;
+        else if(ret1 && ret2) return root;
+        else if(ret1) return ret1;
+        else if(ret2) return ret2;
+        else return nullptr;
+    }
+};
+```
 
 ---
 
@@ -1999,13 +2105,32 @@ public:
 
 ### [108. 将有序数组转换为二叉搜索树](https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/)
 
-高度平衡, 所以简单来说, 只要每棵树的左右都平衡, 整棵树就平衡了, 最多是左一个孩子, 右没有呗, 这样其实就是 12345
+2 : 思路还是递归, 我记得, **<u>很多根据数组来构造二叉树的题, 其实思路都一样, 先找出数组的中间值, 构造出根节点, 然后以中间值划分整个数组, 为两半, 递归处理</u>, 左半数组构造左子树, 右半数组构造右子树, 而递归的终止条件就是, 当数组为空, 返回nullptr, 也就是空结点, 而数组只有一个元素, 就直接构造一个结点返回**, 而我们可以搞一个新的函数, 比如func(vector<int\> v, int begin, int end); 这样整体都是一个数组来使用, 只是划分好起始和终止区间, 也可以用一个vector<int\> v的参数的函数, 因为取左右数组的时候, 直接可以构造出一个新的数组, 然后递归这个函数就ok
 
-思路很简单, 找出数组中间点, 中间点就是根节点, 然后分成左和右两个数组, 递归处理就行, 数组为0, 就是返回nullptr, 数组为1 返回根节点就行了= =
+12 就是左一个孩子, 123就是左右都有一个, 1234就是左高度为2 右高度为1, 
 
-12345 就是根节点的左右子树的高度为2
+12345 就是根节点的左右子树的高度为2, 且左右子树的左右高度差为1, 整体为0
 
 1234567 就是深度为三的满二叉树= =
+
+```C++
+class Solution {
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        if(nums.size() == 0) return nullptr;
+        if(nums.size() == 1) return new TreeNode(nums[0]);
+        // 只有nums.size() >= 2时, 这个数组才需要递归处理
+        // 先找根节点, 若整体为奇数, 正好, 左右个数相等, 若偶数, 则左右个数差1
+        int mid = nums.size() / 2;
+        TreeNode *root = new TreeNode(nums[mid]);
+        vector<int> v1(nums.begin(), nums.begin() + mid);
+        vector<int> v2(nums.begin() + mid + 1, nums.end());
+        root->left = sortedArrayToBST(v1);
+        root->right = sortedArrayToBST(v2);
+        return root;
+    }
+};
+```
 
 > 首先取数组中间元素的位置，不难写出`int mid = (left + right) / 2;`，**这么写其实有一个问题，就是数值越界，例如left和right都是最大int，这么操作就越界了，在[二分法](https://programmercarl.com/0035.搜索插入位置.html)中尤其需要注意！**
 >
@@ -2019,15 +2144,17 @@ public:
 
 ### [543. 二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/)
 
-这个题来说, 最先需要搞清楚的是直径怎么计算, 其实对于任何一个根节点来说, 经过此根节点的路径, 一定是左子树的最深节点到右子树的最深节点, 经过这个根节点的最长路径一定是这样的, 而对于整颗树来说, 最长路径可能并不经过根节点, 但是一定经过某颗子树的根节点!!!!
+这个题来说, 最先需要搞清楚的是直径怎么计算, 其实对于任何一个根节点来说, 经过此根节点的最长路径, 一定是左子树的最深节点到右子树的最深节点, 经过这个根节点的最长路径一定是这样的, 而对于整颗树来说, 最长路径可能并不经过根节点, 但是一定经过某颗子树的根节点!!!!
 
 
 
-所以, 后序遍历, 每个根节点求出左子树的最深叶子节点到根节点的节点个数, 右子树的最深叶子节点到根节点的个数
+所以, 后序遍历, 每个根节点求出左子树的最长路径所经历的结点个数, 右子树的最深叶子节点到根节点的个数
 
-而路径 = left + right + 1 - 1 第一个1是根节点, 第二个1是路径的边数 = 总节点个数 - 1
+而经过该根节点的最长路径的长度 = left + right + 1 - 1 第一个1是加上根节点, 第二个1是因为路径的边数 = 总节点个数 - 1
 
-说真的, 对后序回溯越来越熟练了, 而这个题最好的解法就是从下往上处理, 而不是从上往下, 因为前序从上往下时, 到了一个根节点并不知道这个子树的情况, 后序就很棒了
+而最终返回给上一层的是 1 + max(left, right), 这里应当返回的是从该根节点到最远叶子节点所经过的结点个数
+
+说真的, 对后序回溯越来越熟练了, 而这个题最好的解法就是从下往上处理, 而不是从上往下, 因为前序从上往下时, 到了一个根节点并不知道根节点的左右子树的情况, 而后序就很棒了
 
 思考的时候可以思考叶子节点的后序是怎么一个过程, 也就是空结点返回0, 而叶子节点以及其他节点当然就要返回1(自己) + max(leftNum, rightNum)了, 这样给父节点的就是这颗子树的最长的路径中的节点的个数!!!!
 
@@ -2045,6 +2172,14 @@ public:
         int rightDepth = func(root->right);  // 右子树中最长的有rightDepth个节点组成的路径(不包含自己)
         if(leftDepth + rightDepth > max) max = leftDepth + rightDepth;
         return 1 + std::max(leftDepth, rightDepth);
+    }
+    int func(TreeNode *root) {
+        // 后序
+        if(root == nullptr) return 0;
+        int leftNum = func(root->left);    // 左子树的最长路径的结点个数(不包含root)
+        int rightNum = func(root->right);  // 右子树的最长路径的结点个数(不包含root)
+        if(leftNum + rightNum + 1 - 1 > ret) ret = leftNum + rightNum + 1 - 1;
+        return 1 + max(leftNum, rightNum);
     }
 };
 ```
