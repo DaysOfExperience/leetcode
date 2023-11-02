@@ -2004,6 +2004,52 @@ public:
 >
 > 最后给出了对应的迭代法，二叉搜索树的迭代法甚至比递归更容易理解，也是因为其有序性（自带方向性），按照目标区间找就行了。
 
+### [124. 二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/)
+
+> 虽然是困难, 但是真有思路...
+
+后序, 回溯, 先左右再根据左右的结果处理根结点
+
+每个结点都检查一下经过自己的最大路径和是否可以刷新存储的全局最大路径和, 那么最终的最大路径和总得经过一个结点吧吧?
+
+每个结点经过自己的最大路径和有几种可能
+
+1. 单独自己
+2. 经过左孩子的最大路径和 + 自己(加上左子树的返回值)
+3. 经过右孩子的最大路径和 + 自己(加上右子树的返回值)
+4. 左右最大路径和 + 自己
+
+而每个结点的都返回给父节点 : 经过自己的最大路径和, 但是要排除上方的情况4(原因略了), 所以就是返回123的最大值给父节点
+
+其实逻辑很简单, 整棵树的最大路径和总得有一个结点吧? 那么必定所有结点都进行如上处理之后一定会包含最终答案
+
+而整体其实就是后序遍历回溯罢了
+
+这个题要开long long
+
+```C++
+class Solution {
+public:
+    long long ret = INT_MIN;
+    int maxPathSum(TreeNode* root) {
+        func(root);
+        return ret;
+    }
+    long long func(TreeNode *root) {
+        if(root == nullptr) return 0;
+        long long left = func(root->left);
+        long long right = func(root->right);
+        int num1 = root->val, num2 = root->val + left, num3 = root->val + right,
+            num4 = root->val + left + right;
+        if(num1 > ret) ret = num1;
+        if(num2 > ret) ret = num2;
+        if(num3 > ret) ret = num3;
+        if(num4 > ret) ret = num4;
+        return num1 > (num2 > num3 ? num2 : num3) ? num1 : (num2 > num3 ? num2 : num3);
+    }
+};
+```
+
 ### [701. 二叉搜索树中的插入操作](https://leetcode.cn/problems/insert-into-a-binary-search-tree/)
 
 这完全就是搜索树的插入啊, 我之前实现过的, 但是竟然第一时间不会了= =
