@@ -2358,7 +2358,7 @@ public:
 };
 ```
 
-注意取模的方式
+注意取模的方式  (a + b) % x = a % x + b % x?
 
 ### [746. 使用最小花费爬楼梯](https://leetcode.cn/problems/min-cost-climbing-stairs/)
 
