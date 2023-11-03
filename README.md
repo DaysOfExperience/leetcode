@@ -999,6 +999,10 @@ vector<pair<int, int>> 行不行? 感觉可以呀
 
 怎么写才能不创建新的数组呢? 也就是一直在一个数组中进行? 很简单, 设定left right即可
 
+---
+
+必须三数取中优化, 否则过不了
+
 ### [155. 最小栈](https://leetcode.cn/problems/min-stack/)
 
 .... 为什么还是不会???
