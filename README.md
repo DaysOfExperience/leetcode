@@ -2865,6 +2865,33 @@ else dp[i] = 2;
 
 简单来说, 求dp[i]时, 就是前半部分字符串, 后半部分字符串, 后半部分逐渐变大, 前半部分逐渐减小, 前半部分可以直接通过dp值获取, 后半部分通过字典查询
 
+```C++
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> dict;
+        for(string & s : wordDict) dict.insert(s);
+        vector<bool> dp(s.size(), false);
+        dp[0] = dict.find(s.substr(0, 1)) == dict.end() ? false : true;
+        for(int i = 1; i < s.size(); ++i) {
+            int end = i + 1;  // 要查找的字符串的终止下标(左闭右开)
+            for(int j = i; j >= 0; --j) {
+                if(j == 0) {
+                    dp[i] = dict.find(s.substr(0, end - 0)) != dict.end();
+                } else {
+                    if(dp[j - 1] && dict.find(s.substr(j, end - j)) != dict.end()) {
+                        // 前面可以组成, 且剩余部分存在
+                        dp[i] = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return dp.back();
+    }
+};
+```
+
 > 这个如果加一个虚拟首元素, 则可能会稍微方便一点, 只是初始化的方式不同而已
 
 ![image-20231015150852302](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231015150852302.png)
@@ -2881,9 +2908,7 @@ else dp[i] = 2;
 
 abc d  
 
-若i字符和i-1字符相衔接, 则包含但不仅限于i-1字符和i字符组成的子串的个数为dp[i - 1], 因为只是每种情况多了一个字符而已, 所以就是dp[i - 1]个情况
-
-所以, dp[i] = 1 + dp[i - 1];
+若i字符和i-1字符相衔接, 则包含i-1字符和i字符组成的子串的个数为dp[i - 1], 因为只是每种情况多了一个字符而已, 所以就是dp[i - 1]个情况  所以, dp[i] = 1 + dp[i - 1];
 
 但是问题是, 最终结果不能是dp数组全部的和, 因为完全可能有重复的 = =
 
@@ -2893,7 +2918,25 @@ abc d
 
 > 吗的, 我好棒啊, 这都直接做出来了?????
 
+```C++
+        for(int i = 1; i < s.size(); ++i) {
+            dp[i] = 1;
+            if((s[i] == 'a' && s[i - 1] == 'z')
+            || s[i] - s[i - 1] == 1) {
+                // 相连
+                dp[i] += dp[i - 1];
+            }
+            if(dp[i] > arr[s[i] - 'a']) arr[s[i] - 'a'] = dp[i];
+        }
+```
+
+这里的逻辑要搞清楚= =
+
+## 子序列问题
+
 ### [300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)
+
+> hot100
 
 > 直接dp干就行了
 >
