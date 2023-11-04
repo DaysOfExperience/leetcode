@@ -2804,7 +2804,7 @@ fg数组都是二维的, 因为有两个因素: 哪一天, 具体哪个状态
 
 状态表示: dp[i] 表示以i元素为结尾的乘积为正数的最长子数组的长度
 
-但是dp[i] 不能直接 = dp[i - 1] + 1, 因为确实dp[i-1]为以i-1为结尾的乘积为正数的最长子数组的长度, 但是nums[i] 如果大于0, 那加一个1没什么问题, 但是如果nums[i]为负的, 就错了
+但是dp[i] 不能直接 = dp[i - 1] + 1, 因为确实dp[i-1]为以i-1元素为结尾的乘积为正数的最长子数组的长度, 但是nums[i] 如果大于0, 那没什么问题, 但是如果nums[i]为负的, 就错了
 
 如果为负的, 其实dp[i]应该是 = i-1为结尾的乘积为负数的最长子数组的长度, 这样再乘一个负的 就是正的了
 
@@ -2814,9 +2814,7 @@ fg数组都是二维的, 因为有两个因素: 哪一天, 具体哪个状态
 
 ### [413. 等差数列划分](https://leetcode.cn/problems/arithmetic-slices/)
 
-状态表示: 以某元素为结尾, 巴拉巴拉
-
-dp[i] 表示 以i元素为结尾的等差数列的个数
+状态表示: dp[i] 表示 以i元素为结尾的等差数列的个数
 
 状态转移方程: 若nums[i] - nums[i - 1] == nums[i -  1] - nums[i - 2]; 则dp[i] = dp[i - 1] + 1;
 
@@ -2836,62 +2834,24 @@ dp[i] 表示 以i元素为结尾的等差数列的个数
 >
 > 若三个, 则必须相互颠倒了
 
-状态表示: dp[i]表示以i元素为结尾的最长湍流子数组
+状态表示: dp[i]表示以i元素为结尾的最长湍流子数组的长度
 
-```C++
-class Solution {
-public:
-    int maxTurbulenceSize(vector<int>& arr) {
-        int n = arr.size();
-        vector<int> dp(n);
-        dp[0] = 1;
-        int m = dp[0];
-        for(int i = 1; i < n; ++i) {
-            if(dp[i - 1] == 1 && arr[i] != arr[i - 1]) dp[i] = 2;
-            else if(dp[i - 1] == 1 && arr[i] == arr[i - 1]) dp[i] = 1;
-            else {
-                // 不管是2, 3, 4都一样
-                // 1 5 2
-                if(arr[i] == arr[i - 1]) dp[i] = 1;
-                else if(arr[i] > arr[i - 1] && arr[i - 1] < arr[i - 2]) dp[i] = dp[i - 1] + 1;
-                else if(arr[i] < arr[i - 1] && arr[i - 1] > arr[i - 2]) dp[i] = dp[i - 1] + 1;
-                else dp[i] = 2;
-            }
-            if(dp[i] > m) m = dp[i];
-        }
-        return m;
-    }
-};
-```
-
-状态转移方程: 分情况, 其实上面写的还不错, 但是可能是有优化空间
-
-当nums[i] == nums[i - 1] 则直接dp[i] = 1; 不用考虑
-
-下面的就是不相等的情况下
-
-若dp[i-1] == 1则dp[i] = 2;
-
-若不是1, 则肯定>=2, 则直接湍流判断, 若成立 则dp[i] = dp[i-1] + 1 不成立, 则dp[i] = 2
-
-> 除非第一个元素, 或者前一个等于它, 不然不会是1的
-
-略微优化
+状态转移方程: 分情况
 
 ```C++
 if(arr[i] == arr[i - 1]) dp[i] = 1;
-else {
-    if(dp[i - 1] == 1) dp[i] = 2;
-    else {
-        // 不相等, 且dp[i - 1] != 1
-        if((arr[i] > arr[i - 1] && arr[i - 1] < arr[i - 2])
-        || (arr[i] < arr[i - 1] && arr[i - 1] > arr[i - 2]))
-            dp[i] = dp[i - 1] + 1;
-        else
-            dp[i] = 2;
-    }
-}
+else if((arr[i] > arr[i - 1] && arr[i - 1] < arr[i - 2])
+    || (arr[i] < arr[i - 1] && arr[i - 1] > arr[i - 2])) dp[i] = dp[i - 1] + 1;
+else dp[i] = 2;
 ```
+
+1. 当nums[i] == nums[i - 1] 则dp[i] = 1; 不用考虑
+
+下面的就是nums[i]与nums[i - 1]不相等的情况:
+
+2. 若最后三个满足湍流 则 dp[i] = dp[i - 1] + 1;
+
+3. 否则就是要么大小顺序一致, dp[i] = 2, 要么就是nums[i - 1] == nums[i - 2], 则dp[i] = 2 归类为最后一个else
 
 ### [139. 单词拆分](https://leetcode.cn/problems/word-break/)
 
