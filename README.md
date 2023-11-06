@@ -3127,6 +3127,42 @@ j逐步向后, i遍历0 - j-1, 这样一来, 最后两个元素固定, 倒数第
 
 i小于j j从2开始, i从1开始, 
 
+## 回文串问题
+
+### [647. 回文子串](https://leetcode.cn/problems/palindromic-substrings/)
+
+三种解法, 此处只学习dp解法, 且这个解法虽说并不是这个问题的最佳解法, 但是它是可以解决回文问题的, 甚至有时候可以把hard -> easy
+
+(注 : 这个题中, 即使子串的内容相同, 只要开始和结尾不同, 那么就是不同的子串, 所以, **需要判断所有的子串**)
+
+dp解法核心思想:
+
+用一个dp表, 将所有子串是否是回文的信息, 保存在dp表中
+
+这样一来, 两层for即可, 外层for表示子串的起始, 内层for表示子串的结尾, 也就是一个二维dp表, 横坐标表示i, 纵坐标表示j, dp[i][j\]表示s[i, j\]这个子串是否是回文的, 且左闭右闭, 所以i <= j    j >= i
+
+![image-20231106142540027](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231106142540027.png)
+
+状态转移方程:
+
+依旧, dpij肯定是要和其他的dp值联系起来的
+
+![image-20231106142701562](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231106142701562.png)
+
+初始化: 无需初始化, 因为不会越界, 因为特殊情况已经处理过了
+
+填表顺序: 除了特殊情况, 那么, ij需要用到i+1, j-1, 所以在二维dp表中也就是用到左下方的值, 所以我们需要在dp表中从下往上, 而左右不需要考虑, 因为ij 只会用到下一行的左边那个, 只要下一行有值即可
+
+所以, dp表从下往上填表, 横坐标 - i代表起始, 也就是字符串起始位置要从右往左
+
+![image-20231106144555744](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231106144555744.png)
+
+### [5. 最长回文子串](https://leetcode.cn/problems/longest-palindromic-substring/)
+
+> hot100
+
+dp解回文子串问题: 可以用一个二维dp表, 将所有子串是否是回文串的信息保存在dp表中, 那这样的话, 其实直接搞一个pair, 就能同时存储是否是回文子串, 还能存储长度了... 那对于这个要求最长回文子串的话, 直接记录一个max不就行了
+
 ## 背包问题
 
 ### [279. 完全平方数](https://leetcode.cn/problems/perfect-squares/)
