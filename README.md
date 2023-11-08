@@ -3546,6 +3546,26 @@ dp[i][j\] 表示s1的0到i区间的子字符串与s2的0到j区间的子字符�
    其实正确的应该是第二种, 因为如果ij元素不同, 则回顾状态表示: dp ij 存储的必须是s1以i元素结尾的子数组与s2以j元素结尾的子数组 中最长重复子数组的长度, 也就是结果的末尾元素必须是i元素  以及 j元素, 所以如果ij元素不同, 此时直接存储0就行了
 5. 返回值肯定就是dp表里的最大值了
 
+![image-20231108122651703](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231108122651703.png)
+
+### [72. 编辑距离](https://leetcode.cn/problems/edit-distance/)
+
+> hot100
+
+状态表示: dp i j 表示第一个单词的0 到 i区间 转换为 第二个单词0 到 j区间所需的最小操作数
+
+状态转移方程:
+
+1. i == j dp i j = dp i-1 j-1
+2. i != j
+   替换: dp i-1 j-1 + 1
+   删除: dp i-1 j + 1
+   插入: dp i j-1 + 1 (这个最先没想到...)
+
+用到左上, 左, 上
+
+多一行多一列: 第一行表示word1为空串(目标字符串)  第一列表示words2为空串(源字符串)
+
 ## 背包问题
 
 ### [279. 完全平方数](https://leetcode.cn/problems/perfect-squares/)
