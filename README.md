@@ -3847,6 +3847,14 @@ public:
 
 并且是选 / 不选里面求较小值, 也就是min, 而不是max
 
+![image-20231109154955120](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109154955120.png)
+
+明白了吗????个数!!!!!
+
+> ![image-20231109155314922](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109155314922.png)
+>
+> 其实-1也可以, 多判断一下而已
+
 #### [279. 完全平方数](https://leetcode.cn/problems/perfect-squares/)
 
 物品若干, 体积和价值相等, 背包容量已知, 必须装满, 不求装满时的最大价值, 而是最少的使用物品的数量... (这他妈和上一题有什么区别?)
