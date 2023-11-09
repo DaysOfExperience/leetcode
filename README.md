@@ -4114,3 +4114,94 @@ dp i j k 表示在前i个工作中选择, 所有选法中, 利润>=j 且员工�
 没有工作可选, 利润一定为0, 只有利润最小为0时可以初始化, 利润的其余值都是0
 
 利润为0时,  可选工作为0, 不管人数上限多少, 都是1? 一种选法: 就是什么都不选
+
+### 似包非包
+
+#### [377. 组合总和 Ⅳ](https://leetcode.cn/problems/combination-sum-iv/)
+
+![image-20231109184923748](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109184923748.png)
+
+严格来说, 背包问题解决是, 组合问题, 也就是选/不选
+
+这个题严格来说/本质来说, 是一个排列问题
+
+所以不能用完全背包来解= =
+
+---
+
+![image-20231109192425268](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109192425268.png)
+
+![image-20231109192758329](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109192758329.png)
+
+核心思路: 就拿第一个位置来说, abcd任何一个数组中的元素都可以, 若某一个元素, 就是求凑成target - x一共有多少种方法, 且也是从全数组来凑
+
+### 卡特兰数
+
+#### [96. 不同的二叉搜索树](https://leetcode.cn/problems/unique-binary-search-trees/)
+
+> 左子树<根节点, 右子树>根节点
+>
+> 我怎么感觉要二维dp, 范围dp, 也就是由i到j区间的结点组成的二叉搜索树的个数
+
+状态表示: dp[i][j\] 表示由从i到j的结点组成的二叉搜索树的个数
+
+状态转移方程: ... 略
+
+比如 dp 1 5 用到了 dp 11 12  13 14
+
+25 35 45 55
+
+用到了左边, 和上面
+
+所以从上往下, 从左往右
+
+第一行: 从0到0 从0到1
+
+```C++
+class Solution {
+public:
+    int numTrees(int n) {
+        vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0)); // 下标从0到n
+        for(int i = 1; i <= n; ++i) {
+            for(int j = i; j <= n; ++j) {
+                // dp[i][j] 表示从i到j的结点构成二叉搜索树的个数
+                if(i == j) dp[i][j] = 1;
+                else {
+                    int sum = 0;
+                    for(int k = i; k <= j; ++k) {
+                        // k做根节点  比如求dp[1][5]  3做根节点
+                        if(k == i) sum += dp[k + 1][j];
+                        else if(k == j) sum += dp[i][k - 1];
+                        else sum += dp[i][k - 1] * dp[k + 1][j];
+                    }
+                }
+            }
+        }
+        return dp[1][n];
+    }
+};
+```
+
+不行啊妈的, 第一行第一列没法初始化
+
+----
+
+![image-20231109201754634](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109201754634.png)
+
+这类问题: 难想出, 但是相出之后就很容易, 总之很巧
+
+这里并没有说到底是根节点是几, dp[i]没有说根节点具体是几, 而是整棵树的结点的个数, 真的很巧
+
+比如总共为5个, 根节点是3, 左子树12 右子树45, 但是其实12 45都是两个结点组成的BST的种数
+
+如果根节点是4, 左子树3个, 右子树1个
+
+根节点是5, 左子树4个, 就是4个结点构成的BST的种类数
+
+![image-20231109203002933](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109203002933.png)
+
+**这个核心在于, 123  和 567组成的BST的种类数其实是一样的!!!!!!!!!!!!!!**
+
+**只要是N个连续的结点组成的BST的种类数就是一样的,  比如1234 6789**
+
+**只需要记录几个结点就可以了, 默认它们的结点值是连续的**
