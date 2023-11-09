@@ -3897,6 +3897,8 @@ public:
 >
 > 先判断下标是否合理, 其次是如果是装满的话, 可能值是-1, 需要判断
 
+![image-20231109160127614](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109160127614.png)
+
 #### [518. 零钱兑换 II](https://leetcode.cn/problems/coin-change-ii/)
 
 物品若干, 价值和体积相等, 每个物品都有无限个, 也就是不是01背包, 而是完全背包. 背包容量已知, 必须装满, 这里不是求最大价值, 也不是求最少的使用物品的数量, 而是装满时的一共有多少种组合
@@ -3948,3 +3950,114 @@ public:
 ```
 
 注意这里, 没有元素/物品, 要凑成体积为0, 此时的选法有几个? 其实只能不选, 所以dp[0][0\] 要初始化为1!!!!!!
+
+![image-20231109155720708](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109155720708.png)
+
+### 二维费用的背包问题
+
+#### [474. 一和零](https://leetcode.cn/problems/ones-and-zeroes/)
+
+这个还是, 背包容量有上限, 若干个物品, 有价值有体积, 可以理解为体积 = 价值, 不用填满, 求挑选出的物品数量的最大值
+
+但是问题是, 这里的背包容量的上限有两个维度, 一个是1的数量, 一个是0的数量
+
+元素需要一维, 1需要一维, 0需要一维, 总共就三维了???   (注意这里是1的数量不大于m, 0的数量不大于n)
+
+---
+
+若背包有两个限制, 那么就是二维费用的背包问题
+
+之前只有体积限制, 也就是体积必须装满或者不必装满
+
+而这里就是两个限制了
+
+同样分为   二维费用的01背包问题 / 二维费用的完全背包问题
+
+这个题是选 / 不选, 所以具体来说是二维费用的01背包问题
+
+----
+
+怎么解决?
+
+> 完全背包, 二维费用背包 都是以01背包为基础的
+
+01背包状态表示: dp[i][j\] 表示从前i个元素中选, 总体积不超过j/恰好等于j, 此时所有选法中的最大价值
+
+二维费用背包状态表示: dp[i][j\][k\] 表示从前i个元素中选, 总体积不超过j, 总重量不超过k的所有选法中的最大价值
+
+那么, 针对这个题就是: dp[i][j\][k\] 表示从前i个元素中选, 0的个数不超过j, 1的个数不超过k的所有选法中的最大选择的元素的个数
+
+---
+
+状态转移方程:
+
+第i个选 / 不选
+
+不选: dp i-1 j k
+
+选: dp i-1 (j - n1) (k - n2) + 1  同时判断j - n1>=0 k - n2>=0
+
+![image-20231109170411482](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109170411482.png)
+
+总结: 没区别, 多一个条件, 多一个维度
+
+但是, 初始化问题呢?
+
+**依旧是, jk不会越界, 所以只需要处理i为0的时候的情况即可  (其实之前的二维dp表也是, i等于0那一行处理即可)**
+
+i等于0, 没有元素, 问满足0的个数不大于0 1 2 3 4 5 1的个数不大于0 1 2 3 4 5的选择元素的最大值????那肯定是0
+
+```C++
+class Solution {
+public:
+    int findMaxForm(vector<string>& strs, int n, int p) {   // n0 p1
+        int m = strs.size();
+        vector<vector<vector<int>>> dp(m + 1, vector<vector<int>>(n + 1, vector<int>(p + 1, 0)));
+        // 初始化i=0时, 都初始化为0即可
+        for(int i = 1; i <= m; ++i) {
+            for(int j = 0; j <= n; ++j) {
+                for(int k = 0; k <= p; ++k) {
+                    // 第i个选或者不选呗
+                    dp[i][j][k] = dp[i - 1][j][k];  // 不选
+                    string &s = strs[i - 1];
+                    int a = 0, b = 0;  // a0 b1
+                    for(auto & i : s) if(i == '0') a++; else b++;
+                    if(n - a >= 0 && p - b >= 0) dp[i][j][k] = max(dp[i][j][k], dp[i - 1][n - a][p - b] + 1);
+                }
+            }
+        }
+        return dp[m][n][p];
+    }
+};
+```
+
+问题
+
+1. 其实在第一层for进入时, 就可以求这个字符串的10数量了 之后两层的循环中针对的都是一个字符串
+2. **最大的最致命的问题: 在最内层循环内部, 指的是求dp值, dp值是前i个元素中选择, 0的个数不超过j, 1的个数不超过k**
+   **所以最后一个判断应该是, j - a >= 0 && k - b >= 0, 内部是用不到n, 和p的, 只有当最后一次循环时, jk才会等于np**
+
+```C++
+class Solution {
+public:
+    int findMaxForm(vector<string>& strs, int n, int p) {   // n0 p1
+        int m = strs.size();
+        vector<vector<vector<int>>> dp(m + 1, vector<vector<int>>(n + 1, vector<int>(p + 1, 0)));
+        // 初始化i=0时, 都初始化为0即可
+        for(int i = 1; i <= m; ++i) {
+            string &s = strs[i - 1];
+            int a = 0, b = 0;  // a0 b1
+            for(auto & i : s) if(i == '0') a++; else b++;
+            for(int j = 0; j <= n; ++j) {
+                for(int k = 0; k <= p; ++k) {
+                    // 第i个选或者不选呗
+                    dp[i][j][k] = dp[i - 1][j][k];  // 不选
+                    if(j - a >= 0 && k - b >= 0) dp[i][j][k] = max(dp[i][j][k], dp[i - 1][j - a][k - b] + 1);
+                }
+            }
+        }
+        return dp[m][n][p];
+    }
+};
+```
+
