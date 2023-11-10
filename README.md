@@ -4205,3 +4205,98 @@ public:
 **只要是N个连续的结点组成的BST的种类数就是一样的,  比如1234 6789**
 
 **只需要记录几个结点就可以了, 默认它们的结点值是连续的**
+
+# 技巧
+
+### [136. 只出现一次的数字](https://leetcode.cn/problems/single-number/)
+
+按位与 ^=   5^5 = 0   n^n = 0
+
+### [169. 多数元素](https://leetcode.cn/problems/majority-element/)
+
+摩尔投票法
+
+也就是一一抵消, 最终留下的元素就是这个个数 > n / 2的元素
+
+### [287. 寻找重复数](https://leetcode.cn/problems/find-the-duplicate-number/)
+
+包含N+1个数, 下标就是0-N, 值存储的是1-N, 所以nums[i]一定不会越界
+
+所以, 每个nums[i]的值当作结点的值, 它的next指向就是值对应的数组下标对应的元素
+
+![image-20231110211056868](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231110211056868.png)
+
+有环链表找环的入口: 快慢指针 快走两步, 慢走一步, 相遇, 然后快归到原处, 慢一步, 快一步, 这次的相遇点就是环的入口
+
+这里其实是, 若干结点, 第一个结点的值就是1, 指向1下标处3, 3指向2 2指向4, 4指向2, 2指向4
+
+每次快慢指针的值应该是1-4, 也就是1-N里面的值, 最终就会成环
+
+### [75. 颜色分类](https://leetcode.cn/problems/sort-colors/)
+
+两次扫描:
+
+第一次把0交换归为, 第二次把1交换归位
+
+一次扫描:
+
+荷兰国旗?
+
+l是0, m是1, h是2
+
+```C++
+class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+        int l = 0, m = 0, h = nums.size() - 1;
+        while(m <= h) {
+            if(nums[m] == 1) {
+            } else if(nums[m] == 0) {
+                swap(nums[m], nums[l]);
+                l++;
+                if(nums[m] == 2) swap(nums[m], nums[h]), h--;
+            } else {
+                swap(nums[m], nums[h]);
+                h--;
+                if(nums[m] == 0) swap(nums[m], nums[l]), l++;
+            }
+            m++;
+        }
+    }
+};
+```
+
+### [31. 下一个排列](https://leetcode.cn/problems/next-permutation/)
+
+逆序找第一个 nums[i] < nums[i+1]的这个i元素  比如 476532, 4的下标就是i
+
+i右边一定是降序的, 找出大于nums[i]里面最小的那个, 这里就是5
+
+交换45, 就是576432, 然后reversei后面的区间, 就是523457这个就是结果
+
+如果一直没有找到i, 说明整个数组是单调递减的, 比如   99877654
+
+这样的话, 本身nums就是字典序最大的, 那么下一个排列就是整体reverse, 也就是字典序最小的
+
+```C++
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        for(int i = nums.size() - 1; i >= 0; --i) {
+            if(i != nums.size() - 1 && nums[i] < nums[i + 1]) {
+                // 此时找i后面比它大的最小的数
+                int j = i + 1;
+                while(j != nums.size() - 1 && nums[j + 1] > nums[i]) {
+                    j++;
+                }
+                swap(nums[i], nums[j]);
+                reverse(nums.begin() + i + 1, nums.end());
+                return ;
+            }
+        }
+        reverse(nums.begin(), nums.end());
+        return ;
+    }
+};
+```
+
