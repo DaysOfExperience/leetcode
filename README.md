@@ -4382,31 +4382,101 @@ NB
 
 ### [129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
 
-之前的视角: 从二叉树的遍历来看: 肯定是前序的, 到了叶子节点就处理一下
+之前的视角: 前序遍历, 每过一个结点就在vector里面记录一下, 到了叶子节点再最终计算值, 加到全局的一个ret中, 这样一来其实就是真正的前序遍历一遍罢了
+
+这个过程是前序的
+
+```C++
+class Solution {
+public:
+    int ret = 0;
+    int sumNumbers(TreeNode* root) {
+        vector<int> v;
+        dfs(root, v);
+        return ret;
+    }
+    void dfs(TreeNode *root, vector<int> v) {
+        if(root == nullptr) return;
+        v.push_back(root->val);
+        if(root->left == nullptr && root->right == nullptr) {
+            // 4 9 5
+            int num = 0;
+            for(auto & i : v) num = num * 10 + i;
+            ret += num;
+            return ;
+        }
+        dfs(root->left, v);
+        dfs(root->right, v);
+    }
+};
+```
 
 ---
 
-宏观视角: ....不知道
+宏观视角: 除了叶子节点, 其实每一个非叶子结点都是这样的操作: 下图的1234, 1是计算一下, 23是递归, 获取到左右子树的所有叶子节点的返回值之后, 4是返回给父节点的值, 代表这颗子树的返回值
+
+其实也是前序
+
+![image-20231112153030770](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112153030770.png)
+
+```C++
+class Solution {
+public:
+    int sumNumbers(TreeNode* root) {
+        return dfs(root, 0);
+    }
+    int dfs(TreeNode *root, int prevSum) {
+        if(root == nullptr) return 0;  // 终止情况1
+        prevSum = prevSum * 10 + root->val;
+        if(!root->left && !root->right) return prevSum;
+        int left = dfs(root->left, prevSum);
+        int right = dfs(root->right, prevSum);
+        return left + right;
+    }
+};
+```
 
 ### [814. 二叉树剪枝](https://leetcode.cn/problems/binary-tree-pruning/)
 
-前序的话: 中左右, 这时候左右的情况都不知道, 怎么处理?
+> 剪枝 : 如果一颗子树 所有的结点值都是0, 则删除这颗子树
 
-所以, 后序, 左右中, 左右都处理完, 处理根节点
+前序的话: 中左右, 这时候左右的情况都不知道, 怎么处理中呢? 所以前序不可行
+
+所以, 后序, 左右中, 左右都处理完, 根据左右的处理结果才能进一步地处理根节点, 所以一定后序
 
 ---
 
-把这个函数看作一个黑盒, 它的作用就是如果这个子树只有0没有1, 就会去除它, 也就是对这颗子树进行剪枝, 并返回剪枝之后的值
+宏观视角
 
-所以, 对某颗子树进行处理时, 先对左右子树进行剪枝处理, 然后根据左右剪枝的结果, 以及val的值, 进行处理这颗子树
+把这个函数看作一个黑盒, 它的作用就是如果这个子树只有0没有1, 就会去除它, 并返回处理完成之后的这个数的结果
+
+所以, 对某颗子树进行处理时, 先对左右孩子子树进行剪枝处理, 然后根据左右剪枝的结果, 以及val的值, 进行处理这颗子树, 只有左右处理完返回的是空, 且根节点val == 0时才会返回nullptr, 也就代表着这颗子树处理完结果是nullptr
+
+![image-20231112155547379](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112155547379.png)
+
+**所以要加返回值**  动作统一 每一个都要有返回值, 就很方便的获取左右子树结果, 并更新左右子树
+
+----
+
+通过模拟这个过程, 就可以想出这个题怎么解
 
 ### [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
 
-> 上方有
+核心: 利用二叉搜索树的中序有序性, 以及全局变量存储中序的上一个值来判断
+
+宏观来说, 这个函数就是接收一个根节点, 返回这个子树是否是二叉搜索树
+
+整体肯定是要中序的, 先判断左, 判断自己是否符合, 判断右, 最终返回左&&自己&&右
+
+剪枝就是: 当左子树返回false, 证明左子树中有元素不符合二叉搜索树的定义了, 这时候直接返回false即可, 后序的自己以及右子树都不需要进行
 
 ### [230. 二叉搜索树中第K小的元素](https://leetcode.cn/problems/kth-smallest-element-in-a-bst/)
 
 > 又做过
+
+中序有序 + 两个全局变量即可
+
+可以剪枝的时候要剪枝, 也就是比如左子树完了, 第K小元素已经有了, 那么自己, 右子树都不需要再处理, 直接返回
 
 ### [257. 二叉树的所有路径](https://leetcode.cn/problems/binary-tree-paths/)
 
