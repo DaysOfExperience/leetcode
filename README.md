@@ -4300,3 +4300,82 @@ public:
 };
 ```
 
+# 回溯(递归+搜索)
+
+递归 > 搜索 > 回溯
+
+前言:
+
+![image-20231111150330816](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111150330816.png)
+
+**这两点很有意思, 23点极其重要, 我已经有点领悟到了**
+
+![image-20231111151203968](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111151203968.png)
+
+NB
+
+![image-20231111151654258](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111151654258.png)
+
+![image-20231111152024153](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111152024153.png)
+
+![image-20231111152745531](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111152745531.png)
+
+![image-20231111153530628](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111153530628.png)
+
+## 递归
+
+其实核心还是在于, 一整个大问题, 分为若干步, 而每一步的解决都是一样的, 这就是重复子问题
+
+而这个递归函数, 就可以解决这个重复子问题
+
+这个过程到什么时候会终止并结束递归? 就是递归的终止条件了
+
+### [面试题 08.06. 汉诺塔问题](https://leetcode.cn/problems/hanota-lcci/)
+
+重复子问题: 每个递归都要解决一个子问题
+
+主要就是, n-1个在a上的, 借助c, 转移到b, 然后把最后这个转移到c, 再把b上的n-1个借助a转移到c   这一整套下来, 最终目标就达成了
+
+而n-1个要想全部移动到另一个柱子上, 其实也是这个过程, 这就是重复子问题: 将某些盘子, 借助某柱子, 移动到另一个柱子上
+
+这个就是重复子问题, 我们要相信自己写的递归函数可以完成这个任务
+
+而递归的终止条件就是当只有一个盘子时, 不再需要执行上方子问题
+
+### [206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
+
+先发现重复子问题是什么...
+
+这个子问题决定了递归函数的函数头
+
+而解决这个子问题决定了递归函数的函数体
+
+![image-20231111175000202](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111175000202.png)
+
+![image-20231111175014076](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111175014076.png)
+
+一个全新的视角: 把链表看作是一个树!!!!!
+
+### [24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
+
+子问题: 先把后序的链表进行处理, 然后前两个进行逆置, 返回即可
+
+每个递归都是这样, 终止条件就是空结点或一个结点, 就终止
+
+### [50. Pow(x, n)](https://leetcode.cn/problems/powx-n/)
+
+![image-20231111182718603](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111182718603.png)
+
+![image-20231111183534433](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111183534433.png)
+
+## 二叉树的深度优先搜索(深度优先遍历)
+
+### [2331. 计算布尔二叉树的值](https://leetcode.cn/problems/evaluate-boolean-binary-tree/)
+
+> 要是写我肯定能写出来, 但是希望更清晰的理解理解
+
+> 深搜就是深度优先遍历时的目标是搜索
+
+对于每个根节点都是相同的操作: 先获取左右的结果, 再算根节点的值, 这不就是后序吗?
+
+这个函数的作用就是: 计算出某根节点的值
