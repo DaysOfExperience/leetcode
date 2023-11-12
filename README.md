@@ -4393,3 +4393,24 @@ NB
 ---
 
 宏观视角: ....不知道
+
+### [814. 二叉树剪枝](https://leetcode.cn/problems/binary-tree-pruning/)
+
+前序的话: 中左右, 这时候左右的情况都不知道, 怎么处理?
+
+所以, 后序, 左右中, 左右都处理完, 处理根节点
+
+---
+
+把这个函数看作一个黑盒, 它的作用就是如果这个子树只有0没有1, 就会去除它, 也就是对这颗子树进行剪枝, 并返回剪枝之后的值
+
+所以, 对某颗子树进行处理时, 先对左右子树进行剪枝处理, 然后根据左右剪枝的结果, 以及val的值, 进行处理这颗子树
+
+### [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
+
+> 上方有
+
+### [230. 二叉搜索树中第K小的元素](https://leetcode.cn/problems/kth-smallest-element-in-a-bst/)
+
+> 又做过
+
