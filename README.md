@@ -4523,4 +4523,65 @@ public:
 };
 ```
 
-这个自动恢复现场很重要!!!    因为传过去的s不影响我这里的s, 所以递归结束, 回溯时不需要恢复现场
+**这个自动恢复现场很重要!!!    因为传过去的s不影响我这里的s, 所以递归结束, 回溯时不需要恢复现场**
+
+## 穷举vs暴搜vs深搜vs回溯vs剪枝
+
+### [46. 全排列](https://leetcode.cn/problems/permutations/)
+
+穷举类的题
+
+1. 画出决策树, 也就是所有的情况, 都列举出来 - 越详细越好    决策树只要能不重不漏的举出所有情况即可, 没有规定必须长什么样
+
+这个题来说, 如果用数的DFS来做的话, 有点类似于求二叉树的所有路径, 这里完全可以用一个vector来记录, 过程中必然涉及到递归与回溯
+
+这里的关键是, 比如第一个位置选了1, 那么后面的就不能再选1, 如何排除呢
+
+这里采用了一个set或者一个数组来记录你用过了哪些元素, 也就是说, 每次递归都要把所有元素遍历一遍的, 选出第一个没有用过的即可
+
+所以这里记录数据的path和记录使用情况的check数组要同步递归 + 恢复现场
+
+![image-20231112180101148](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112180101148.png)
+
+![image-20231112180725581](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112180725581.png)
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> ret;  // 返回值
+    vector<int> path; // 记录该路径的数据
+    set<int> check;   // 记录该路径使用过的元素
+    vector<vector<int>> permute(vector<int>& nums) {
+        dfs(nums);
+        return ret;
+    }
+    void dfs(vector<int> &nums) {
+        // 选出第一个没有使用过的元素, 并递归
+        // if(nums.size() == path.size()) {
+        //     ret.push_back(path);
+        // }
+        for(int & i : nums) {
+            if(check.find(i) == check.end()) {
+                path.push_back(i);
+                check.insert(i);
+                if(nums.size() == path.size()) {
+                    ret.push_back(path);
+                    // 其实这一轮, nums中只有一个被选了, 选好之后, 这个for就结束了
+                    // 但是在返回上一层之前必须恢复现场
+                    path.pop_back();
+                    check.erase(i);
+                    return ;
+                }
+                dfs(nums);
+                // 回溯 : 恢复现场
+                path.pop_back();
+                check.erase(i);
+            }
+        }
+    }
+};
+```
+
+这里其实就是, 如何记录我之前已经用过哪些元素了? 用个set / unordered_set就不错
+
+这里分两种终止递归的方式, 一种是填满时直接终止, 一种是交给下一层递归, 这一层不加新元素
