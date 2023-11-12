@@ -4481,3 +4481,46 @@ public:
 ### [257. 二叉树的所有路径](https://leetcode.cn/problems/binary-tree-paths/)
 
 > 又做过.. 前序即可~
+
+**借机学习一下回溯 + 恢复现场      +   剪枝**
+
+> **简单题不用全局变量, 很多时候的DFS的参数已经自动恢复现场了, 所以不明显**
+>
+> **难题一定要用到全局变量, 此时的恢复现场十分重要**
+
+回溯+恢复现场  :  因为递归之后会改变全局变量, 这样递归结束回溯的时候, 这个全局变量被改变了, 此时需要恢复现场!
+
+![image-20231112171345169](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112171345169.png)
+
+1. 这个题用全局的path确实麻烦, 但是可以体现出恢复现场. 而如果用参数的话, 自动恢复现场, 我们只能学到前序DFS
+   其实如果参数里的string path是引用的话, 也需要手动恢复现场
+2. 之前有过这样的情况: 判断左不为空才递归左, 右不为空才递归右, 这个操作其实就是一个剪枝, 也就是把空孩子剪掉了
+   而如果这个情况不剪枝, 就在函数最开始处理一下空树, 直接返回, 其实就是函数终止条件/情况之一
+
+```C++
+class Solution {
+public:
+    vector<string> ret;
+    vector<string> binaryTreePaths(TreeNode* root) {
+        string s = to_string(root->val);
+        dfs(root->left, s);
+        dfs(root->right, s);
+        if(ret.empty()) ret.push_back(s);
+        return ret;
+    }
+    void dfs(TreeNode *root, string s) {
+        if(root == nullptr) return;
+        s += "->";
+        s += to_string(root->val);
+        if(root->left == nullptr && root->right == nullptr) {
+            ret.push_back(s);
+            return;
+        }
+        dfs(root->left, s);
+        // 自动恢复现场
+        dfs(root->right, s);
+    }
+};
+```
+
+这个自动恢复现场很重要!!!    因为传过去的s不影响我这里的s, 所以递归结束, 回溯时不需要恢复现场
