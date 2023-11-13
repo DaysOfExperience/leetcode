@@ -4627,3 +4627,57 @@ public:
 能不能不用path, 直接用一个int来记录这个子集的目前为止所有元素的异或值 ?  可是回溯应该怎么回溯呢?  也就是异或i的反操作是什么? 不会, 所以回溯就不会... 所以还是每次到了终止递归时处理一下整个path数组即可
 
 > 0选 / 不选, 1选 / 不选  nums.size() - 1选 / 不选
+
+### [47. 全排列 II](https://leetcode.cn/problems/permutations-ii/)
+
+> 先回顾一下全排列Ⅰ, 其实就是 1 2 3, 第一个位置选了1, 第二个位置就不能选1, 23都可以, 第二个位置选了2, 第三个位置就只能选3, 第二个位置选了3, 第三个位置就只能选2
+>
+> 123 132
+>
+> 所以需要记录, 目前为止选了哪些元素, 用bool数组或者unordered_set都可以
+
+思路一 : 其实无非就是全排列Ⅰ进行一个结果去重, 如果可以对vector<int\> 进行结果去重就好了, 112 112就会自动去重, 可是112 121会被去重吗?
+
+思路二 : 画出决策树发现, 1. 之前选过的, 现在不能再选, 这是最基本的, 2. 在一个for内部, 有几个相同的元素, 若某个被选了, 则后续不再选择这个元素
+
+![image-20231113132715934](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113132715934.png)
+
+其实相比于之前的全排列Ⅰ, 全排列Ⅰ是, 记录目前path用过哪些元素, 注意这里必须记录的是下标
+
+而这个题, 除了path里面有哪些下标的元素, 还要记录, 在一个for内部, 之前递归过的元素, 之后就不能再递归了, 比如第一行的1 1 2, 第二行第三组的112
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<int> path;
+    unordered_set<int> check;  // 记录之前选过的, 记录下标
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        dfs(nums);
+        return ret;
+    }
+    void dfs(vector<int> &nums) {
+        if(path.size() == nums.size()) {
+            // 终止递归
+            ret.push_back(path);
+            return ;
+        }
+        unordered_set<int> used;  // 记录如果1递归过了, 则后续的1不再递归, 记录的是值
+        for(int i = 0; i < nums.size(); ++i) {
+            if(check.find(i) == check.end() && used.find(nums[i]) == used.end()) {
+                // 这个元素目前路径没有用过, 且不与之前递归过的元素重复
+                path.push_back(nums[i]);
+                check.insert(i);
+                dfs(nums);
+                path.pop_back();
+                check.erase(i);   // 恢复现场
+                used.insert(nums[i]);
+            }
+        }
+    }
+};
+```
+
+check记录的是path用过的下标
+
+而used只针对这个dfs函数, 也就是下面这个for循环, 递归过的后续不再递归
