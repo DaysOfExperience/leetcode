@@ -4636,6 +4636,8 @@ public:
 >
 > 所以需要记录, 目前为止选了哪些元素, 用bool数组或者unordered_set都可以
 
+> 决策树的重要性!!!!!!!!!!!!!
+
 思路一 : 其实无非就是全排列Ⅰ进行一个结果去重, 如果可以对vector<int\> 进行结果去重就好了, 112 112就会自动去重, 可是112 121会被去重吗?
 
 思路二 : 画出决策树发现, 1. 之前选过的, 现在不能再选, 这是最基本的, 2. 在一个for内部, 有几个相同的元素, 若某个被选了, 则后续不再选择这个元素
@@ -4681,3 +4683,217 @@ public:
 check记录的是path用过的下标
 
 而used只针对这个dfs函数, 也就是下面这个for循环, 递归过的后续不再递归
+
+### [17. 电话号码的字母组合](https://leetcode.cn/problems/letter-combinations-of-a-phone-number/)
+
+若干个字符串, 每个字符串选出一个, 进行搭配, 最终会出现多少种?
+
+决策树很好画, 代码也容易
+
+其实这个和全排列是有点像的, 但是这个比如之前选了a, 后面是不可能有a的, 所以不需要记录之前path有过的元素
+
+![image-20231113140846277](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113140846277.png)
+
+```C++
+class Solution {
+public:
+    vector<string> ret;
+    string path;
+    vector<string> letterCombinations(string digits) {
+        if(digits.empty()) return ret;
+        vector<string> vec = {"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}; // 一共8个元素
+        dfs(digits, vec, 0);
+        return ret;
+    }
+    void dfs(string &digits, vector<string> &vec, int pos) {
+        if(pos == digits.size()) {
+            ret.push_back(path);
+            return;
+        }
+        char c = digits[pos];  // 对应的按键
+        string &s = vec[c - '2'];  // 本次需要for循环的字符串
+        // pos标志着现在需要处理的字符串, 在vec中
+        for(char & ch : s) {
+            path += string(1, ch);
+            dfs(digits, vec, pos + 1);  // 递归
+            path.pop_back();  // 恢复现场
+        }
+    }
+};
+```
+
+### [22. 括号生成](https://leetcode.cn/problems/generate-parentheses/)
+
+没画决策树
+
+核心思路: 粗略来说, 每次递归可以选(, 可以选), 而选左需要一定条件, 选右也需要一定条件, 判断即可
+
+全局: 
+
+path记录当前的字符串
+
+num记录现在已凑成()的数量
+
+leftNum记录当前没有配对)的(的数量
+
+下面的逻辑仅限于目前还没有凑齐全部()的情况
+
+若leftNum == 0则只能选(,
+
+否则就是有(, 还要判断, 若不能再加新的(, 则只能加), 若可以, 则就是可以加(, 可以加)
+
+每种情况加了括号之后都要递归, 回溯时要恢复现场
+
+若进入递归时发现num == n, 则代表终止递归, 当前path就是一个合法path
+
+----
+
+就这???????
+
+---
+
+### [77. 组合](https://leetcode.cn/problems/combinations/)
+
+![image-20231113150040103](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113150040103.png)
+
+这东西真得画决策树
+
+画了之后把规律找到就清楚了
+
+> 有点像子集, 因为12 21是重复的
+>
+> 又有点像全排列, 不是Ⅱ, 因为数组中没有重复元素
+
+找上面的规律, 每一行是一个for, 1选了之后, 要从2开始, 2选了, 从3开始, 3选了从4开始
+
+其实下面还会递归, 只是到了下一层递归之后发现个数已经满足, 直接返回终止递归
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<int> path;
+    vector<vector<int>> combine(int n, int k) {
+        vector<int> v;
+        for(int i = 1; i <= n; ++i) v.push_back(i);
+        dfs(v, k, 0);
+        return ret;
+    }
+    void dfs(vector<int> &v, int k, int pos) {
+        // pos为从pos开始for循环遍历v, k是path元素数量上限
+        if(path.size() == k) {
+            ret.push_back(path);
+            return ;  // 终止循环
+        }
+        for(int i = pos; i < v.size(); ++i) {
+            path.push_back(v[i]);
+            dfs(v, k, i + 1);
+            path.pop_back();     // 恢复现场
+        }
+    }
+};
+```
+
+最后这个for还真得注意一下
+
+**是从pos开始遍历, 且递归传参时是i + 1**
+
+### [494. 目标和](https://leetcode.cn/problems/target-sum/)
+
+很简单哇
+
+其实每一层只有一个元素, 从第一个元素 + / - 开始, 后面的每一个都是+ / -
+
+不用遍历, 每个元素两个情况即可
+
+### [39. 组合总和](https://leetcode.cn/problems/combination-sum/)
+
+![image-20231113152239708](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113152239708.png)
+
+这不就清晰了吗? 233 323 332都是重复的, 怎么办?
+
+还是那样的, 2可以从2开始, 3可以从3开始
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<int> path;
+    int pathSum = 0;
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        dfs(candidates, target, 0);
+        return ret;
+    }
+    void dfs(vector<int> & candidates, int target, int pos) {
+        if(pathSum == target) {
+            ret.push_back(path);
+            return ;
+        }
+        if(pathSum > target) {
+            return ;
+        }
+        // 从pos开始进行遍历
+        for(int i = pos; i < candidates.size(); ++i) {
+            path.push_back(candidates[i]);
+            pathSum += candidates[i];
+            dfs(candidates, target, i);
+            path.pop_back();            // 回溯 - 恢复现场
+            pathSum -= candidates[i];   // 回溯 - 恢复现场
+        }
+    }
+};
+```
+
+没剪枝
+
+### [784. 字母大小写全排列](https://leetcode.cn/problems/letter-case-permutation/)
+
+每次递归不用遍历, 只需要对当前元素处理即可
+
+如果是字母, 则大小写两种递归, 如果不是字母, 直接加到path中
+
+> a - z 97 - 122   A - Z 65 - 90  
+>
+> A -> a += 32   妈的
+
+![image-20231113160001193](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113160001193.png)
+
+```C++
+class Solution {
+public:
+    vector<string> ret;
+    string path;
+    vector<string> letterCasePermutation(string s) {
+        dfs(s, 0);
+        return ret;
+    }
+    void dfs(string &s, int pos) {
+        if(pos == s.size()) {
+            ret.push_back(path);
+            return ;
+        }
+        char ch = s[pos];
+        if(ch >= '0' && ch <= '9') {
+            path.push_back(ch);
+            // return dfs(s, pos + 1);
+            dfs(s, pos + 1);
+            path.pop_back();
+            return ;
+        }
+        // 分小写大写两个情况
+        if(ch >= 'a' && ch <= 'z') ch = (char)(ch - 32);
+        // ch一定是大写
+        path.push_back(ch);
+        dfs(s, pos + 1);
+        path.pop_back();  // 回溯
+        // 小写
+        path.push_back((char)(ch + 32));
+        dfs(s, pos + 1);
+        path.pop_back();
+        return ;
+    }
+};
+```
+
+**致命错误, 看中间的数字的递归逻辑, 递归之后, 不能直接返回的, 比如a1b2, 2递归进入, 发现pos == s.size() 返回, 返回到2这里, 难道直接返回吗? 必须恢复现场, 把2去掉 变为a1b, 再回到b这一层, 小写处理完, 处理大写, 且小写递归完了 还要恢复现场, 变为a1, 再插入B, 变为a1B, 再进一步递归**
