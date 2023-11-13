@@ -4897,3 +4897,85 @@ public:
 ```
 
 **致命错误, 看中间的数字的递归逻辑, 递归之后, 不能直接返回的, 比如a1b2, 2递归进入, 发现pos == s.size() 返回, 返回到2这里, 难道直接返回吗? 必须恢复现场, 把2去掉 变为a1b, 再回到b这一层, 小写处理完, 处理大写, 且小写递归完了 还要恢复现场, 变为a1, 再插入B, 变为a1B, 再进一步递归**
+
+### [526. 优美的排列](https://leetcode.cn/problems/beautiful-arrangement/)
+
+1 - n n个数字
+
+逐个位置进行选择
+
+从下标为0开始选, 候选项为所有数字, 每个位置遍历所有数字时都有两个条件: 之前没用过 且 符合条件
+
+每个位置都可以遍历所有的数字, 只要这个数字没有被选过 且 符合条件, 就可以进一步递归
+
+之前选了x, 之后不能再选x
+
+---
+
+比如n = 5吧
+
+第一个下标处选1 ? 2 3 4 5 ? 任何一个符合完美条件都可以进一步递归
+
+第二个下标选1 2 3 4 5 ? 条件是之前没选过 且这个数字符合完美条件
+
+主要是因为21 12 是不重复的
+
+这里不必记录path, 因为最终只要符合条件的path的数量, 所以只需要记录当前用过哪些数字, 当然这个东西也需要恢复现场
+
+```C++
+class Solution {
+public:
+    int ret = 0;
+    unordered_set<int> check;  // 记录已经使用过的元素, 存储值即可
+    int countArrangement(int n) {
+        vector<int> v;
+        for(int i = 1; i <= n; ++i) v.push_back(i);
+        dfs(v, 0);
+        return ret;
+    }
+    void dfs(vector<int> &v, int pos) {
+        // v是候选的所有元素, pos是即将填入的下标
+        if(pos == v.size()) {
+            ret++;
+            return ;
+        }
+        for(int i = 0; i < v.size(); ++i) {
+            if(check.find(v[i]) == check.end() && perfect(v[i], pos + 1)) {
+                check.insert(v[i]);
+                dfs(v, pos + 1);
+                check.erase(v[i]);
+            }
+        }
+    }
+    bool perfect(int num, int pos) {
+        if((num % pos == 0) || (pos % num == 0)) return true;
+        return false;
+    }
+};
+```
+
+### [667. 优美的排列 II](https://leetcode.cn/problems/beautiful-arrangement-ii/)
+
+1- 选过的不能再选
+
+主要目的: 凑成n个时, 有k个不同的数字, 这个path 就符合条件
+
+为了避免超时
+
+1- 当找到了合法path, 后续都需要终止
+
+2- 如果到了某一个位置时的不同数字已经超了, 则直接返回, 不要递归下去?
+
+
+
+---
+
+这B题用回溯根本解不了好吧??????
+
+### [79. 单词搜索](https://leetcode.cn/problems/word-search/)
+
+先找个入口, 然后递归周围的合法值, 不断递归, 如果最终找到了, 就true
+
+但是需要记录之前path走过的下标, 不能重复使用
+
+unordered_set<pair<int, int>\>  即可
