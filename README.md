@@ -4974,8 +4974,138 @@ public:
 
 ### [79. 单词搜索](https://leetcode.cn/problems/word-search/)
 
-先找个入口, 然后递归周围的合法值, 不断递归, 如果最终找到了, 就true
+这个题的思路其实很简单, 按照目标字符串, 逐个字符进行查找即可
 
-但是需要记录之前path走过的下标, 不能重复使用
+且每次查找时并不是遍历整个board
 
-unordered_set<pair<int, int>\>  即可
+只有找第一个字符时, 可以遍历, 只要找到一个字符, 那么下次递归进入之后找下一个字符的搜索区域就很少了, 只是上一个位置的周围四个而已
+
+判断, 这个新的位置是否越界, 判断这个位置是否使用过, 判断这个位置是否是目标字符
+
+如果都满足, 则进一步递归...
+
+```C++
+struct PairHash {
+    size_t operator()(const std::pair<int, int> &p) const {
+        return std::hash<int>()(p.first) ^ std::hash<int>()(p.second);
+    }
+};
+
+struct PairEqual {
+    bool operator()(const std::pair<int, int> &lhs, const std::pair<int, int> &rhs) const {
+        return lhs.first == rhs.first && lhs.second == rhs.second;
+    }
+};
+class Solution {
+public:
+    std::unordered_set<std::pair<int, int>, PairHash, PairEqual> pairSet;
+    // vector<vector<bool>> used;
+    bool ret;
+    int row;
+    int col;
+    bool exist(vector<vector<char>>& board, string word) {
+        row = board.size();
+        col = board[0].size();
+        // used.resize(row);
+        // for(auto & vec : used) vec.resize(col, false);
+        {
+            unordered_set<char> bSet;
+            unordered_set<char> wSet;
+            for(int i = 0; i < row; ++i) {
+                for(int j = 0; j < col; ++j) {
+                    bSet.insert(board[i][j]);
+                }
+            }
+            for(auto & ch : word) wSet.insert(ch);
+            for(auto & ch : wSet) {
+                if(bSet.find(ch) == bSet.end()) return false;
+            }
+        }
+        dfs(board, word, 0, {-1, -1});
+        return ret;
+    }
+    void dfs(vector<vector<char>> &board, string &word, int pos, pair<int, int> prevPos) {
+        if(pos == word.size()) {
+            ret = true;
+            return ;
+        }
+        // 现在在找word[pos]这个字符
+        char target = word[pos];
+        if(prevPos.first == -1 && prevPos.second == -1) {
+            // 最开始, 找第一个字符
+            for(int i = 0; i < row; ++i) {
+                for(int j = 0; j < col; ++j) {
+                    if(board[i][j] == target) {
+                        pairSet.insert({i, j});
+                        dfs(board, word, pos + 1, {i, j});
+                        if(ret) return ;
+                        pairSet.erase({i, j});  // 恢复现场
+                    }
+                }
+            }
+        } else {
+            int i = prevPos.first;
+            int j = prevPos.second;
+            // 从prevPos的周围的合法坐标中, 找target, 找到了就递归, 没找到就返回
+            vector<pair<int, int>> choice = {{i - 1, j}, {i + 1, j}, {i, j - 1}, {i, j + 1}};
+            for(auto & p : choice) {
+                if(func(p)
+                && board[p.first][p.second] == target
+                && pairSet.find(p) == pairSet.end()) {  // 又找到了一个
+                    pairSet.insert(p);
+                    dfs(board, word, pos + 1, p);
+                    if(ret) return ;
+                    pairSet.erase(p);   // 恢复现场
+                }
+            }
+        }
+    }
+    bool func(pair<int, int> &pos) {
+        if(pos.first >= 0 && pos.first < row && pos.second >= 0 && pos.second < col) return true;
+        return false;
+    }
+};
+```
+
+unordered_set的第二个模板参数: 求哈希值的类, 第三个 : 判断是否相等的类
+
+> `std::unordered_set` 是 C++ 标准库中的一个容器，它是无序、不重复元素集合的实现。以下是 `std::unordered_set` 的各个模板参数的解释：
+>
+> 1. **Key（键类型）**：
+>    - 这是集合中存储的元素类型。对于 `unordered_set`，键就是元素本身。例如，如果你要存储整数，键类型就是 `int`；如果要存储自定义类型，键类型就是该自定义类型。
+> 2. **Hash（哈希函数类型）**：
+>    - 这是用于计算键的哈希值的函数对象。哈希函数将键转换为容器内部索引的无符号整数值。对于自定义类型，你可能需要提供自定义的哈希函数。
+> 3. **KeyEqual（键相等性判定函数类型）**：
+>    - 这是用于比较键是否相等的函数对象。在哈希冲突时，它用于检查两个键是否相等。对于自定义类型，你可能需要提供自定义的相等性判定函数。
+> 4. **Allocator（分配器类型）**：
+>    - 这是用于分配内存的分配器类型。默认情况下，使用 `std::allocator`，但你可以指定其他分配器类型。
+>
+> 举例说明，使用 `std::unordered_set` 存储整数的情况下，模板参数通常如下所示：
+>
+> ```
+> cppCopy code
+> std::unordered_set<int> mySet;
+> ```
+>
+> 如果要使用自定义类型（比如 `std::pair<int, int>`）作为键，你可能需要提供自定义的哈希函数和相等性判定函数：
+>
+> ```
+> cppCopy codestruct PairHash {
+>     size_t operator()(const std::pair<int, int> &p) const {
+>         // 自定义的哈希函数
+>         return std::hash<int>()(p.first) ^ std::hash<int>()(p.second);
+>     }
+> };
+> 
+> struct PairEqual {
+>     bool operator()(const std::pair<int, int> &lhs, const std::pair<int, int> &rhs) const {
+>         // 自定义的相等性判定函数
+>         return lhs.first == rhs.first && lhs.second == rhs.second;
+>     }
+> };
+> 
+> std::unordered_set<std::pair<int, int>, PairHash, PairEqual> pairSet;
+> ```
+>
+> 模板参数的选择取决于你存储的类型以及你对容器的特定需求。
+
