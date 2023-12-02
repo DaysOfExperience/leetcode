@@ -280,6 +280,54 @@ public:
    所以, 我们需要保存上一组的逆置前第一个, 然后在处理这一组的最后一个时, 让它指向这个最后一个
    并且需要创建两个, 一个bgein  一个 curBegin, 因为你不能在处理这一组的第一个时就把begin赋值了, 因为它会存储上一组的有效结点
 
+```C++
+class Solution {
+public:
+    ListNode* reverseKGroup(ListNode* head, int k) {
+        if(k == 1) return head;
+        ListNode *cur = head;
+        int num = 0;
+        while(cur) num++, cur = cur->next;
+        num /= k;  // 进行几轮
+        cur = head;
+        ListNode *prevEnd = nullptr; // 上一组的最后一个
+        int kNum = k;
+        ListNode *ret = nullptr;
+        bool first = true;
+        ListNode *prev = nullptr;
+        ListNode *thisFirst = nullptr;
+        while(num--) {
+            // 这k个进行处理
+            thisFirst = cur;
+            while(kNum--) {
+                ListNode *next = cur->next;
+                cur->next = prev;
+                prev = cur;
+                cur = next;
+                if(first == false && kNum == 0) {
+                    prevEnd->next = prev;  // 上一组的最后一个连接这一组的这个
+                }
+                if(first == true) {
+                    ret = prev;
+                }
+            }
+            // 此时cur是下一组的第一个, 
+            first = false;
+            kNum = k;
+            prevEnd = thisFirst;
+        }
+        if(cur) {
+            prevEnd->next = cur;
+        }else {
+            prevEnd->next = nullptr;
+        }
+        return ret;
+    }
+};
+```
+
+
+
 ### [23. 合并 K 个升序链表](https://leetcode.cn/problems/merge-k-sorted-lists/)
 
 如果是合并链表就好了,  如果是合并三个升序链表也不难
@@ -1036,6 +1084,18 @@ vector<pair<int, int>> 行不行? 感觉可以呀
 
 ### [155. 最小栈](https://leetcode.cn/problems/min-stack/)
 
+8 6 4 3 1
+
+8 6 4 3 1
+
+1 1 3 3 4 4 7 7 0
+
+1 1 1  1 1 1 1 1 0
+
+easy
+
+---
+
 .... 为什么还是不会???
 
 思路: stack存pair first是元素, second表示当该元素是栈顶元素, 即将pop时, 栈中的最小值
@@ -1048,13 +1108,55 @@ pop很简单, top很简单, min也就依靠这个second实现了
 
 ### [394. 字符串解码](https://leetcode.cn/problems/decode-string/)
 
-数字一定表示次数, 遇到]一定要找上一个数字, 然后生成一个字符串, 可是这个字符串也有可能要和前面的拼接起来, 怎么办? 
+统计规律
 
-ok 过了, 怎么说呢... 其实不算特别难, 但是很多小细节需要处理好
+- 一定要先搞一个原始的字符串, 也就是最终要返回的字符串
+- 只要是一个int, 最后一定有一个[], 且中间有一个字符串, 最终要以个数倍加到前一个字符串中
+- 也就是说, 并不是只要abc的a前面不是[, 我就
 
-整体来说, 只要有一个数字, 就搞一个string, 且原始的那个也要搞一个string
+懂了
 
-也就是每次遇到], 就处理一下, 然后得到一个结果, 现在需要考虑的是, 可能这个是另一个的string的一部分, 然后整体再乘倍数, 那如果不是, 其实就是最终字符串的一部分了, 这个使用stack就可以完美处理掉, 就是我也不知道这是其他的一部分还是最终的一部分, 无妨, 利用stack就可以完美解决
+- 重点: 遇到数字时创建新的字符串, 而不是[a时创建, 因为可能存在3[2[abc]]
+
+```C++
+class Solution {
+public:
+    string decodeString(string s) {
+        stack<int> int_st;
+        stack<string> str_st;
+        str_st.push(string());
+        for(int i = 0; i < s.size(); ++i) {
+            char ch = s[i];
+            if(ch >= '0' && ch <= '9') {
+                if(i != 0 && s[i - 1] >= '0' && s[i - 1] <= '9') {
+                    // 该数字需要和前一个进行拼接
+                    int_st.top() = int_st.top() * 10 + (ch - '0');
+                }
+                else {
+                    int_st.push(ch - '0');
+                    str_st.push(string());   // 这里添加新的字符串
+                }
+            }
+            else if(ch >= 'a' && ch <= 'z'){
+                // 字母
+                str_st.top() += string(1, ch);
+            } else if(ch == ']'){
+                // 此时, 一定有一个字符串, 可能要乘以某个倍数, 可能不乘
+                string s = str_st.top();
+                str_st.pop();
+                int num = int_st.top();
+                int_st.pop();
+                for(int i = 0; i < num; ++i) {
+                    str_st.top() += s;
+                }
+            }
+        }
+        return str_st.top();
+    }
+};
+```
+
+其实还是分清楚各个情况, 怎么做, 什么时候加新的字符串
 
 ## 单调栈
 
@@ -1333,9 +1435,9 @@ public:
 
 中序: 左中右, 关键是我们处理结点的顺序和访问的顺序不一样, 前序访问到哪个, 直接处理即可, 而中序只能从根节点开始访问, 但是先处理的必须是左子树的最底部
 
-> 我就记得中序的非递归不简单来着= =, 这B东西今天做依旧不会....
+> <u>**我就记得中序的非递归不简单来着= =, 这B东西今天做依旧不会....**</u>
 
-![image-20231102151720104](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231102151720104.png)
+![image-20231102151720104](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231102151720104.png)
 
 怎么才能彻底记住呢...   核心思路就是: 遇到某根节点, 不能直接处理它, 而是沿着左子树一直遍历下去, 一直入栈, 最终后进先出, 最终出栈时的处理顺序才是正确的中序处理顺序
 
@@ -1871,11 +1973,17 @@ public:
 
 中序即可啦
 
-![image-20231102183818106](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231102183818106.png)
+![image-20231102183818106](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231102183818106.png)
 
 可以看出, 哈哈, 左边是很久之前写的, 比较...原始
 
 右边, 其实ret只会更新一次, 根节点最终中序遍历完一定会返回正确的ret, 其他的可能返回0, 可能返回正确的ret, 都无所谓
+
+---
+
+优化: 若自己就是第k个, 直接返回, 不用递归右子树
+
+若左子树完了, 已经过了第k个, 直接返回, 不用递归右子树
 
 ### [530. 二叉搜索树的最小绝对差](https://leetcode.cn/problems/minimum-absolute-difference-in-bst/)
 
