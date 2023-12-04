@@ -3051,6 +3051,8 @@ abc d
 
 ## 子序列问题
 
+子序列, 因为子序列的元素可以在原数组中不连续, 因此基本上都不像子数组一样: dp[i]表示以i元素为结尾的某子数组.....基本子数组是O(N)的, 而子序列处理dp[i]时, 需要遍历0 - i-1, 所以基本就是O(N^2)了, 而有些题因为比较复杂, 所以必须二维dp, 存储j, i元素为结尾的子序列...... 具体还要看具体题目
+
 ### [300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)
 
 > hot100
@@ -3167,6 +3169,8 @@ dp[i]是一个pair, first表示以i下标元素为结尾的最长摆动子序列
 所以, 用哈希表做dp能成功主要是因为这里的diff已经给了!!!!! diff有了, 你要找的目标值就有了, 因为你所组成的定差子序列的前一个元素是已知的
 
 ![image-20231015215143501](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231015215143501.png)
+
+## 子序列问题 - 二维dp
 
 ### [873. 最长的斐波那契子序列的长度](https://leetcode.cn/problems/length-of-longest-fibonacci-subsequence/)
 
