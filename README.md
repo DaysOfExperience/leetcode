@@ -3725,13 +3725,13 @@ dp[i][j\] 表示s1的0到i区间的子字符串与s2的0到j区间的子字符�
 
 ## 背包问题
 
-### 01背包
+### 01背包 - 真
 
 若干个物品, 一个背包, 背包有容量上限, 物品有价值 + 体积, 问怎么选择物品可以获取最大价值, 这里分为两个情况, 1. 背包必须装满, 2. 背包不必装满
 
 01背包就是每个物品只有一个, 完全背包就是每个物品有无数个, 可以任意挑选多少个
 
-状态表示: 如果dp[i] 表示到i元素为止, 所有选法的最大价值, 是不行的, 因为这里根本没有涉及到体积这个因素, **体积才是可选不可选的关键因素**, 否则的话就是每个元素都要选喽
+状态表示: 如果dp[i] 表示到i元素为止, 所有选法的最大价值, 是不行的, 因为这里根本没有涉及到体积这个因素, **体积才是关键因素**, 否则的话就是每个元素都要选喽
 
 **正确的状态表示: 二维, 一维是物品  一维是体积**
 
@@ -3743,7 +3743,7 @@ dp[i][j\] 表示s1的0到i区间的子字符串与s2的0到j区间的子字符�
 
 i物品, 要么选, 要么不选, 此时还需要结果的体积不能超过j
 
-![image-20231108154156809](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231108154156809.png)
+![image-20231108154156809](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231108154156809.png)
 
 **也就是说, 到了每个元素的每个体积情况都需要考虑**
 
@@ -3753,7 +3753,7 @@ i物品, 要么选, 要么不选, 此时还需要结果的体积不能超过j
 
 如果是完全背包: 其实和上面的差别不是很大
 
-状态表示: dp i j 表示到i物品为止, 所有选法中, 体积恰好等于j的选法的最大价值
+**状态表示: dp i j 表示到i物品为止, 所有选法中, 体积恰好等于j的选法的最大价值**
 
 此时, dp i j 可能没有选法, 也就是无法恰好凑成j体积, 则记作-1
 
@@ -3775,7 +3775,7 @@ i物品, 要么选, 要么不选, 此时还需要结果的体积不能超过j
 
 二刷: 也就是, 选出子序列, 使和为x
 
-其实也就是每个元素选/不选, 可以理解为背包体积必须装满, 且价值已知(等于体积啦)
+其实也就是每个元素选/不选, 可以理解为背包体积必须装满, 且价值已知(等于体积啦), 其实这里没必要牵扯到价格, 因为我可以是前i个元素中选择, 体积等于j是否可以做到?
 
 状态表示: dp[i][j]表示从前i个元素中选, 使其体积等于j的选法是否存在
 
@@ -3783,43 +3783,37 @@ dp[i][j\] 不选 / 选
 
 max(dp i-1 j, dp i-1 j-nums[i])
 
-只用到上一行, 所以整体从上往下进行处理, 
+只用到上一行, 所以整体从上往下进行处理
+
+多一行多一列, 没有元素, 凑的目标和为0?
+
+第一行没有元素, 第一列目标和为0?
 
 ---
 
 
 
-
-
-
-
 记总和为sum  其实就是选出一个子集, 和为sum / 2
 
-所以, 其实就是, N个物品, 每个只有一个, 价值已知, 背包没有容量限制, 但是有价值规定, 必须总价值等于sum / 2, 怎么选择
-
-或者, N个物品, 价值未知, 但是已知体积, 背包容量为sum / 2, 且必须填满背包
+所以, 其实就是, N个物品, 每个只有一个, 价值已知, 背包有容量限制, 必须装满, 是否可以?
 
 > 注意, 这里其实是子序列, 不是子数组
 
-状态表示: dp i j 表示到i元素为止 所有选择中, 价值恰好等于j的选法是否存在  (你也可以理解为体积等于j)
+状态表示: dp i j 表示到i元素为止 所有选择中, 体积恰好等于j的选法是否存在
 
 > 横坐标: i 元素  纵坐标 : j 价值
 
-状态转移方程:
-
-i元素 选 / 不选
+状态转移方程:  i元素 选 / 不选
 
 选 : i-1 选出j - value[i] 是否为true  dp i-1 j-value[i] 
 
 不选: i-1选出j是否为true  dp i-1 j
 
-用到上, 左, 所以多一行多一列, 且从上往下, 从左往右
+用到上, 所以多一行多一列, 且从上往下
 
-第一行, 没有元素
+第一行, 没有元素   第一列, 价值为0
 
-第一列, 价值为0
-
-![image-20231108184549952](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231108184549952.png)
+![image-20231108184549952](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231108184549952.png)
 
 注意, 有元素/没元素, 不选就是0, 所以第一列都是true
 
@@ -3829,15 +3823,25 @@ i元素 选 / 不选
 
 每个元素选 / 不选  且必须填满背包, 没有价值规定
 
-#### [494. 目标和](https://leetcode.cn/problems/target-sum/)
+```C++
+        for(int i = 1; i < n + 1; ++i) {
+            for(int j = 1; j < sum + 1; ++j) {
+                dp[i][j] = dp[i - 1][j];  // 不选
+                if(dp[i][j]) continue;
+                if(j - nums[i - 1] >= 0) dp[i][j] = dp[i - 1][j - nums[i - 1]];  // 选, 从i-1里面选一个目标和
+            }
+        }
+```
 
-![image-20231108192155952](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231108192155952.png)
+#### [494. 目标和](https://leetcode.cn/problems/target-sum/) (target+sum) / 2
+
+![image-20231108192155952](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231108192155952.png)
 
 > 这他妈我能想到?
 
 这样就是01背包问题了, 若干物品, 价值>=0, 背包必须填满, 不需要记录最大价值, 需要记录填满的选法的个数
 
-dp i j 在0, i元素区间中, 所有选法的空间大小等于j的选法的个数
+**dp i j 在0, i元素区间中, 所有选法的空间大小等于j的选法的<u>个数</u>**
 
 状态转移方程: 
 
@@ -3849,7 +3853,7 @@ i元素 选 / 不选来具体分类, 很简单
 
 ![image-20231108200247035](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231108200247035.png)
 
-所以, 第一列的剩余元素不需要初始化, 可以和11以后的一起初始化, 因为不会越界的
+**所以, 第一列的剩余元素不需要初始化, 可以和11以后的一起初始化, 因为不会越界的**
 
 那 如果初始化呢? 比如3个0, 和为0的选法有几种, ...有点难算
 
@@ -3860,23 +3864,32 @@ i元素 选 / 不选来具体分类, 很简单
 > 1. 怎么把原始的问题转换为01背包, 最开始的数学证明有点麻烦, 且很难想到
 > 2. 第一列的初始化问题
 
-#### [1049. 最后一块石头的重量 II](https://leetcode.cn/problems/last-stone-weight-ii/)
+```C++
+        for(int i = 1; i <= m; ++i) {
+            for(int j = 0; j <= n; ++j) {
+                dp[i][j] = dp[i - 1][j];  // 不选
+                if(j - nums[i - 1] >= 0) dp[i][j] += dp[i - 1][j - nums[i - 1]];
+            }
+        }
+```
 
-![image-20231108203716333](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231108203716333.png)
+#### [1049. 最后一块石头的重量 II](https://leetcode.cn/problems/last-stone-weight-ii/) sum/2
+
+![image-20231108203716333](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231108203716333.png)
 
 ![image-20231108202404022](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231108202404022.png)
 
 > 这尼玛我能想到怎么转换到这个的????
 
-![image-20231108202542617](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231108202542617.png)
+![image-20231108202542617](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231108202542617.png)
 
 首先, 不必纠结于差值是正还是负, 因为差值永远可以是>=0的
 
 那么, 也就是所有的数加减之后一个结果, 这个结果需要是最小的, 所以就转换为我们需要找出若干数的和, 这个和最接近与sum / 2, 如果确实等于, 则最后就是0呗, 如果是sum / 2 - 1, 则最后差值就是2呗
 
-所以就转换为了
+**所以就转换为了**
 
-有若干物品, 背包容量已知(sum/2), 可以不装满, 此时物品的价值和体积都是已知的且相等, 现在要求物品价值的最大值(同时容量也会逼近于最大)
+**有若干物品, 背包容量已知(sum/2), 可以不装满, 此时物品的价值和体积都是已知的(且相等), 现在要求物品价值的最大值(同时容量也会逼近于最大)**
 
 > 5 就是23,  4就是22, 所以直接sum/2即可
 
@@ -3888,23 +3901,11 @@ i元素 选 / 不选来具体分类, 很简单
 
 i元素选 / 不选
 
-不选: dp[i - 1][j\]
-
-选: dp[i - 1][j - stones[i -1\]\]  同时需要判断一下,  以免越界
-
 两者求较大值即可
 
 第一行: 没有元素, 第一列: 和为0
 
 ```C++
-class Solution {
-public:
-    int lastStoneWeightII(vector<int>& stones) {
-        int sum = 0;
-        for(auto & i : stones) sum += i;
-        int m = stones.size(), n = sum / 2;
-        vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
-        // 第一行第一列全是0
         for(int i = 1; i <= m; ++i) {
             for(int j = 1; j <= n; ++j) {
                 dp[i][j] = dp[i - 1][j];  // 不选
@@ -3912,15 +3913,15 @@ public:
                     dp[i][j] = max(dp[i][j], dp[i - 1][j - stones[i - 1]] + stones[i - 1]);
             }
         }
-        if(dp[m][n] > sum / 2) return dp[m][n] - (sum - dp[m][n]);
-        else return sum - dp[m][n] - dp[m][n];
-    }
-};
 ```
 
 其实最后这个判断多余, 因为sum=5时, dp[m][n\]最大也是2, 不会是3
 
-### 完全背包
+---
+
+虽说传统的01背包问题的状态表示是背包装满/不装满时的所有物品的最大价值, 但是这个只是个模板, 实际上还要看具体的问题, 比如上面三个, 第一个是能否装满? 第二个是装满的选法的个数, 第三个是装满时的最大价值(传统的), 所以01背包主要就是元素只有一个, 体积价值已知(没有价值也行), 然后装满或者不用装满时的各种情况的统计/判断
+
+### 完全背包 - 纯完全背包
 
 01背包: 背包容量V, 若干物品, 有每个物品的价值和体积, **每个物品只有一个, 所以对于每个物品来说, 只有选 / 不选**
 
@@ -3930,8 +3931,6 @@ public:
 
 具体可以分为两个问题: 背包不必装满的最大价值, 背包必须装满的最大价值
 
-> 理论来说, 价值越高, 体积越小的物品选的越多越好, 但是具体问题还需要具体分析, 就比如下面这个完全平方数, 它其实要求是选的物品越少越好, 所以... 也不是物品体积越大, 选的越多, 最终总数量就一定越少
-
 ---
 
 1. 先看背包不必装满的场景
@@ -3940,25 +3939,29 @@ public:
 
 状态转移方程: 
 
-![image-20231109140658477](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109140658477.png)
+![image-20231109140658477](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109140658477.png)
 
 这个说实话很好理解... 就是选1.2.3...需要循环, 又是一个O(N), 如何用有限的状态替换呢?
 
-![image-20231109140853297](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109140853297.png)
+**其实就是选1个的时候的i-1换成i就行了**
 
-最终就是下面的这个, dp i-1 j代表第i个元素不选的情况, 后面那个是选1.2.3.....个的最大值, 需要判断j - v[i]是否>=0, 若不是, 则该状态不存在
+![image-20231109140853297](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109140853297.png)
 
-其实中间无非就是数学转换, 我们需要记住这个状态....
+**最终就是下面的这个, dp i-1 j代表第i个元素不选的情况, 后面那个是选1.2.3.....个的最大值, 需要判断j - v[i]是否>=0, 若不是, 则该状态不存在**
+
+其实中间无非就是数学转换, 我们需要记住这个表达式....
+
+`dp[i][j] = max(dp[i - 1][j], dp[i][j - v[i]] + w[i]`  i和j各自变一下呗
 
 2. 再看背包必须装满的场景
 
-状态表示: dp [i][j\] 表示前i个物品/元素中选择, 所有选法中, 体积等于j的最大价值
+状态表示: dp [i][j\] 表示前i个物品/元素中选择, 所有选法中, 体积等于j的**最大价值**
 
 状态转移方程:
 
-![image-20231109141058199](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109141058199.png)
+![image-20231109141058199](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109141058199.png)
 
-这里其实和上面的情况很像, 但是.. 因为这里的限制条件是必须装满, 所以, 若装不满, 我们可以规定dp值为-1, 所以这里不仅要判断j - v[i]>=0, 还要判断dp值是否等于-1, 因为-1 + w[i]可能大于dp[i-1][j\], 且不选的情况也有可能是为-1的, 所以需要多几个判断
+<u>这里其实和上面的情况很像, 但是.. 因为这里的限制条件是必须装满, 所以, 若装不满, 我们可以规定dp值为-1, 所以这里不仅要判断j - v[i]>=0, 还要判断dp值是否等于-1, 因为-1 + w[i]可能大于dp[i-1][j\], 且不选的情况也有可能是为-1的, 所以需要多几个判断</u>
 
 
 
@@ -3966,19 +3969,37 @@ public:
 
 初始化问题:
 
-![image-20231109141439208](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109141439208.png)
+![image-20231109141439208](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109141439208.png)
 
 紫色是不必装满, 绿色是必须装满
 
 且第一列的其他元素不需要初始化
 
-![image-20231109141613865](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109141613865.png)
+![image-20231109141613865](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109141613865.png)
 
 返回值和填表顺序
 
 #### [322. 零钱兑换](https://leetcode.cn/problems/coin-change/)
 
 > hot100
+
+> 二刷 : 背包容量已知, 必须装满, 每个物品有无限的, 不要求最高价值, 而是选的物品最少
+
+`dp[i][j]` 第i个元素选多少个, 最终其实就是那个状态表示`dp[i][j] = max(dp[i - 1][j], dp[i][j - v[i]] + w[i]`
+
+-1表示无法选出, 若不为-1则为最少个数
+
+其实这里最关键的是 **如何从最初的最高价值的状态转移方程转化为求最少物品数量的状态转移方程**
+
+`dp[i][j] = max(dp[i - 1][j], dp[i][j - v[i]] + w[i]` dp值肯定是最少个数, 可是第二个表达式如何转换?
+
+`dp[i][j] = min(dp[i - 1][j], dp[i][j - v[i]] + 1)`
+
+第一: `j - v[i]`是否合法, 第二点, 两个dp值是否为-1, 若是-1则第二个直接无效, 不用加1
+
+**所以, 其实就是最典型的完全背包问题罢了**
+
+---
 
 若干物品, 体积和价值相等, 必须装满, 每个物品有无限个, 这里不需要求装满时的最大价值, 而是要求装满时所使用的物品是最少的, 求最小数量
 
@@ -4024,47 +4045,19 @@ public:
 
 并且是选 / 不选里面求较小值, 也就是min, 而不是max
 
-![image-20231109154955120](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109154955120.png)
+![image-20231109154955120](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109154955120.png)
 
 明白了吗????个数!!!!!
 
-> ![image-20231109155314922](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109155314922.png)
+> ![image-20231109155314922](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109155314922.png)
 >
 > 其实-1也可以, 多判断一下而已
 
 #### [279. 完全平方数](https://leetcode.cn/problems/perfect-squares/)
 
+> 不能说完全一样, 只能说一模一样...
+
 物品若干, 体积和价值相等, 背包容量已知, 必须装满, 不求装满时的最大价值, 而是最少的使用物品的数量... (这他妈和上一题有什么区别?)
-
-```C++
-class Solution {
-public:
-    int numSquares(int n) {
-        vector<int> nums;
-        for(int i = 1; i <= n; ++i) {
-            if(i * i <= n) nums.push_back(i * i);
-            else break;
-        }
-        // nums中就是所有可能用到的物品, 价值=体积, 且价值没啥用, 必须装满, 求最小数量
-        int m = nums.size();
-        vector<vector<int>> dp(m + 1, vector<int>(n + 1, -1));  // -1表示不存在
-        // 第一行, 体积必须相等, 没有元素可选
-        dp[0][0] = 0;
-        for(int i = 1; i <= m; ++i) {
-            for(int j = 0; j <= n; ++j) {
-                dp[i][j] = dp[i - 1][j];  // 不选
-                if(j - nums[i - 1] >= 0 && dp[i][j - nums[i - 1]] != -1) {
-                    if(dp[i][j] == -1) dp[i][j] = dp[i][j - nums[i - 1]] + 1;
-                    else dp[i][j] = min(dp[i][j], dp[i][j - nums[i - 1]] + 1);
-                }
-            }
-        }
-        return dp[m][n];
-    }
-};
-```
-
-不能说完全一样, 只能说一模一样...
 
 > 归根结底, 它们的共同点就是若干物品, 选出来放入背包, 必须装满, 此时最少的物品数量是多少
 >
@@ -4074,25 +4067,20 @@ public:
 >
 > 先判断下标是否合理, 其次是如果是装满的话, 可能值是-1, 需要判断
 
-![image-20231109160127614](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109160127614.png)
+![image-20231109160127614](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109160127614.png)
 
 #### [518. 零钱兑换 II](https://leetcode.cn/problems/coin-change-ii/)
 
-物品若干, 价值和体积相等, 每个物品都有无限个, 也就是不是01背包, 而是完全背包. 背包容量已知, 必须装满, 这里不是求最大价值, 也不是求最少的使用物品的数量, 而是装满时的一共有多少种组合
+物品若干, 价值和体积相等, 每个物品都有无限个, 也就是不是01背包, 而是完全背包. 背包容量已知, 必须装满, **这里不是求最大价值, 也不是求最少的使用物品的数量, 而是装满时的一共有多少种组合**
 
 状态表示: dp[i][j\] 表示在前i个元素中选择, 恰好体积为j时, 一共有多少种选法
 
 ---
 
-其他都无所谓
+其他都无所谓  但是.. 不选的时候, 很简单, 选1 2 3 4 5....到底状态转移方程是什么?
 
-但是.. 不选的时候, 很简单, 选1 2 3 4 5....到底是什么状态转移方程?
-
-之前是求最价值, 所以要加w[i], 这里是求组合数, 也就是i元素选1个, 2个....
-
-若选1个, i-1需要选够剩余的空间大小, 这其实是一种选法的, 或者就是dp[i - 1][j - v[i\]\] 这若干种选法, 最后再选一个元素, 所以总的选法个数没有变
-
-所以, 我认为这里就是dp[i][j - v[i\]\] 
+比如, 第i个元素选1个, 则i-1个里面需要选够 `j - v[i]` 的体积, 那么, 如果 `dp[i-1][j - v[i]]` 不是0, 也就是有若干个选法, 则其实就是每个选法最后再加一个i元素, 所以总的选法个数不变, 所以, 选一个时, `dp[i][j] = dp[i - 1][j - v[i]]` 所以总的状态转移方程就是
+`dp[i][j] = dp[i - 1][j] + dp[i][j - v[i]]`  (两个可能都是0)
 
 > **完全背包的模板那里, 是求最大价值, 也就是i元素选若干个, 是要加上i元素的价值的**
 >
@@ -4100,9 +4088,7 @@ public:
 
 ----
 
-稍微一分析就过了
-
-所以这里到底是怎么状态转移, 还要从最开始的那个进行开始推导
+稍微一分析就过了, 所以这里到底是怎么状态转移, 还要从最开始的那个模板开始进行推导
 
 ```C++
 class Solution {
@@ -4128,7 +4114,7 @@ public:
 
 注意这里, 没有元素/物品, 要凑成体积为0, 此时的选法有几个? 其实只能不选, 所以dp[0][0\] 要初始化为1!!!!!!
 
-![image-20231109155720708](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231109155720708.png)
+![image-20231109155720708](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231109155720708.png)
 
 ### 二维费用的背包问题
 
