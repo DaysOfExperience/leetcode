@@ -4515,9 +4515,9 @@ NB
 
 ![image-20231111152024153](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111152024153.png)
 
-![image-20231111152745531](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111152745531.png)
+![image-20231111152745531](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111152745531.png)
 
-![image-20231111153530628](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111153530628.png)
+![image-20231111153530628](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111153530628.png)
 
 ## 递归
 
@@ -4553,9 +4553,9 @@ NB
 
 > **相信这个函数, 可以做到传入一个链表的头结点, 返回逆置后的新的头结点**
 
-![image-20231111175000202](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111175000202.png)
+![image-20231206203856718](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231206203856718.png)
 
-![image-20231111175014076](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111175014076.png)
+![image-20231111175014076](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111175014076.png)
 
 一个全新的视角: 把链表看作是一个树!!!!!
 
@@ -4573,9 +4573,9 @@ NB
 
 **相信这个函数可以返回x的n次幂**
 
-![image-20231111182718603](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111182718603.png)
+![image-20231111182718603](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111182718603.png)
 
-![image-20231111183534433](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231111183534433.png)
+![image-20231111183534433](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111183534433.png)
 
 ## 二叉树的深度优先搜索(深度优先遍历)
 
@@ -4634,7 +4634,7 @@ public:
 >
 > 当然还是有内部其它逻辑的
 
-![image-20231112153030770](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112153030770.png)
+![image-20231112153030770](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112153030770.png)
 
 ```C++
 class Solution {
@@ -4669,7 +4669,7 @@ public:
 
 所以, 对某颗子树进行处理时, 先对左右孩子子树进行剪枝处理, 然后根据左右剪枝的结果, 以及val的值, 进行处理这颗子树, 只有左右处理完返回的是空, 且根节点val == 0时才会返回nullptr, 也就代表着这颗子树处理完结果是nullptr
 
-![image-20231112155547379](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112155547379.png)
+![image-20231112155547379](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112155547379.png)
 
 **所以要加返回值**  动作统一 每一个都要有返回值, 就很方便的获取左右子树结果, 并更新左右子树
 
@@ -4707,7 +4707,7 @@ public:
 
 回溯+恢复现场  :  因为递归之后会改变全局变量, 这样递归结束回溯的时候, 这个全局变量被改变了, 此时需要恢复现场!
 
-![image-20231112171345169](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112171345169.png)
+![image-20231112171345169](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112171345169.png)
 
 1. 这个题用全局的path确实麻烦, 但是可以体现出恢复现场. 而如果用参数的话, 自动恢复现场, 我们只能学到前序DFS
    其实如果参数里的string path是引用的话, 也需要手动恢复现场
@@ -4760,9 +4760,7 @@ public:
 
 所以这里记录数据的path和记录使用情况的check数组要同步递归 + 恢复现场
 
-
-
-![image-20231112180725581](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112180725581.png)
+![image-20231112180725581](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112180725581.png)
 
 ```C++
 class Solution {
@@ -4815,21 +4813,20 @@ public:
 
 主要问题是 12选了之后, 21如何避免?  可以用一个unordered_set<vector<int\>\>  解决 
 
-![image-20231112195827335](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112195827335.png)
+![image-20231112195827335](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112195827335.png)
 
 1. 这个决策树完全没想到: 其实就是对数组的每个元素进行选 / 不选, 而这两个情况都需要递归, 只有递归到最后一个元素时才会终止递归
 
-下一步就是这个树转化为代码即可
+2. 下一步就是这个树转化为代码即可
+   怎么记录我目前处理到第几个元素了? 搞一个参数i即可, 并且这个形参i不需要恢复现场, 很爽  (其实恢复现场很简单, 就是恢复到递归之前即可~ )
 
-2. 怎么记录我目前处理到第几个元素了? 搞一个参数i即可, 并且这个形参i不需要恢复现场, 很爽
-
-其实恢复现场很简单, 就是恢复到递归之前即可~
+---
 
 > 这个相比之下更简单, 每个元素都是选 / 不选进行递归, 到最后一个元素时终止递归, 类似于树的叶子节点/空结点
 
-![image-20231112202635792](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231112202635792.png)
+![image-20231112202635792](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112202635792.png)
 
-这他妈, 怎么做到选了2, 之后不选1?  答案: 只选比上一个选择的数大的数
+**这他妈, 怎么做到选了2, 之后不选1?  答案: 只选比上一个选择的数大的数**
 
 可以看绿色和下面选择的关系, 1后面选23, 2后面选3, 3后面没有
 
