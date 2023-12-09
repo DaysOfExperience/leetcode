@@ -4750,8 +4750,6 @@ public:
 
 1. **画出决策树, 也就是所有的情况, 都列举出来 - 越详细越好    决策树只要能不重不漏的举出所有情况即可, 没有规定必须长什么样**
 
-![image-20231206200010545](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231206200010545.png)
-
 这个题来说, 如果用树的DFS来做的话, 有点类似于求二叉树的所有路径, 这里完全可以用一个vector来记录, 过程中必然涉及到递归与回溯
 
 <u>这里的关键是, 比如第一个位置选了1, 那么后面的就不能再选1, 如何排除呢</u>
@@ -4832,6 +4830,12 @@ public:
 
 其实就是 我选了下标为1, 之后这个path只能选 2 / 3 / 4...
 
+
+
+----
+
+> 目前来看, 这两个回溯来说, 决策树很重要, 然后, 根据决策树的逻辑, 转化为代码
+
 ## 综合练习
 
 ### [1863. 找出所有子集的异或总和再求和](https://leetcode.cn/problems/sum-of-all-subset-xor-totals/)
@@ -4840,29 +4844,25 @@ public:
 
 其实就是上一题求出所有的子集的同时求一个每个子集的按位异或的和即可
 
-能不能不用path, 直接用一个int来记录这个子集的目前为止所有元素的异或值 ?  可是回溯应该怎么回溯呢?  也就是异或i的反操作是什么? 不会, 所以回溯就不会... 所以还是每次到了终止递归时处理一下整个path数组即可
+不用path, 直接用一个int来记录这个子集的目前为止所有元素的异或值  可是回溯应该怎么回溯呢?  也就是异或i的反操作是什么?
 
 新 : 异或x, 再异或一次x, 就会抵消
 
 > 0选 / 不选, 1选 / 不选  nums.size() - 1选 / 不选
 
-其实就和之前的子集那个题很像
-
 ### [47. 全排列 II](https://leetcode.cn/problems/permutations-ii/)
 
-> 先回顾一下全排列Ⅰ, 其实就是 1 2 3, 第一个位置选了1, 第二个位置就不能选1, 23都可以, 第二个位置选了2, 第三个位置就只能选3, 第二个位置选了3, 第三个位置就只能选2   123 132
+> 先回顾一下全排列Ⅰ, 其实就是 1 2 3, 之前选过某元素, 之后就不能再选它了
 >
 > 所以需要记录, 目前为止选了哪些元素, 用bool数组或者unordered_set都可以
 
 > 决策树的重要性!!!!!!!!!!!!!
 
-思路一 : 其实无非就是全排列Ⅰ进行一个结果去重, 如果可以对vector<int\> 进行结果去重就好了, 112 112就会自动去重, 可是112 121会被去重吗?
+思路二 : 画出决策树发现, 1. 之前选过的, 现在不能再选, 这是最基本的, 2. **在一个for内部, 有几个相同的元素, 若某个被选了, 则后续不再选择等于这个元素的元素**
 
-思路二 : 画出决策树发现, 1. 之前选过的, 现在不能再选, 这是最基本的, 2. 在一个for内部, 有几个相同的元素, 若某个被选了, 则后续不再选择这个元素
+![image-20231209183234110](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231209183234110.png)
 
-![image-20231113132715934](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113132715934.png)
-
-其实相比于之前的全排列Ⅰ, 全排列Ⅰ是, 记录目前path用过哪些元素, 之前记录下标和值都可以, 因为元素值也具有唯一性, 但是注意这里必须记录的是下标
+相比于之前的全排列Ⅰ: 全排列Ⅰ是, 记录目前path用过哪些元素, 之前全排列Ⅰ记录下标和值都可以, 因为元素值也具有唯一性, 但是这里必须记录的是下标, 因为值会重复
 
 而这个题, 除了path里面有哪些下标的元素, 还要记录, 在一个for内部, 之前递归过的元素, 之后就不能再递归了, 比如第一行的1 1 2, 第二行第三组的112
 
@@ -4904,21 +4904,20 @@ check记录的是path用过的下标
 
 ---
 
-> ![image-20231114145200862](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231114145200862.png)
+> ![image-20231114145200862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114145200862.png)
 >
-> 其实这个题的关键就是这一个点而已, 可以理解为, 我先选第一个位置的值, 这里重复的元素只能选择一次, 这也是剪枝操作的一种
->
-> 第一点是这个题需要注意的, 第二点和全排列Ⅰ一样
 
 ### [17. 电话号码的字母组合](https://leetcode.cn/problems/letter-combinations-of-a-phone-number/)
 
-若干个字符串, 每个字符串选出一个, 进行搭配, 最终会出现多少种?
+> hot100
+
+若干个字符串, 每个字符串选出一个字符, 进行搭配, 最终会出现多少种?
 
 决策树很好画, 代码也容易
 
 其实这个和全排列是有点像的, 但是这个比如之前选了a, 后面是不可能有a的, 所以不需要记录之前path有过的元素
 
-![image-20231113140846277](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113140846277.png)
+![image-20231113140846277](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113140846277.png)
 
 ```C++
 class Solution {
@@ -4950,23 +4949,21 @@ public:
 
 ### [22. 括号生成](https://leetcode.cn/problems/generate-parentheses/)
 
-没画决策树
+> hot100????
 
-核心思路: 粗略来说, 每次递归可以选(, 可以选), 而选左需要一定条件, 选右也需要一定条件, 判断即可
+没画决策树   核心思路: 粗略来说, 每次递归可以选(, 可以选), 而选左需要一定条件, 选右也需要一定条件, 判断即可
 
 全局: 
 
-path记录当前的字符串
+- path记录当前的字符串
 
-num记录现在已凑成()的数量
+- num记录现在已凑成()的数量
 
-leftNum记录当前没有配对)的(的数量
+- leftNum记录当前没有配对)的(的数量
 
-下面的逻辑仅限于目前还没有凑齐全部()的情况
+- ret
 
-若leftNum == 0则只能选(,
-
-否则就是有(, 还要判断, 若不能再加新的(, 则只能加), 若可以, 则就是可以加(, 可以加)
+每次递归进来, 都要分情况, 只能加左, 还是只能加右, 还是都可以
 
 每种情况加了括号之后都要递归, 回溯时要恢复现场
 
@@ -4980,11 +4977,9 @@ leftNum记录当前没有配对)的(的数量
 
 ### [77. 组合](https://leetcode.cn/problems/combinations/)
 
-![image-20231113150040103](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113150040103.png)
+![image-20231113150040103](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113150040103.png)
 
-这东西真得画决策树
-
-画了之后把规律找到就清楚了
+**这东西真得画决策树, 画了之后把规律找到就清楚了**
 
 > 有点像子集, 因为12 21是重复的
 >
@@ -5026,25 +5021,52 @@ public:
 
 ### [494. 目标和](https://leetcode.cn/problems/target-sum/)
 
-很简单哇
+> 如果path以值传递的方式在递归函数的某个参数中传递, 则不需要进行恢复现场
+>
+> vector等大型参数不适合, 而int这种类型就很适合
 
-其实每一层只有一个元素, 从第一个元素 + / - 开始, 后面的每一个都是+ / -
+很简单哇, 其实每次递归只有一个元素的两种情况, 加或者减
 
 不用遍历, 每个元素两个情况即可
 
-![image-20231114152353862](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231114152353862.png)
+![image-20231114152353862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114152353862.png)
 
-如果是数组类的, 比如vector就不适合做参数了, 适合做全局.  像这种一个int, 做参数是比较合适的
+如果是数组类的, 比如vector就不适合做参数了, 适合做全局, 因为如果是参数的话, 构造新的vector代价比较大, 而全局vector自始至终只会有一个.  像这种一个int, 做参数是比较合适的
 
 且这个题做参数不超时, 做全局就超时, 因为做参数会有一点点的优化
 
+```C++
+class Solution {
+public:
+    int ret = 0;
+    int findTargetSumWays(vector<int>& nums, int target) {
+        dfs(nums, target, 0, 0);
+        return ret;
+    }
+    void dfs(vector<int> &nums, int target, int path, int pos) {
+        // 该处理pos下标的元素了
+        if(pos == nums.size()) {
+            if(path == target) ret++;  // 这是一种情况
+            return ;   // 终止递归
+        }
+        dfs(nums, target, path + nums[pos], pos + 1);
+        // 上一次dfs递归结束之后, 这里的path并没有改变
+        dfs(nums, target, path - nums[pos], pos + 1);
+    }
+};
+```
+
+> 优雅
+
 ### [39. 组合总和](https://leetcode.cn/problems/combination-sum/)
 
-![image-20231113152239708](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113152239708.png)
+> 为什么第二次做需要看好久
+
+![image-20231113152239708](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113152239708.png)
 
 这不就清晰了吗? 233 323 332都是重复的, 怎么办?
 
-还是那样的, 2可以从2开始, 3可以从3开始
+**还是那样的, 2可以从2开始, 3可以从3开始**
 
 ```C++
 class Solution {
@@ -5089,7 +5111,11 @@ public:
 >
 > A -> a += 32   妈的
 
-![image-20231113160001193](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231113160001193.png)
+即使是数字也要恢复现场, 因为你可能是由英文字母的第一个情况递归来的
+
+> 太nb了我, 上面这句话是第二次直接看代码想出来的
+
+![image-20231113160001193](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113160001193.png)
 
 ```C++
 class Solution {
@@ -5152,7 +5178,7 @@ public:
 
 主要是因为21 12 是不重复的
 
-这里不必记录path, 因为最终只要符合条件的path的数量, 所以只需要记录当前用过哪些数字, 当然这个东西也需要恢复现场
+这里不必记录path, 因为最终只要符合条件的path的数量, 所以只需要记录当前用过哪些数字, 当然这个东西(记录用过哪些数字的东西, 也就是哈希表啦~)也需要恢复现场
 
 ```C++
 class Solution {
@@ -5204,11 +5230,25 @@ public:
 
 ### [79. 单词搜索](https://leetcode.cn/problems/word-search/)
 
+> 核心思路: 按照目标字符串进行逐个元素的搜索, 只有第一个元素是遍历整个矩阵, 后面每次递归其实都是某四个位置进行查找
+>
+> 而这次递归的四个位置是取决于父递归的pos的, 那么, 其实可以直接把上次递归的位置传给这次递归, 就可以找到四个位置
+>
+> 位置不越界, 位置没用过, 位置的字符是目标字符, 则代表着可以进一步递归
+>
+> 最关键的是, 如何进行unordered_set<pair<int, int>> 去重
+>
+> 别忘了,  unordered_set本身就是哈希表结构, 第二个模板参数: 求哈希值, 第三个: 判断是否相等
+>
+> std::hash<int>()(p.second)   std::hash<int>()(i);
+>
+> 其实, 两个int怎么求哈希值? 我直接i1 + i2不行吗? 其实也行~
+
 这个题的思路其实很简单, 按照目标字符串, 逐个字符进行查找即可
 
 且每次查找时并不是遍历整个board
 
-只有找第一个字符时, 可以遍历, 只要找到一个字符, 那么下次递归进入之后找下一个字符的搜索区域就很少了, 只是上一个位置的周围四个而已
+只有找第一个字符时, 可以遍历, 只要找到一个字符, 那么下次递归进入之后找下一个字符的搜索区域就是固定的了, 只是上一个位置的周围四个而已
 
 判断, 这个新的位置是否越界, 判断这个位置是否使用过, 判断这个位置是否是目标字符
 
@@ -5298,6 +5338,10 @@ public:
 ```
 
 unordered_set的第二个模板参数: 求哈希值的类, 第三个 : 判断是否相等的类
+
+这个代码写的还是很巧的该说不说
+
+其实也可以把第一个字符的搜索放在main函数, dfs只处理后续字符查找逻辑
 
 > `std::unordered_set` 是 C++ 标准库中的一个容器，它是无序、不重复元素集合的实现。以下是 `std::unordered_set` 的各个模板参数的解释：
 >
