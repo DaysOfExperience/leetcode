@@ -5486,10 +5486,97 @@ easy    全局变量: 搞一个N * N棋盘(这里直接一个vector string 即�
 
 ### [36. 有效的数独](https://leetcode.cn/problems/valid-sudoku/)
 
+纯空间换时间...
 
+```C++
+        bool row[9][10] = {};  // 某一行的某个数字是否存在
+        bool col[9][10] = {};  //     列
+        bool flag[3][3][10] = {};  // 11号3*3矩阵的某个数字是否存在
+```
+
+这是回溯????   ooooo, 铺垫作用
 
 ### [37. 解数独](https://leetcode.cn/problems/sudoku-solver/)
 
+1. 把已有的情况统计一下, 然后遍历, 若没有填, 1-9 遍历, 某数字可行, 进一步递归, 不可行, 下一个数字, 即可
+
+整体来说并不难, 如果全都填满了, 其实, 每个原本是.的地方都是一次递归, 然后最终一个.填了某个数, 成功了, 然后返回, 其实就是层层返回的, 用一个全局的bool标识是否已经找到了答案即可
+
+其实这个遍历的逻辑也不难, 但是确实需要逐个遍历, 还要处理一行遍历完跳到下一行开头进一步处理的问题
+
 ### [1219. 黄金矿工](https://leetcode.cn/problems/path-with-maximum-gold/)
+
+整体来说并不难
+
+1. 遍历, 找入口
+2. 四个侯选位置, 不能越界, 不是0, 之前没去过, 递归(去), 层层递归, 时刻记录当前的收益, 然后全局维护一个max, 直到没有位置能走了就终止/回去呗
+
+```C++
+    unordered_set<pair<int, int>, Hash, Cmp> used;  // 其实二维bool数组也行
+这B东西的operator() 必须都是const!!!!
+```
+
+```C++
+// struct Hash {
+//     size_t operator()(const pair<int, int> &p) const {
+//         return p.first * 131 + p.second;
+//     }
+// };
+// struct Cmp {
+//     bool operator()(const pair<int, int> &p1, const pair<int, int> &p2) const {
+//         return p1.first == p2.first && p1.second == p2.second;
+//     }
+// };
+class Solution {
+public:
+    int ret = 0;
+    int ROW = 0, COL = 0;
+    bool used[16][16] = {};  // 初始的时候都是false, 表示没用过
+    // unordered_set<pair<int, int>, Hash, Cmp> used;  // 其实二维bool数组也行
+    int getMaximumGold(vector<vector<int>>& grid) {
+        ROW = grid.size(), COL = grid[0].size();
+        for(int i = 0; i < ROW; ++i) {
+            for(int j = 0; j < COL; ++j) {
+                if(grid[i][j] != 0) {
+                    // 从ij这里作为起始进入
+                    // used.insert({i, j});
+                    used[i][j] = true;
+                    dfs(grid, i, j, grid[i][j]);
+                    // 恢复现场, 不以ij为入口了, 遍历换一个
+                    used[i][j] = false;
+                    // used.erase({i, j});
+                }
+            }
+        }
+        return ret;
+    }
+    void dfs(vector<vector<int>> &grid, int r, int c, int path) {  // rc: 上一次的位置
+        ret = max(ret, path);
+        vector<pair<int, int>> choice = {{r, c - 1}, {r, c + 1}, {r - 1, c}, {r + 1, c}};
+        for(auto & p : choice) {
+            int row = p.first, col = p.second;
+            if(ok(p)
+            // && used.find(p) == used.end()
+            && used[row][col] == false
+            && grid[row][col] != 0) {
+                // p位置可以进一步递归处理
+                used[row][col] = true;
+                // used.insert(p);
+                dfs(grid, row, col, path + grid[row][col]);
+                used[row][col] = false;
+                // used.erase(p);
+            }
+        }
+    }
+    bool ok(const pair<int, int> &p) {
+        return p.first >= 0 && p.first < ROW && p.second >= 0 && p.second < COL;
+    }
+};
+```
+
+服了
+
+1. path作用函数参数可以不用恢复现场, 但是其实和全局的差别应该不是很大
+2. 二维数组比unordered_set牛逼, unordered_set超时, 二维数组不超时
 
 ### [980. 不同路径 III](https://leetcode.cn/problems/unique-paths-iii/)
