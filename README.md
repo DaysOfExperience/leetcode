@@ -5230,15 +5230,15 @@ public:
 
 ### [79. 单词搜索](https://leetcode.cn/problems/word-search/)
 
+> hot100
+
 > 核心思路: 按照目标字符串进行逐个元素的搜索, 只有第一个元素是遍历整个矩阵, 后面每次递归其实都是某四个位置进行查找
 >
-> 而这次递归的四个位置是取决于父递归的pos的, 那么, 其实可以直接把上次递归的位置传给这次递归, 就可以找到四个位置
+> 而这次递归的四个位置是取决于父递归的pos的, 那么, 其实可以直接把上次递归的位置传给这次递归, 就可以找到四个位置, 另一种思路就是, 直接把四个位置的vector传给下一次递归, 但是, 实际上是没有第一种更好的
 >
 > 位置不越界, 位置没用过, 位置的字符是目标字符, 则代表着可以进一步递归
 >
-> 最关键的是, 如何进行unordered_set<pair<int, int>> 去重
->
-> 别忘了,  unordered_set本身就是哈希表结构, 第二个模板参数: 求哈希值, 第三个: 判断是否相等
+> 最关键的是, 如何进行unordered_set<pair<int, int>> 去重: 别忘了,  unordered_set本身就是哈希表结构, 第二个模板参数: 求哈希值, 第三个: 判断是否相等
 >
 > std::hash<int>()(p.second)   std::hash<int>()(i);
 >
@@ -5383,6 +5383,69 @@ unordered_set的第二个模板参数: 求哈希值的类, 第三个 : 判断是
 >
 > 模板参数的选择取决于你存储的类型以及你对容器的特定需求。
 
+```C++
+struct HASH {
+    size_t operator()(const pair<int, int> &p1) const {
+        return p1.first * 131 + p1.second;
+    }
+};
+struct cmp {
+    bool operator()(const pair<int, int> &p1, const pair<int, int> &p2) const {
+        return p1.first == p2.first && p1.second == p2.second;
+    }
+};
+class Solution {
+public:
+    int row, col;
+    unordered_set<pair<int, int>, HASH, cmp> used;
+    bool ret = false;
+    bool exist(vector<vector<char>>& board, string word) {
+        int r = board.size(), c = board[0].size();
+        row = r, col = c;
+        {
+            unordered_set<char> bs, ws;
+            for(auto & v : board) for(auto & c : v) bs.insert(c);
+            for(auto & c : word) ws.insert(c);
+            for(auto & c : ws) if(bs.find(c) == bs.end()) return false;
+        }
+        for(int i = 0; i < row; ++i) {
+            for(int j = 0; j < col; ++j) {
+                if(board[i][j] == word[0]) {
+                    used.insert({i, j});
+                    dfs(board, word, 1, {i, j});
+                    if(ret) return ret;
+                    used.erase({i, j});  // 恢复现场
+                }
+            }
+        }
+        return ret;
+    }
+    void dfs(vector<vector<char>> &board, string &word, int index, pair<int, int> p) {
+        // p是上一次的位置, 四个展开位置, word[index]是这次递归需要找的目标字符, 找到则递归
+        if(index == word.size()) {
+            ret = true;
+            return ;
+        } 
+        int r = p.first, c = p.second;
+        vector<pair<int, int>> pairVec = {{r - 1, c}, {r + 1, c}, {r, c - 1}, {r, c + 1}};
+        for(auto & pos : pairVec) {
+            if(ok(pos)     // 不越界
+            && board[pos.first][pos.second] == word[index]
+            && used.count(pos) == 0) {  // 没用过
+                // 进一步递归
+                used.insert(pos);
+                dfs(board, word, index + 1, pos);
+                if(ret) return ;  // 每一层都会这样直接返回
+                used.erase(pos);  // 恢复现场
+            }
+        }
+    }
+    bool ok(const pair<int, int> &pos) {
+        return pos.first >= 0 && pos.first < row && pos.second >= 0 && pos.second < col;
+    }
+};
+```
+
 ### [51. N 皇后](https://leetcode.cn/problems/n-queens/)
 
 > 要求N * N的棋盘, 放N个棋子, 每一行, 每一列只能放一个, 另外, 每一斜排也只能放一个
@@ -5393,9 +5456,9 @@ unordered_set的第二个模板参数: 求哈希值的类, 第三个 : 判断是
 >
 > 这样一来, 我只需要记录每一列的棋子的放置情况, 不能在同一列放置超过一个即可
 >
-> 可是斜侧怎么处理?如果是4 * 4, 就是有7 + 7个斜侧, 前7个每个最多有一个, 后7个每个最多有一个
+> 可是斜侧怎么处理?
 
-![image-20231114165745600](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231114165745600.png)
+![image-20231114165745600](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114165745600.png)
 
 > 这样一看其实也不算很难啊
 >
@@ -5407,16 +5470,16 @@ unordered_set的第二个模板参数: 求哈希值的类, 第三个 : 判断是
 
 <u>主要是斜的怎么搞? 其实, 比如ij我要放, 此时直接左上遍历, 右上遍历, 看有没有棋子不就行了? 如果竖的不冲突, 且斜的不冲突, 就放入, 然后递归下一行呗</u>
 
-easy
-
-全局变量: 搞一个N * N棋盘(这里直接一个vector string 即可) , 一个unordered_set, 一个ret即可..
+easy    全局变量: 搞一个N * N棋盘(这里直接一个vector string 即可) , 一个unordered_set, 一个ret即可..
 
 ---
 
 超时??????
 
-![image-20231114173036066](C:\Users\yangzilong\AppData\Roaming\Typora\typora-user-images\image-20231114173036066.png)
-
-这种处理斜方的方法, 其实我之前想过, 但是实现起来 / 想起来都不如直接遍历来的简单, 当然可能更高效一点~
+> ![image-20231114173036066](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114173036066.png)
+>
+> 这种处理斜方的方法, 其实我之前想过, 但是实现起来 / 想起来都不如直接遍历来的简单, 当然可能更高效一点~
 
 注意: 如果从上往下处理每一行, 则考虑斜方向时就是左上和右上, 因为下面不可能有棋子(即使之前递归过, 也会恢复现场), 如果从下往上处理每一行, 则考虑右下和坐下的位置有没有棋子
+
+> 是真没压力~
