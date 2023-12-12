@@ -5580,3 +5580,134 @@ public:
 2. 二维数组比unordered_set牛逼, unordered_set超时, 二维数组不超时
 
 ### [980. 不同路径 III](https://leetcode.cn/problems/unique-paths-iii/)
+
+起始终止固定, 还是四个方向
+
+全局: 未走过的0的个数, ret(路径个数), 一个矩阵记录哪些0走过了, 哪些没走过
+
+1. dfs传入的参数, 是上一个位置, 且上一个位置已经处理过了, 接下来四个候选位置
+   非越界, 且是0, 且没走过, 就递归走, 且递归之前要处理接下来这个位置
+   非越界, 且是2, 则, 此时如果剩余的没走过的0的个数为0, 则表示所有0都走过了, 下一个位置是2, 这是一条合法路径, ret++即可
+
+![image-20231210235202402](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231210235202402.png)
+
+
+
+> 考察代码能力, 前半部分需要把决策树画出, 然后转化为代码, 后半部分其实都不用画决策树, 因为大致流程是很容易想出来的, 也就是算法原理并不是很难, 核心是需要把算法原理转化为代码
+
+## floodfill算法
+
+![image-20231212115728112](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231212115728112.png)
+
+### [733. 图像渲染](https://leetcode.cn/problems/flood-fill/)
+
+一个起始点, 上下左右四个方向, 无限扩展, 相连且像素点的值相同即可进一步渲染上色
+
+DFS
+
+### [200. 岛屿数量](https://leetcode.cn/problems/number-of-islands/)
+
+所以, 最初的1进入dfs递归后, 当dfs结束, 周围所有的相连的都会处理完毕, 这就是一个岛屿, 后面再遇到1, 就是新的岛屿了
+
+DFS, 每个dfs函数进入时, 有上一个位置的下标, 且已经处理过了, 则四个扩展位置若没越界, 且是1, 就置为0, 再递归扩展
+
+```C++
+class Solution {
+public:
+    int ret = 0;
+    int row, col;
+    int numIslands(vector<vector<char>>& grid) {
+        row = grid.size(), col = grid[0].size();
+        for(int i = 0; i < row; ++i) {
+            for(int j = 0; j < col; ++j) {
+                if(grid[i][j] == '1') {
+                    ret++;
+                    grid[i][j] = '0';
+                    dfs(grid, i, j);
+                }
+            }
+        }
+        return ret;
+    }
+    void dfs(vector<vector<char>> &grid, int r, int c) {
+        // rc是上一个位置, 已经处理过了
+        vector<pair<int, int>> choice = {{r, c - 1}, {r, c + 1}, {r + 1, c}, {r - 1, c}};
+        for(auto & ch : choice) {
+            if(ch.first >= 0 && ch.first < row && ch.second >= 0 && ch.second < col
+            && grid[ch.first][ch.second] == '1') {
+                grid[ch.first][ch.second] = '0';
+                dfs(grid, ch.first, ch.second);
+            }
+        }
+    }
+};
+```
+
+### [695. 岛屿的最大面积](https://leetcode.cn/problems/max-area-of-island/)
+
+```C++
+class Solution {
+public:
+    int ret = 0;
+    int path = 0;
+    int row, col;
+    int maxAreaOfIsland(vector<vector<int>>& grid) {
+        row = grid.size(), col = grid[0].size();
+        for(int i = 0; i < row; ++i) {
+            for(int j = 0; j < col; ++j) {
+                if(grid[i][j] == 1) {
+                    dfs(grid, i, j);
+                    path = 0;
+                }
+            }
+        }
+        return ret;
+    }
+    void dfs(vector<vector<int>> &grid, int r, int c) {
+        // rc是1, 没有计数, path是当前岛屿的面积
+        if(++path > ret) ret = path;
+        grid[r][c] = 0;
+        vector<pair<int, int>> choice = {{r, c - 1}, {r, c + 1}, {r + 1, c}, {r - 1, c}};
+        for(auto & ch : choice) {
+            if(ch.first >= 0 && ch.first < row && ch.second >= 0 && ch.second < col
+            && grid[ch.first][ch.second] == 1) {
+                dfs(grid, ch.first, ch.second);
+            }
+        }
+    }
+};
+```
+
+这次的dfs逻辑是: 确定传入的rc位置是1, 且该位置的数量没有加过
+
+dfs逻辑: rc位置加上, 然后四个扩展位置: 不越界且是1, 就进一步递归
+
+在最后一个1的时候, 进入递归, 加上该位置(可能会刷新ret), 但是周围四个不能扩展了, 就返回上一层, 最终返回到main函数的那个dfs下面
+
+此时一个岛屿的面积计算结束, 更新全局path, 然后若后面再遇到1, 就是新的岛屿了
+
+### [130. 被围绕的区域](https://leetcode.cn/problems/surrounded-regions/)
+
+main函数的for: 若该位置不是边界, 且四周没有边界且为O, 则可以递归? 可是这样也不对啊
+
+其实我可以找到边界, 然后从边界开始延展, 这些位置的O最终必须是O, 不能是X, 记录这些位置
+
+相反的其余的都可以置为X
+
+> 我他妈真是个天才, 举一反三算是被我学会了
+
+### [417. 太平洋大西洋水流问题](https://leetcode.cn/problems/pacific-atlantic-water-flow/)
+
+逆向思考, 正难则反
+
+其实还是四个方向扩展的问题罢了
+
+---
+
+剑指offer13.机器人的运动范围
+
+![image-20231212155022284](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231212155022284.png)
+
+起点固定, 某些位置不能去, 四个扩展方向, 问最多几个
+
+去过的不能再递归
