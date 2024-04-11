@@ -16,6 +16,12 @@
 
 比普通的二分多了一点条件判断
 
+mid == 那么就是找到了, 已存在
+
+nums[mid] < target target在右边, 此时是否可以直接返回? 不能就进一步缩短范围
+
+nums[mid] > target target在左边, 此时是否可以直接返回? 不能就进一步缩短范围
+
 ### [27. 移除元素](https://leetcode.cn/problems/remove-element/)
 
 思路一:
@@ -30,13 +36,13 @@
 
 其实搞清楚这两个指针的职责, 就ok了
 
-思路二:
-
-双指针 - 一左一右
-
-目的是移除val, 那么左边找val, 右边找非val, 进行移除即可
-
-最后循环结束的条件是左右相等, 此时有两种可能, 相等处为val, 或非val
+> 思路二:
+>
+> 双指针 - 一左一右
+>
+> 目的是移除val, 那么左边找val, 右边找非val, 进行移除即可
+>
+> 最后循环结束的条件是左右相等, 此时有两种可能, 相等处为val, 或非val
 
 ### [977. 有序数组的平方](https://leetcode.cn/problems/squares-of-a-sorted-array/)
 
@@ -54,16 +60,6 @@
 
 
 
-
-
-好了, 现在说一个我的疑惑, 就是, 每次当滑动窗口内的数值满足条件时, 要进行while循环判断, 那么, 最终会导致滑动窗口内的数值不满足条件时才会结束, 然后滑动窗口右端右移, 那这样会有影响吗?
-
-没有影响, 比如现在有10个元素, 窗口[0]比较大, 然后while的最后一次打破了条件, 此时右端右移, 之前考虑的是打破条件是否有影响, 起始没有, 比如如果我们让滑动窗口满足条件之后, 最后一次不打破, 右端右移, 此时, 滑动窗口大小加一, 加了一个值, 肯定更满足了, 那么左边右移, 其实有可能打破这个条件, 这时又有10个元素了, 可是不打破的话, 11一定比10大, 而我们期望找到最小的窗口大小, 所以, 右边不断右移, 左边一定要右移的, 
-
-其实我害怕的无非是, 整体右移一个之后, 总大小变小了, 之前10个满足, 此时10个不满足了, 但是还是那句话, 我们期望的是找到更小的, 只要是10个不满足, 无所谓, 一直向右滑动即可, 明白了吗?   直到右边那个突然来了一个很大的, 让左边可以右移多次, 就找到更小的窗口了
-
-所以其实整个的基础还是双指针, 只是用滑动窗口更形象罢了.
-
 也就是说, 10个满足, 变9个, 不满足, 右边右移, 10个, 不满足了, 无所谓, 继续右移, 即使是11, 12, 13都不满足, 但是没事, 因为10已经记录下来了, 我们期望的是, 突然右边来了一个很大的, 然后左边右移很多, 窗口变得比10小了, 此时就有新的更小的窗口了, 明白了!!!!!
 
 ### [59. 螺旋矩阵 II](https://leetcode.cn/problems/spiral-matrix-ii/)
@@ -76,37 +72,74 @@
 
 这个的问题是, 我在m*n的进行螺旋遍历时, 怎么才能及时的退出呢? 很简单, **只要上>下, 左>右 就退出**
 
+> ???????????
+>
+> - 然而，代码没有检查在更新边界后是否还有有效的元素可以遍历。例如，在从`up`移动到`down`后，它没有在下一个垂直遍历前检查`up <= down`。类似地，在更新`left`或`right`后，它没有在下一个水平遍历前检查`left <= right`。
+>
+> 如果忽略这一点，可能会尝试访问矩阵中越界的元素，或者尝试遍历已经遍历过的行或列，导致结果不正确或无限循环。
+
+<img src="C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240411140112137.png" alt="image-20240411140112137" style="zoom:67%;" />
+
 ### [48. 旋转图像](https://leetcode.cn/problems/rotate-image/)
 
 这个很简单把, 只要O(N)的空间复杂度即可, .... 只能原地旋转
 
-1- 先按照左上到右下的对角线进行反转  2- 按照中间线进行反转
+1- 先按照左上到右下的对角线进行反转  2- 按照中间线进行反转  就OK了
 
-就OK了
+> 中间线进行反转: `swap(matrix[i][j], matrix[i][n - 1 - j]);`   
+>
+> 或者 `matrix[i][index], matrix[i][mid + (mid - index) - 1] = matrix[i][mid + (mid - index) - 1], matrix[i][index]`
+>
+> 一个是以右边界限开始找, 一个是中间线开始找~
 
 ### [240. 搜索二维矩阵 II](https://leetcode.cn/problems/search-a-2d-matrix-ii/)
 
-关键: 从右上角看是一颗二叉搜索树
+**<u>关键: 从右上角看是一颗二叉搜索树</u>**
 
 所以就有这样的性质, 每个元素的下方比它大, 左方比它小
 
 .. 这种题, 只要做过就会了...
 
+> 会你吗, 你会想起来右上角看是一颗二叉搜索树吗? = =
+
 ### [56. 合并区间](https://leetcode.cn/problems/merge-intervals/)
 
-思路一: 可以先按照first进行排序一下, 然后再O(n)进行合并
+思路: 可以先按照first进行排序一下, 然后再O(n)进行合并
 
 具体每两个元素合并时可以分为三个情况, [0]相等, 可合并, [0]不相等, 可合并, [0]不相等, 不可以合并
 
 并且i-1 和 i如果不可以合并, 则i-1和i+1....也不可能可以合并, 这也是可以这样做的关键
 
-我好强啊~~~~
+> 注意sort.Slice怎么用    bool返回值的函数的参数是两个int, 进行判断即可
+
+```golang
+func merge(intervals [][]int) [][]int {
+    sort.Slice(intervals, func(i int, j int) bool {
+        return intervals[i][0] < intervals[j][0]
+    })
+    ret := make([][]int, 0)
+    ret = append(ret, intervals[0])
+    back := 0
+    for i := 1; i < len(intervals); i++ {
+        // intervals[i]和ret[back]进行处理
+        if intervals[i][0] <= ret[back][1] {
+            if ret[back][1] < intervals[i][1] {
+                ret[back][1] = intervals[i][1]
+            }
+        } else {
+            ret = append(ret, intervals[i])
+            back++
+        }
+    }
+    return ret
+}
+```
 
 ### [189. 轮转数组](https://leetcode.cn/problems/rotate-array/)
 
 似曾相识....
 
-1. 三次reverse即可
+1. **三次reverse即可**
 2. 暴力移动, O(N*K)
 3. 借助额外空间, O(N), O(N)
 
@@ -146,8 +179,6 @@
 
 ### [面试题 02.07. 链表相交](https://leetcode.cn/problems/intersection-of-two-linked-lists-lcci/)
 
-没难度, 秒了
-
 先求两个的长度, 然后求差值, 然后较长的先走差值步, 然后再一起走, 直到相等, 可能为空, 那就没有相交, 可能不为空, 那就相交
 
 ### [203. 移除链表元素](https://leetcode.cn/problems/remove-linked-list-elements/)
@@ -167,6 +198,19 @@
 ### [24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
 
 依旧是搞一个哨兵节点
+
+```golang
+func swapPairs(head *ListNode) *ListNode {
+    sentinel := &ListNode{0, head}
+    cur := sentinel
+    for cur.Next != nil && cur.Next.Next != nil {
+        first, second, third := cur.Next, cur.Next.Next, cur.Next.Next.Next
+        cur.Next, first.Next, second.Next = second, third, first
+        cur = first
+    }
+    return sentinel.Next
+}
+```
 
 ### [21. 合并两个有序链表](https://leetcode.cn/problems/merge-two-sorted-lists/)
 
