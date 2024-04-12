@@ -279,17 +279,64 @@ public:
 
 虽然easy, 但是仍旧有一些细节需要注意
 
+```golang
+func hasCycle(head *ListNode) bool {
+    set := make(map[*ListNode]struct{})
+    for head != nil {
+        if _, ok := set[head]; ok {
+            return true
+        }
+        set[head] = struct{}{}
+        head = head.Next
+    }
+    return false
+}
+```
+
+<img src="C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240412141010568.png" alt="image-20240412141010568" style="zoom: 50%;" />
+
 ### [142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/)
 
 - set可以去重
 - 数学公式 - 不想搞
 - 先求一个环形内的结点, 然后直接把该节点与next断开, 以next为头, 另一条以head为头, 转化为链表相交问题
 
+```golang
+func detectCycle(head *ListNode) *ListNode {
+    fast, slow := head, head
+    for fast != nil && fast.Next != nil {
+        // fast有下一个节点, 一快一慢即可
+        slow = slow.Next
+        fast = fast.Next.Next   // 此时可能为nil
+        if slow == fast {
+            // 相遇
+            reset := head
+            for reset != slow {
+                slow = slow.Next
+                reset = reset.Next
+            }
+            return reset  // 此时就是
+        }
+    }
+    return nil
+}
+```
+
+快慢指针判断
+
+这就意味着，**从头结点出发一个指针，从相遇节点 也出发一个指针，这两个指针每次只走一个节点， 那么当这两个指针相遇的时候就是 环形入口的节点**
+
 ### [234. 回文链表](https://leetcode.cn/problems/palindrome-linked-list/)
 
 栈先进先出即可, 要判断一下链表长度是偶数还是奇数
 
 另一种思路: 后半段链表进行逆置, 然后与前半段进行比较, 若一样, 则回文, 不一样则不回文.
+
+![image-20240411201500282](C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240411201500282.png)
+
+> `    stack = stack[:len(stack) - 1]`
+>
+> `    stack = append(stack, head.Val)`
 
 ### [138. 随机链表的复制](https://leetcode.cn/problems/copy-list-with-random-pointer/)
 
@@ -526,6 +573,10 @@ put: map查, 有就更新, 并更新value. 没有就新插入一个元素呗
 
 最简单的哈希, 26个字母对应数组的每个下标, 然后哈希统计即可, key就是下标, value就是出现的次数
 
+> string的range循环, value类型是rune 不是byte(uint8)
+>
+> **`range` 循环中的变量类型**：在 `range` 循环中，当遍历字符串时，返回的元素类型为 `rune`，不是 `byte`。因此，映射的键类型应为 `rune` 而非 `byte`。
+
 ### [1002. 查找共用字符](https://leetcode.cn/problems/find-common-characters/)
 
 第一思路: 统计每个字符串中26个字母的出现次数, 然后每个字母都取这些出现次数里面的最小值即可
@@ -540,9 +591,25 @@ put: map查, 有就更新, 并更新value. 没有就新插入一个元素呗
 
 这是插入一个char组成的string的方法
 
+> 
+> 在 Go 语言中，当使用 `for` 循环结合 `range` 语法遍历字符串时，变量类型是 `rune` 而不是 `byte`，这是由 Go 的字符串处理机制决定的。不过，在你的代码中，对于 `for ch := 'a'; ch <= 'z'; ch++` 这个循环，并不是使用的 `range`，而是直接指定了字符范围。这里的 `ch` 被定义为 `rune` 是因为在 Go 中，字符字面量（如 `'a'`、`'z'` 等）默认是 `rune` 类型。
+>
+> ### `rune` vs `byte`
+>
+> - **`byte`**：实际上是 `uint8` 的别名，用于处理 ASCII 字符，范围是 0-255。在处理只涉及 ASCII 字符的字符串操作时常用 `byte`。
+> - **`rune`**：是 `int32` 的别名，代表一个 Unicode 代码点。这允许它存储任何 Unicode 字符的标准码点。由于 Go 中的字符串是按 UTF-8 编码的，一个 Unicode 字符（码点）可能需要1到4个字节来表示，因此 `rune` 可以表示任何可能的 Unicode 字符。
+>
+> ### 为什么使用 `rune`？
+>
+> 在你的 `for` 循环中，虽然当前的字符范围（'a' 到 'z'）完全在 ASCII 范围内，使用 `byte` 也足够，但使用 `rune` 更为通用，尤其是在可能需要处理非ASCII字符的情况下。此外，如上所述，Go 中的字符字面值默认为 `rune` 类型，这使得使用 `rune` 更加直接和符合语言习惯。
+>
+> 因此，在你的循环 `for ch := 'a'; ch <= 'z'; ch++` 中，`ch` 被隐式地视为 `rune` 类型，这是因为字面字符 'a' 和 'z' 被视为 `rune`。这不仅适用于表示字符的范围更广，而且对于将来可能对代码进行的修改（例如扩展到非ASCII字符）来说，也是更安全、更通用的选择。
+
 ### [349. 两个数组的交集](https://leetcode.cn/problems/intersection-of-two-arrays/)
 
 没难度, 用set / unordered_set都可以, 或者用原生数组也可以
+
+map[int]bool 两个
 
 ### [第202题. 快乐数](https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0202.快乐数.md#第202题-快乐数)
 
@@ -550,9 +617,7 @@ put: map查, 有就更新, 并更新value. 没有就新插入一个元素呗
 
 ### [1. 两数之和](https://leetcode.cn/problems/two-sum/)
 
-利用哈希
-
-其实, 考虑的一个问题是, 如果有多个元素相等, 怎么办?
+利用哈希  其实, 考虑的一个问题是, 如果有多个元素相等, 怎么办?
 
 其实没问题的, 比如现在要找3, 且过往有多个3, 没事的, 因为我们的目标是找到一个3即可, map只存后来的3的下标
 
