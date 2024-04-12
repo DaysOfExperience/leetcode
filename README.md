@@ -803,42 +803,15 @@ namespace std {
 
 ### [LCR 182. 动态口令](https://leetcode.cn/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/)
 
-做不了, 没题
-
-输入: s = "abcdefg", k = 2
-
-思路: 反转整体, gfedcba 然后最后k个进行反转, 整体减最后k个, 进行反转
-
-ok 过了
-
-```C++
-class Solution {
-public:
-    string dynamicPassword(string password, int target) {
-        func(password, 0, password.size());
-        int sub = password.size() - target;
-        func(password, 0, sub);
-        func(password, sub, password.size());
-        return password;
-    }
-    void func(string &s, int begin, int end) {
-        // 左闭右开
-        for(int l = begin, r = end - 1; l < r; ++l, --r) {
-            swap(s[l], s[r]);
-        }
-    }
-};
-```
-
-看起来还挺美丽的
+做过, 三个reverse
 
 ### [28. 实现 strStr()](https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0028.实现strStr.md#28-实现-strstr)
 
-?
+????????????
 
 ### [459.重复的子字符串](https://github.com/youngyangyang04/leetcode-master/blob/master/problems/0459.重复的子字符串.md#459重复的子字符串)
 
-?
+?????????????
 
 ### [560. 和为 K 的子数组](https://leetcode.cn/problems/subarray-sum-equals-k/)
 
@@ -867,6 +840,12 @@ public:
 整体复杂度为O(N)
 
 还有一个注意点: 可能j前缀和  - K   = 0, 此时也就是求前缀和为0的子数组, 可能有子数组符合条件, 但是还要加一个空数组, 也就是0 - j的和就是K, 每一次都要注意这个情况, 可以直接m[0].push_back(-1), 表示空数组的前缀和也是0
+
+---
+
+一种前缀和是: pre[i] 是包含i元素的
+
+另一种前缀和: pre[i]是不包含i元素的, 都可以做   这种需要最后多处理一下 当所有元素的和 - 前面某个数组的和 = target, 此时也可能
 
 ### [76. 最小覆盖子串](https://leetcode.cn/problems/minimum-window-substring/)
 
