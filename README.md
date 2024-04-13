@@ -943,33 +943,17 @@ ok, 过了, 现在有个注意点是, 如果现在已经满足条件, 则窗口�
 
 ### [74. 搜索二维矩阵](https://leetcode.cn/problems/search-a-2d-matrix/)
 
-两个思路: 1. 直接在二维矩阵中找   2. 把二维先搞成一维
-
-过了. 每一行挨个二分就行
+先找某个行, 再具体行查找
 
 ### [34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
-常规二分然后找边界肯定是不行的
+其实左右边界的条件很清晰啊, 左i 左边小于target, i位置==target  (有特殊情况)
 
-那么
-
-比如找7, 我找6的最后一个和8的第一个, 可是这样... 不就又回去了
-
----
-
-我操, 发现这个题其实和35很像
-
-肯定是要而二分的, 可是, 怎么找左右边界?
-
-其实左右边界的条件很清晰啊, 左i 左边小于target, i位置==target
-
-右边界i位置 == target, 右边>target
+右边界i位置 == target, 右边>target   (有特殊情况)
 
 **其实二分不仅限于找某个指定的值, 而是可以扩展为在有序数组中查找符合某个条件的值**
 
-过了
-
-记得找到目标值就break
+条件搞清楚就很简单
 
 ### [33. 搜索旋转排序数组](https://leetcode.cn/problems/search-in-rotated-sorted-array/)
 
@@ -979,50 +963,25 @@ ok, 过了, 现在有个注意点是, 如果现在已经满足条件, 则窗口�
 
 然后两个分段内进行二分就行了
 
-竟然过了... 怎么说呢
+也可能是一段
 
-其实难点就在于怎么求这个点, 也就是左边的值 < 当前的值
-
-```C++
-    int search(vector<int>& nums, int target) {
-        int left = 0;
-        int right = nums.size(); // 左闭右开
-        int pos = 0;
-        while(left < right) {
-            int mid = left + (right - left) / 2;
-            if(mid == 0
-            || (nums[mid - 1] > nums[mid])) {
-                pos = mid;
-                break;
-            }
-            else if(nums[mid] > nums.back()) {
-                left = mid + 1;
-            } else {
-                right = mid;
-            }
-        }
-        int ret = bSearch(nums, 0, pos, target);
-        if(ret != -1) return ret;
-        ret = bSearch(nums, pos, nums.size(), target);
-        return ret;
-    }
-```
-
-1234567  有可能是这样的
-
-5671234  有可能这样
-
-其实, 在直接点的, 我直接判断front是否小于back不就行了, 针对第一种和第二种分开处理, 第一种情况还好处理呢
-
-但是其实也没必要, 其实上面这个解法就直接涵盖这两种情况了
-
-如果比back要大, 那么肯定mid在左半段中, left  = mid + 1
-
-如果比back小, 则mid肯定在右半段中(可能不存在左半段, 无妨)   right = mid
+> 问题: _search要返回全局切片的位置, 而不是子切片的位置, 注意一下
 
 ### [153. 寻找旋转排序数组中的最小值](https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/)
 
-上一个问题的子问题.....
+????
+
+```golang
+func findMin(nums []int) int {
+    i := 0
+    for ; i < len(nums); i++ {
+        if i != 0 && nums[i - 1] > nums[i] {
+            return nums[i]
+        }
+    }
+    return nums[0]
+}
+```
 
 ### [4. 寻找两个正序数组的中位数](https://leetcode.cn/problems/median-of-two-sorted-arrays/)
 
@@ -1077,13 +1036,29 @@ O(log (m+n))
 
 过了... 很简单啊, 其实稍微需要注意的就是"((((({{{"这种情况
 
+> Golang中的string 可以使用[], 可以for range...
+>
+> 使用[] 一定是byte
+>
+> 使用for range, 就是rune
+>
+> 也可以转换为[]rune, 这样再用下标取某一个字符, 可以是汉字!
+
+> 我刚才没说完, 不好意思 也就是 使用 ch := s[x] 的时候, ch的类型, 会取决于s的x下标处的字符是ascii还是汉字, 决定了ch是byte还是rune类型, 对吗
+>
+> 
+>
+> 实际上，当你使用 `ch := s[x]` 在 Go 语言中从一个字符串 `s` 中索引字符时，无论该字符是 ASCII 还是汉字，`ch` 的类型始终是 `byte`。这个类型并不会根据字符是否是 ASCII 或非 ASCII（如汉字）来改变。这是因为字符串在 Go 中被视为一个字节切片，而每个字节的类型固定为 `byte`。
+
 ### [1047. 删除字符串中的所有相邻重复项](https://leetcode.cn/problems/remove-all-adjacent-duplicates-in-string/)
 
 easy, 典型的栈...
 
 ### [150. 逆波兰表达式求值](https://leetcode.cn/problems/evaluate-reverse-polish-notation/)
 
-east, 典型的栈...
+east, 典型的栈...    
+
+`strconv.Atoi(s)`
 
 ### [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
 
@@ -1120,6 +1095,22 @@ vector<pair<int, int>> 行不行? 感觉可以呀
 3. 求K个, 怎么保证堆里面只有K个? 其实很简单, 一直push就行, 当size > K时pop即可, 因为是小根堆, 所以K+1个, pop一个, 一定pop最小的, 留下的就是K个最大的!!!!!!!!!
 4. 大根堆的pop一定会pop最大的, 小根堆pop最小的, 这也是第一点的原因
 
+------
+
+最好是用优先级队列, 也就是堆, C++是priority_queue
+
+golang没有, 可以自己定义, 就需要自己写逻辑
+
+也可以sort.Slice
+
+> 随便一写都能过, 认真一写还了得?
+>
+> ```golang
+>     sort.Slice(sli, func(n1, n2 int) bool {
+>         return sli[n1][1] > sli[n2][1]
+>     })
+> ```
+
 ### [215. 数组中的第K个最大元素](https://leetcode.cn/problems/kth-largest-element-in-an-array/)
 
 要求时间复杂度 O(N), 其实第一时间还是会想到堆解决TopK, 但是时间复杂度好像不合格
@@ -1145,6 +1136,16 @@ vector<pair<int, int>> 行不行? 感觉可以呀
 二刷: 三数取中需要写好
 
 **重点: 快排的单趟排序中, left是左, right是右, 且必须是左闭右闭的!!!!!**
+
+
+
+
+
+----
+
+**三数取中是关键!!!!!!!, 比如写好= =, 三个判断, 三个交换就是上限**
+
+**快排逻辑:  左闭右闭  left < right  右找小 左找大 交换 交换**
 
 ### [295. 数据流的中位数](https://leetcode.cn/problems/find-median-from-data-stream/)
 
@@ -1495,6 +1496,8 @@ public:
 
 # 二叉树
 
+![image-20240413195347183](C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240413195347183.png)
+
 ### [144. 二叉树的前序遍历](https://leetcode.cn/problems/binary-tree-preorder-traversal/)
 
 二叉树前序 - 递归就不说了,  说非递归
@@ -1544,26 +1547,26 @@ public:
 
 ### [114. 二叉树展开为链表](https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/)
 
-如果可以递归
+> 如果可以递归
+>
+> ```C++
+> class Solution {
+> public:
+>     TreeNode *prev = nullptr;
+>     void flatten(TreeNode* root) {
+>         if(root == nullptr) return;
+>         TreeNode *right = root->right;
+>         if(prev != nullptr) prev->left = nullptr, prev->right = root;
+>         prev = root;
+>         flatten(root->left);
+>         flatten(right);
+>     }
+> };
+> ```
+>
+> 其实这个递归思路很简单, 都说了要前序的顺序构造, 所以就前序遍历呗, 到了前序的下一个就会改变上一个的左右结构, 比如根节点递归左之后, 其实它的左右就被改变了, 所以提前保存好右, 然后递归右, 整个处理顺序就是前序的顺序, 这个prev指针就很不错
 
-```C++
-class Solution {
-public:
-    TreeNode *prev = nullptr;
-    void flatten(TreeNode* root) {
-        if(root == nullptr) return;
-        TreeNode *right = root->right;
-        if(prev != nullptr) prev->left = nullptr, prev->right = root;
-        prev = root;
-        flatten(root->left);
-        flatten(right);
-    }
-};
-```
-
-其实这个递归思路很简单, 都说了要前序的顺序构造, 所以就前序遍历呗, 到了前序的下一个就会改变上一个的左右结构, 比如根节点递归左之后, 其实它的左右就被改变了, 所以提前保存好右, 然后递归右, 整个处理顺序就是前序的顺序, 这个prev指针就很不错
-
-如果不可以递归
+非递归 - 这个思路最容易想到
 
 ```C++
 class Solution {
@@ -1586,7 +1589,7 @@ public:
 };
 ```
 
-这个有点难想到... 但是可以学习学习, 就是别忘了把左置空
+
 
 ### [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
 
@@ -1596,9 +1599,7 @@ public:
 
 ### [101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/)
 
-之前的问题是: 我可以做到判断当前根节点的左右子树的两个根节点是否符合条件, 但是我总不能递归左根节点的左右孩子 / 右根节点的左右孩子吧? 因为这根本不对啊, 我不要求左右孩子的左右孩子是符合条件的, 而是要求左孩子的右孩子与右孩子的左孩子符合条件, 哈哈, 那这样不就成了吗
-
-2 : 实际上, 是要判断根节点的左右子树是否是对称的二叉树, 所以先判断两个子树的根节点, 然后如果两个子树要互相对称, 还要判断第一颗树的左子树与第二棵树的右子树是否互相对称, 第一棵树的右子树与第二棵树的左子树是否互相对称. 若这两对都对称, 才整体对称. 这才是整个题的递归逻辑
+实际上, 是要判断根节点的左右子树是否是对称的二叉树, 所以先判断两个子树的根节点, 然后如果两个子树要互相对称, **还要判断第一颗树的左子树与第二棵树的右子树是否互相对称, 第一棵树的右子树与第二棵树的左子树是否互相对称. 若这两对都对称, 才整体对称**. 这才是整个题的递归逻辑
 
 ```C++
 class Solution {
@@ -1622,19 +1623,27 @@ public:
 
 迭代的思想也值得学习, 利用队列的话很像层序, 但每一层并不是从左向右, 而是抽出这一层的两个节点进行判断, 并入队列这两个节点的下一层的四个(这两个不为空的情况下), 也不复杂, 其实重点还是两个节点: 左的左和右的右 右的左和左的右这一点很重要, 这也是对称的根本!
 
+
+
+---
+
+目的: 判断整体是否是对称二叉树, 再仔细看看对称二叉树, **其实是根节点的左右子树是否是对称的**
+
+而左右子树是对称, 除了..以外, 还有左子树的右和右子树的左对称, 左子树的左和右子树的右对称, 这就递归起来了, 因为递归函数的功能确定了: 判断两颗子树是否是对称的, 还要看左的右+右的左   左的左+右的右
+
 ### [104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
 
 > 区分深度和高度
 >
 > 二叉树的 **最大深度** 是指从根节点到最远叶子节点的最长路径上的节点数。   根节点
 >
-> 深度, 越往下越深：指从根节点到该节点的最长简单路径边的条数或者节点数  => 根节点 - 该节点  那么最大深度当然就是根节点到最远叶子节点了
+> 深度, 越往下越深：指从根节点到该节点的最长简单路径边的条数或者节点数  => **根节点 - 该节点**  那么最大深度当然就是根节点到最远叶子节点了
 >
-> 高度, 越往上越高：指从该节点到叶子节点的最长简单路径边的条数或者节点数   => 该节点 - 叶子节点  (也就是下面的第一个后序解法)
+> 高度, 越往上越高：指从该节点到叶子节点的最长简单路径边的条数或者节点数   => **该节点 - 叶子节点**  (也就是下面的第一个后序解法)
 >
 > **而根节点的高度就是二叉树的最大深度**
 >
-> 前序求的就是深度，使用后序求的是高度。
+> **前序求的就是深度，使用后序求的是高度。**
 
 前序
 
@@ -1659,37 +1668,6 @@ public:
         // 前序, 根节点处理完了, 遍历左右子树
         func(root->left, depth + 1);
         func(root->right, depth + 1);
-    }
-};
-```
-
-下面这个写的真的丑陋
-
-```C++
-class Solution {
-public:
-    int max_depth;
-    int maxDepth(TreeNode* root) {
-        max_depth = 0;
-        if(root == nullptr) return max_depth;
-        func(root, 1);
-        return max_depth;
-    }
-    void func(TreeNode *root, int depth) {
-        // 比如第一次进入, 是根节点, 深度为1, 没毛病, 且不为空
-        if(depth > max_depth) max_depth = depth;
-        if(!root->left && !root->right)  return;  // 终止递归
-        if(root->left) {
-            depth++;  // 深度+1, 进入下一层
-            func(root->left, depth);
-            depth--;  // 回溯, 深度减1
-        }
-        if(root->right) {
-            depth++;  // 深度+1, 进入下一层
-            func(root->right, depth);
-            depth--;  // 回溯, 深度-1
-        }
-        return;
     }
 };
 ```
@@ -1789,6 +1767,35 @@ public:
 
 然后递归, 这里不用判断(可以判断)是否为空, 因为递归进入也不会更新为0或者不恰当的值!!!!!
 
+---
+
+哪里有那么复杂.. 记录深度, 遇到叶子就尝试更新, 就好了
+
+
+
+```golang
+olang中的各种整形的max和min如何取到
+ChatGPT
+在Go语言中，你可以通过math包中定义的常量来获取各种整型（包括int, int64, uint64, 等等）的最大值和最小值。不同整型类型的最大值和最小值是预定义的。以下是如何获取这些值的方法：
+
+1. 对于有符号整型（int8, int16, int32, int64, int）
+int8: math.MinInt8 和 math.MaxInt8
+int16: math.MinInt16 和 math.MaxInt16
+int32: math.MinInt32 和 math.MaxInt32
+int64: math.MinInt64 和 math.MaxInt64
+对于int类型，其大小依赖于你的系统架构（32位或64位），通常使用int相等于int32或int64，但没有直接的math.MinInt或math.MaxInt。你可以通过计算得到：
+const MaxInt = 1<<(bits.UintSize-1) - 1
+const MinInt = -MaxInt - 1
+2. 对于无符号整型（uint8, uint16, uint32, uint64, uint）
+uint8: math.MaxUint8 (最小值总是0)
+uint16: math.MaxUint16 (最小值总是0)
+uint32: math.MaxUint32 (最小值总是0)
+uint64: math.MaxUint64 (最小值总是0)
+对于uint类型，大小也依赖于系统架构，没有直接的math.MaxUint，可以使用：
+const MaxUint = ^uint(0)
+最小值总是0 (const MinUint = 0)
+```
+
 ### [222. 完全二叉树的节点个数](https://leetcode.cn/problems/count-complete-tree-nodes/)
 
 这题就别想着递归遍历了, 时间复杂度不符合, 要利用完全二叉树的性质!
@@ -1804,6 +1811,8 @@ public:
 满二叉树  n = 2^(depth) - 1
 
 > 求深度可以从上到下去查 所以需要前序遍历（中左右），而高度只能从下到上去查，所以只能后序遍历（左右中）
+
+> 在Go语言中，`math.Pow` 函数用于计算一个数的幂。具体来说，`math.Pow(x, y)` 计算的是 `x` 的 `y` 次方。这里的 `x` 和 `y` 都必须是 `float64` 类型，函数返回的结果也是 `float64` 类型。如果你在处理整数并想使用这个函数，需要先将这些整数转换为 `float64` 类型，然后可能还需要将结果转换回整数类型。
 
 ### [257. 二叉树的所有路径](https://leetcode.cn/problems/binary-tree-paths/)
 
