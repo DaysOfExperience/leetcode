@@ -1963,6 +1963,53 @@ public:
 
 也就是从根结点到某结点若一共有x个结点, 则包含该结点的路径总和共有x种可能, 用vector记录即可
 
+
+
+---
+
+golang的痛苦: slice都是共享底层空间的, 所以递归函数之间可能互相影响, 不像C++的std::vector一样
+
+```golang
+/**
+ * Definition for a binary tree node.
+ * type TreeNode struct {
+ *     Val int
+ *     Left *TreeNode
+ *     Right *TreeNode
+ * }
+ */
+
+// 向下递归遍历, 前序吧, 记录从根节点到此节点的所有路径, 到每个节点都遍历判断
+func pathSum(root *TreeNode, targetSum int) (res int) {
+    var f func(root *TreeNode, path []int)
+    // 需要保证每个slice都是独立的
+    f = func(root *TreeNode, path []int) {
+        if root == nil {
+            return
+        }
+        mypath := make([]int, len(path))
+        copy(mypath, path)
+        for i := range mypath {
+            mypath[i] += root.Val
+            if mypath[i] == targetSum {
+                res++
+            }
+        }
+        mypath = append(mypath, root.Val)
+        if root.Val == targetSum {
+            res++
+        }
+        // 该递归遍历了
+        f(root.Left, mypath)
+        f(root.Right, mypath)
+    }
+    f(root, make([]int, 0))
+    return
+}
+```
+
+
+
 ### [105. 从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 
 题目类型: 根据数组, 构造二叉树
@@ -1985,7 +2032,9 @@ public:
 
 所以核心就是分割数组!!!!!!
 
-
+> // believe this func 先构造根节点, 再构造左右子树啊, 怎么构造? 调用函数递归啊
+>
+> 它的作用就是: 输入两个切片, 返回一个树, 懂?  **相信它**, 不信它的话 你就做不对
 
 > 其实还是递归的思路, 首先我可以把根节点构造出来, 那么这个函数的参数就是两个数组, 我再把左右子树的数组找出来, 就可以递归构建了
 
@@ -2011,6 +2060,27 @@ public:
 
 如果后者, 就是完全构造一个新的二叉树出来~ 我都写了
 
+---
+
+递归的精髓~  这个函数是什么功能?
+
+```golang
+func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
+    if root1 == nil {
+        return root2
+    } else if root2 == nil {
+        return root1
+    }
+    // 都非空, 往1上合并吧
+    root1.Val += root2.Val
+    root1.Left = mergeTrees(root1.Left, root2.Left)
+    root1.Right = mergeTrees(root1.Right, root2.Right)
+    return root1
+}
+```
+
+兄弟, 无敌了
+
 ### [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/)
 
 对于一般二叉树，递归过程中还有回溯的过程，例如走一个左方向的分支走到头了，那么要调头，在走右分支。
@@ -2026,6 +2096,18 @@ public:
 二叉搜索树的迭代不需要栈和队列, 因为二叉搜索树的搜索路径是确定的, 因为它本身的性质, 所以直接一路往下走即可
 
 ### [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
+
+递归遍历判断左小于, 右大于是不对的, 因为不能保证全局, 所以其实中序有序比较好
+
+
+
+
+
+---
+
+
+
+
 
 ```C++
 class Solution {
@@ -2103,6 +2185,20 @@ public:
 
 ### [236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
 
+???? 没写出来???
+
+**先想前序还是后序还是中序= =**
+
+**公共祖先的特点是什么? 规律想一想**
+
+**后序, 左右子树的返回值, 什么情况对应怎么返回, 想想= =**
+
+其实, 主要是, 这个函数的返回值的定义并没有很清晰= =
+
+左右非空返回root, 一方为空返回另一方, 还要看root是不是其中之一, 其实还好吧= =
+
+---
+
 遇到这个题目首先想的是要是能自底向上查找就好了，这样就可以找到公共祖先了。
 
 那么二叉树如何可以自底向上查找呢？
@@ -2116,40 +2212,6 @@ public:
 ---
 
 一个点很重要: 就是最近公共祖先的左子树(包括自己)有p/q 而右子树(包括自己)有q/p, 这是一定的,  且只有一个这样的节点存在, 但凡不是最近公共祖先, 都不会满足这个条件!!!!
-
-下面这个是自己写的
-
-```C++
-class Solution {
-public:
-    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        if(root == nullptr) return nullptr;
-        if((root == p && hasNode(root, q))
-        || (root == q && hasNode(root, p))) {
-            return root;
-        }
-        else if((hasNode(root->left, p) && hasNode(root->right, q))
-        || (hasNode(root->left, q) && hasNode(root->right, p))) {
-            return root;
-        }
-        // 该节点不是最近公共祖先
-        TreeNode *r1 = lowestCommonAncestor(root->left, p, q);
-        if(r1 != nullptr) return r1;
-        TreeNode *r2 = lowestCommonAncestor(root->right, p, q);
-        return r2;
-    }
-    bool hasNode(TreeNode *root, TreeNode *target) {
-        // 判断root这颗树中是否有target
-        if(root == nullptr) return false;
-        if(root == target) return true;
-        // 根节点不是
-        // 前序
-        bool b1 = hasNode(root->left, target);
-        bool b2 = hasNode(root->right, target);
-        return b1 || b2;
-    }
-};
-```
 
 这个是比较好理解的, 前序遍历每个, 对每个都进行判断, 时间复杂度可能会很高
 
@@ -2217,14 +2279,9 @@ public:
 
 ### [235. 二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
-从根节点往下走的第一个符合中间值的节点一定是最近公共祖先
+**从根节点往下走的第一个符合中间值的节点一定是最近公共祖先**  (这个道理很简单啊, 为什么我最开始没有想到呢?
 
-这个道理很简单啊, 为什么我最开始没有想到呢?
-
-且根本不需要遍历左右子树, 因为可以判断往哪边走!
-
-1. 自己最开始想到的, 其实没啥问题, 从上往下嘛, 第一个就是最近公共祖先, 但是问题是我没有意识到可能存在相等的情况哈哈
-   其次是我没有利用二叉搜索树的性质简化递归过程
+**二叉搜索树的性质使得, 如果root不是中间, 则递归的方向是可以确定的!!!!**  (根本不需要遍历左右子树, 因为可以判断往哪边走!
 
 ```C++
 class Solution {
@@ -2239,24 +2296,6 @@ public:
         if(ret) return ret;
         ret = lowestCommonAncestor(root->right, p, q);
         return ret;
-    }
-};
-```
-
-```C++
-class Solution {
-public:
-    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        if(root == nullptr) return nullptr;
-        if((root->val >= p->val && root->val <= q->val)
-        || (root->val <= p->val && root->val >= q->val)) {
-            return root;
-        }
-        if(root->val < p->val && root->val < q->val)
-            return lowestCommonAncestor(root->right, p, q);
-        if(root->val > p->val && root->val > q->val)
-            return lowestCommonAncestor(root->left, p, q);
-        return nullptr;  // bukeneng
     }
 };
 ```
@@ -2299,16 +2338,16 @@ public:
 
 后序, 回溯, 先左右再根据左右的结果处理根结点
 
-每个结点都检查一下经过自己的最大路径和是否可以刷新存储的全局最大路径和, 那么最终的最大路径和总得经过一个结点吧吧?
+每个结点都检查一下经过自己的最大路径和是否可以刷新存储的全局最大路径和, 因为最终的最大路径和总得经过一个结点~
 
-每个结点经过自己的最大路径和有几种可能
+每个结点经过自己的最大路径和有几种可能   (注意, 只有这四种!!!!)
 
 1. 单独自己
 2. 经过左孩子的最大路径和 + 自己(加上左子树的返回值)
 3. 经过右孩子的最大路径和 + 自己(加上右子树的返回值)
 4. 左右最大路径和 + 自己
 
-而每个结点的都返回给父节点 : 经过自己的最大路径和, 但是要排除上方的情况4(原因略了), 所以就是返回123的最大值给父节点
+**而每个结点的都返回给父节点 : 经过自己的最大路径和, 但是要排除上方的情况4(<u>原因略了</u>), 所以就是返回123的最大值给父节点**
 
 其实逻辑很简单, 整棵树的最大路径和总得有一个结点吧? 那么必定所有结点都进行如上处理之后一定会包含最终答案
 
@@ -2422,6 +2461,10 @@ public:
 
 而递归法不需要记录父节点, 递归到要删除的节点时, 直接把当前这个root删掉, 然后返回应该返回的, 而具体返回什么就要看root的孩子的情况了~
 
+---
+
+别勾八从头写了, 看代码回顾思路和逻辑, 就够了感觉
+
 ### [669. 修剪二叉搜索树](https://leetcode.cn/problems/trim-a-binary-search-tree/)
 
 思路:
@@ -2437,6 +2480,12 @@ public:
 而如果根符合, 此时递归左, 可能左孩子不符合, 但是左孩子的右孩子符合, 此时, 左孩子递归, 发现自己不符合, 且小于low, 直接递归右, 最终肯定返回右, 假设右是一个符合的叶子节点, 右孩子再递归两次, 就返回自己, 而左孩子返回给父节点的就是递归完成的右孩子
 
 把这两个过程一想就清楚很多了
+
+
+
+----
+
+想想这个过程, 如果没有超出范围的, 那么其实就是, 遍历了一遍, 每个节点先看自己, 符合的话递归左右子树, 最终返回的还是左右子树, 可以从叶子那里想想, 也就这= =
 
 ### [108. 将有序数组转换为二叉搜索树](https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/)
 
@@ -2472,6 +2521,26 @@ public:
 > 所以可以这么写：`int mid = left + ((right - left) / 2);`
 
 上方内容指的是另外写一个函数进行递归处理 记得保持边界不变量, 左闭右闭 左闭右开, 要始终统一!
+
+
+
+
+
+---
+
+```golang
+func sortedArrayToBST(nums []int) *TreeNode {
+    if len(nums) == 0 {
+        return nil
+    } else if len(nums) == 1 {
+        return &TreeNode{Val:nums[0]}
+    }
+    index := len(nums) / 2
+    return &TreeNode{nums[index], sortedArrayToBST(nums[:index]), sortedArrayToBST(nums[index + 1:])}
+}
+```
+
+**golang就是爽**
 
 ### [538. 把二叉搜索树转换为累加树](https://leetcode.cn/problems/convert-bst-to-greater-tree/)
 
@@ -2518,6 +2587,16 @@ public:
     }
 };
 ```
+
+---
+
+这勾八不是很简单嘛
+
+和那个困难的124很像
+
+后序, 每个节点先获取左右返回值, 再尝试刷新res, 返回值是最长单向的路径节点个数, 每个节点的最长路径没有多种可能, 就左右返回值连起来尝试刷新即可, 就是一个后序罢了
+
+这他妈ez的一批啊(本来就ez)
 
 # 动态规划
 
