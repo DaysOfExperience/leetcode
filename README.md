@@ -4824,8 +4824,6 @@ NB
 
 ### [面试题 08.06. 汉诺塔问题](https://leetcode.cn/problems/hanota-lcci/)
 
-重复子问题: 每个递归都要解决一个子问题
-
 终极目标: 将a上的n个盘子, 借助b, 转移到c中   也就是将a上的若干盘子借助b转移到c上
 
 而终极目标要想达成, **需要先将n-1个 借助c转移到b中**, 最后再把最下面那个转移到c中, 此时b中有n-1个, **再将b中的n-1个借助a转移到c**  这里面又包含了两个终级目标= =   所以重复子问题就是: 
@@ -4846,6 +4844,8 @@ NB
 
 相信这个函数, 传入两个有序链表的头结点, 它就可以返回合并之后的新的头结点
 
+ez
+
 ### [206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
 
 先发现重复子问题是什么...
@@ -4861,6 +4861,31 @@ NB
 ![image-20231111175014076](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111175014076.png)
 
 一个全新的视角: 把链表看作是一个树!!!!!
+
+---
+
+```golang
+// 相信这个函数, 传入一个链表的头节点, 可以返回逆置后的新结点
+func reverseList(head *ListNode) *ListNode {
+    var dfs func(*ListNode) *ListNode
+    dfs = func(head *ListNode) *ListNode {
+        if head == nil || head.Next == nil {
+            return head
+        }
+        newHead := reverseList(head.Next)
+        head.Next.Next = head
+        head.Next = nil
+        return newHead
+    }
+    return dfs(head)
+}
+```
+
+其实思路就是, 我要完成这个功能, 那么如果利用这个功能本身去实现这个功能
+
+比如要完成逆置链表, 那么, 先把head.Next逆置了, 是不是就好很多? 接下来怎么做, 就好了
+
+注意终止条件
 
 ### [24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
 
