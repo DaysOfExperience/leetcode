@@ -4887,23 +4887,23 @@ func reverseList(head *ListNode) *ListNode {
 
 注意终止条件
 
+利用这个功能本身去实现这个功能
+
 ### [24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
 
 子问题: 先把后序的链表进行处理, 然后前两个进行逆置, 返回即可
 
-每个递归都是这样, 终止条件就是空结点或一个结点, 就终止
+每个递归都是这样, 终止条件就是空结点或一个结点或两个节点, 就终止不用再次递归, 如果大于2个, 则需要递归
 
-> **相信这个函数, 你传入一个链表的头结点, 他就可以返回处理之后的新的头结点**
->
-> NB
+> **相信这个函数, 你传入一个链表的头结点, 他就可以返回处理之后的新的头结点**     NB
 
 ### [50. Pow(x, n)](https://leetcode.cn/problems/powx-n/)
 
 **相信这个函数可以返回x的n次幂**
 
-![image-20231111182718603](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111182718603.png)
+<img src="https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111182718603.png" alt="image-20231111182718603" style="zoom:50%;" />
 
-![image-20231111183534433](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111183534433.png)
+<img src="https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111183534433.png" alt="image-20231111183534433" style="zoom:50%;" />
 
 ## 二叉树的深度优先搜索(深度优先遍历)
 
@@ -4913,43 +4913,37 @@ func reverseList(head *ListNode) *ListNode {
 >
 > 这个函数就是可以返回一颗子树的计算结果!
 >
-> 那, 你想求一棵树的, 肯定要先求它的左右子树的啊
+> 那, 你想求一棵树的结果, 根节点的情况知道了, 肯定要先求它的左右子树的啊
 
 > 深搜就是深度优先遍历时的目标是搜索
 
 宏观的视角来看, 我们相信, dfs这个函数传给它一个根节点, 它就可以计算某树的值, 所以, 在求root的时候, 先计算出左右子树的值, 才能计算出根节点的值. 也就是把dfs看作一个黑盒, 并相信它可以完成这个任务
 
-对于原始的思路, 也就是从过程 / 细节的角度来说: 必须先知道左右子树的值, 才能算根节点的值, 所以一定是从下往上的, 所以就是后序遍历
+对于原始的思路, 也就是从过程 / 细节的角度来说: 必须先知道左右子树的值, 才能算根节点的值, 所以一定是从下往上的, 所以就是后序遍历 先左右, 后根
 
 ### [129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
 
-之前的视角: 前序遍历, 每过一个结点就在vector里面记录一下, 到了叶子节点再最终计算值, 加到全局的一个ret中, 这样一来其实就是真正的前序遍历一遍罢了
+之前的视角: 前序遍历
 
-这个过程是前序的
-
-```C++
-class Solution {
-public:
-    int ret = 0;
-    int sumNumbers(TreeNode* root) {
-        vector<int> v;
-        dfs(root, v);
-        return ret;
-    }
-    void dfs(TreeNode *root, vector<int> v) {
-        if(root == nullptr) return;
-        v.push_back(root->val);
-        if(root->left == nullptr && root->right == nullptr) {
-            // 4 9 5
-            int num = 0;
-            for(auto & i : v) num = num * 10 + i;
-            ret += num;
-            return ;
+```golang
+func sumNumbers(root *TreeNode) (ret int) {
+    var dfs func(root *TreeNode, num int)
+    dfs = func(root *TreeNode, num int) {
+        if root.Left == nil && root.Right == nil {
+            ret += (num * 10 + root.Val)
+            return
         }
-        dfs(root->left, v);
-        dfs(root->right, v);
+        // 非叶子节点
+        if root.Left != nil {
+            dfs(root.Left, num * 10 + root.Val)
+        }
+        if root.Right != nil {
+            dfs(root.Right, num * 10 + root.Val)
+        }
     }
-};
+    dfs(root, 0)
+    return
+}
 ```
 
 ---
@@ -4965,39 +4959,42 @@ public:
 ![image-20231112153030770](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112153030770.png)
 
 ```C++
-class Solution {
-public:
-    int sumNumbers(TreeNode* root) {
-        return dfs(root, 0);
+func sumNumbers(root *TreeNode) int {
+    return dfs(root, 0)  // 相信这个函数
+}
+
+func dfs(root *TreeNode, prevSum int) int {
+    if root == nil {
+        return 0
     }
-    int dfs(TreeNode *root, int prevSum) {
-        if(root == nullptr) return 0;  // 终止情况1
-        prevSum = prevSum * 10 + root->val;
-        if(!root->left && !root->right) return prevSum;
-        int left = dfs(root->left, prevSum);
-        int right = dfs(root->right, prevSum);
-        return left + right;
+    if root.Left == nil && root.Right == nil {
+        return prevSum * 10 + root.Val
     }
-};
+    left := dfs(root.Left, prevSum * 10 + root.Val)
+    right := dfs(root.Right, prevSum * 10 + root.Val)
+    return left + right
+}
 ```
 
-### [814. 二叉树剪枝](https://leetcode.cn/problems/binary-tree-pruning/)
+---
 
-剪枝 : 如果一颗子树 所有的结点值都是0, 则删除这颗子树
+> 这个题还是前序更合适点 
+
+### [814. 二叉树剪枝](https://leetcode.cn/problems/binary-tree-pruning/)
 
 前序的话: 中左右, 这时候左右的情况都不知道, 怎么处理中呢? 所以前序不可行
 
 所以, 后序, 左右中, 左右都处理完, 根据左右的处理结果才能进一步地处理根节点, 所以一定后序
 
+这他妈典型的后序
+
 ---
 
 宏观视角
 
-把这个函数看作一个黑盒, 它的作用就是如果这个子树只有0没有1, 就会去除它, 并返回处理完成之后的这个数的结果
+把这个函数看作一个黑盒, 它的作用就是如果这个子树只有0没有1, 就会去除它, 并返回处理完成之后的这个树的结果
 
 所以, 对某颗子树进行处理时, 先对左右孩子子树进行剪枝处理, 然后根据左右剪枝的结果, 以及val的值, 进行处理这颗子树, 只有左右处理完返回的是空, 且根节点val == 0时才会返回nullptr, 也就代表着这颗子树处理完结果是nullptr
-
-![image-20231112155547379](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112155547379.png)
 
 **所以要加返回值**  动作统一 每一个都要有返回值, 就很方便的获取左右子树结果, 并更新左右子树
 
@@ -5013,7 +5010,7 @@ public:
 
 整体肯定是要中序的, 先判断左, 判断自己是否符合, 判断右, 最终返回左&&自己&&右
 
-剪枝就是: 当左子树返回false, 证明左子树中有元素不符合二叉搜索树的定义了, 这时候直接返回false即可, 后续的自己以及右子树都不需要进行
+剪枝就是: 当左子树返回false, 证明左子树中有元素不符合二叉搜索树的定义了, 这时候直接返回false即可, 后续的自己以及右子树都不需要进行   如果自己是false, 直接返回, 不用处理右 = =
 
 ### [230. 二叉搜索树中第K小的元素](https://leetcode.cn/problems/kth-smallest-element-in-a-bst/)
 
