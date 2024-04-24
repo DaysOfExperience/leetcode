@@ -5069,11 +5069,19 @@ public:
 
 ## 穷举vs暴搜vs深搜vs回溯vs剪枝
 
+从第一个 到 单词搜索前面的共同点:
+
+- 决策树非常重要, 基本上就是靠决策树来进行写代码
+
+dfs函数的编写也很有规律: 
+
+1. 一定搞清楚终止条件, if xxx   则终止  
+2. for循环遍历, 或者其它形式的逻辑
+3. 递归前大概率要记录什么, dfs进行递归, 递归后要恢复现场, 而for循环的逻辑或者其它方式的逻辑的编写都是依靠决策树的
+
 ### [46. 全排列](https://leetcode.cn/problems/permutations/)
 
-穷举类的题
-
-1. **画出决策树, 也就是所有的情况, 都列举出来 - 越详细越好    决策树只要能不重不漏的举出所有情况即可, 没有规定必须长什么样**
+穷举类的题    **画出决策树, 也就是所有的情况, 都列举出来 - 越详细越好    决策树只要能不重不漏的举出所有情况即可, 没有规定必须长什么样**
 
 这个题来说, 如果用树的DFS来做的话, 有点类似于求二叉树的所有路径, 这里完全可以用一个vector来记录, 过程中必然涉及到递归与回溯
 
@@ -5099,6 +5107,7 @@ public:
         // 选出第一个没有使用过的元素, 并递归
         // if(nums.size() == path.size()) {
         //     ret.push_back(path);
+        //     return
         // }
         for(int & i : nums) {
             if(check.find(i) == check.end()) {
@@ -5126,6 +5135,42 @@ public:
 
 这里分两种终止递归的方式, 一种是填满时直接终止, 一种是交给下一层递归, 这一层不加新元素
 
+---
+
+```golang
+func permute(nums []int) (ret [][]int) {
+    choice := make([]bool, len(nums))  // 选过为true, 没选过为false
+    slice := make([]int, 0)
+    var dfs func()
+    dfs = func() {
+        // 此函数, 只需要关心决策树的某一个节点做什么即可
+        if len(slice) == len(nums) {
+            // 这里必须拷贝一个新的
+            cp := make([]int, len(slice))
+            copy(cp, slice)
+            ret = append(ret, cp)
+            return
+        }
+        for i := 0; i < len(nums); i++ {
+            if choice[i] == false {
+                slice = append(slice, nums[i])
+                choice[i] = true
+                dfs()   // 递归
+                // 回溯
+                // 其实这个回溯处理, 是指递归到下一层结束返回了
+                // 这一层比如i是某一个元素, 该for循环到下一个元素了
+                // 那么就需要先把i这个去掉, 再for循环下一个
+                // 这个过程可以结合决策树来思考, 否则有点抽象= =
+                choice[i] = false
+                slice = slice[:len(slice) - 1]
+            }
+        }
+    }
+    dfs()
+    return
+}
+```
+
 ### [78. 子集](https://leetcode.cn/problems/subsets/)
 
 第一步是想出一种策略, 把所有情况不重不漏地枚举出来, 这个其实就是决策树嘛
@@ -5134,20 +5179,20 @@ public:
 
 ----
 
-主要问题是 12选了之后, 21如何避免?  可以用一个unordered_set<vector<int\>\>  解决 
+主要问题是 12选了之后, 21如何避免?  可以用一个unordered_set<vector<int\>\>  解决
 
 ![image-20231112195827335](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112195827335.png)
 
 1. 这个决策树完全没想到: 其实就是对数组的每个元素进行选 / 不选, 而这两个情况都需要递归, 只有递归到最后一个元素时才会终止递归
-
 2. 下一步就是这个树转化为代码即可
    怎么记录我目前处理到第几个元素了? 搞一个参数i即可, 并且这个形参i不需要恢复现场, 很爽  (其实恢复现场很简单, 就是恢复到递归之前即可~ )
+3. 这个相比之下更简单, 每个元素都是选 / 不选进行递归, 到最后一个元素时终止递归, 类似于树的叶子节点/空结点
+
+>根据决策树: 每个dfs函数, 都是对pos选或者不选, 递归结束回来要恢复现场. 选/不选完成后就可以返回到上一层了, 因为这一层任务结束了, 回溯的恢复现场一定是发生在递归之后的
 
 ---
 
-> 这个相比之下更简单, 每个元素都是选 / 不选进行递归, 到最后一个元素时终止递归, 类似于树的叶子节点/空结点
-
-![image-20231112202635792](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112202635792.png)
+<img src="https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112202635792.png" alt="image-20231112202635792" style="zoom:50%;" />
 
 **这他妈, 怎么做到选了2, 之后不选1?  答案: 只选比上一个选择的数大的数**
 
@@ -5161,21 +5206,21 @@ public:
 
 > 目前来看, 这两个回溯来说, 决策树很重要, 然后, 根据决策树的逻辑, 转化为代码
 
-## 综合练习
-
 ### [1863. 找出所有子集的异或总和再求和](https://leetcode.cn/problems/sum-of-all-subset-xor-totals/)
 
 按位与 & 按位或 | 且 && 或 || 非 ! 按位异或 ^
 
 其实就是上一题求出所有的子集的同时求一个每个子集的按位异或的和即可
 
-不用path, 直接用一个int来记录这个子集的目前为止所有元素的异或值  可是回溯应该怎么回溯呢?  也就是异或i的反操作是什么?
-
-新 : 异或x, 再异或一次x, 就会抵消
+不用path, 直接用一个int来记录这个子集的目前为止所有元素的异或值  可是回溯应该怎么回溯呢?  也就是异或i的反操作是什么?   异或x, 再异或一次x, 就会抵消
 
 > 0选 / 不选, 1选 / 不选  nums.size() - 1选 / 不选
 
 ### [47. 全排列 II](https://leetcode.cn/problems/permutations-ii/)
+
+---
+
+相比于全排列Ⅰ, 也就是多了一个map, 记录一个for内部不能重复处理同样数值就好了
 
 > 先回顾一下全排列Ⅰ, 其实就是 1 2 3, 之前选过某元素, 之后就不能再选它了
 >
@@ -5187,9 +5232,7 @@ public:
 
 ![image-20231209183234110](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231209183234110.png)
 
-相比于之前的全排列Ⅰ: 全排列Ⅰ是, 记录目前path用过哪些元素, 之前全排列Ⅰ记录下标和值都可以, 因为元素值也具有唯一性, 但是这里必须记录的是下标, 因为值会重复
-
-而这个题, 除了path里面有哪些下标的元素, 还要记录, 在一个for内部, 之前递归过的元素, 之后就不能再递归了, 比如第一行的1 1 2, 第二行第三组的112
+相比于之前的全排列Ⅰ: 全排列Ⅰ是, 记录目前path用过哪些下标的元素, 而这个题, 除了path里面有哪些下标的元素, 还要记录在一个for内部, 也就是一次递归函数的for的内部, 之前处理过的元素, 之后就不能再递归了, 比如第一行的1 1 2, 第二行第三组的112
 
 ```C++
 class Solution {
@@ -5234,7 +5277,7 @@ check记录的是path用过的下标
 
 ### [17. 电话号码的字母组合](https://leetcode.cn/problems/letter-combinations-of-a-phone-number/)
 
-> hot100
+> hot100  ez
 
 若干个字符串, 每个字符串选出一个字符, 进行搭配, 最终会出现多少种?
 
@@ -5242,51 +5285,40 @@ check记录的是path用过的下标
 
 其实这个和全排列是有点像的, 但是这个比如之前选了a, 后面是不可能有a的, 所以不需要记录之前path有过的元素
 
+每次递归中, 就是对当前字符串进行遍历即可, 每个字符都选, 递归, 恢复现场即可
+
 ![image-20231113140846277](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113140846277.png)
 
-```C++
-class Solution {
-public:
-    vector<string> ret;
-    string path;
-    vector<string> letterCombinations(string digits) {
-        if(digits.empty()) return ret;
-        vector<string> vec = {"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}; // 一共8个元素
-        dfs(digits, vec, 0);
-        return ret;
+```golang
+func letterCombinations(digits string) (res []string) {
+    if digits == "" {
+        return nil
     }
-    void dfs(string &digits, vector<string> &vec, int pos) {
-        if(pos == digits.size()) {
-            ret.push_back(path);
-            return;
+    nums := []rune(digits)
+    path := make([]rune, 0)
+    str := []string{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if pos == len(nums) {
+            res = append(res, string(path))
+            return
         }
-        char c = digits[pos];  // 对应的按键
-        string &s = vec[c - '2'];  // 本次需要for循环的字符串
-        // pos标志着现在需要处理的字符串, 在vec中
-        for(char & ch : s) {
-            path += string(1, ch);
-            dfs(digits, vec, pos + 1);  // 递归
-            path.pop_back();  // 恢复现场
+        for _, v := range str[int(nums[pos] - '0')] {
+            path = append(path, v)
+            dfs(pos + 1)
+            path = path[:len(path) - 1]
         }
     }
-};
+    dfs(0)
+    return
+}
 ```
 
 ### [22. 括号生成](https://leetcode.cn/problems/generate-parentheses/)
 
 > hot100????
 
-没画决策树   核心思路: 粗略来说, 每次递归可以选(, 可以选), 而选左需要一定条件, 选右也需要一定条件, 判断即可
-
-全局: 
-
-- path记录当前的字符串
-
-- num记录现在已凑成()的数量
-
-- leftNum记录当前没有配对)的(的数量
-
-- ret
+没画决策树   核心思路: 粗略来说, 每次递归可以选(则选, 然后递归, 可以选)则选, 然后递归, (选左需要一定条件, 选右也需要一定条件)
 
 每次递归进来, 都要分情况, 只能加左, 还是只能加右, 还是都可以
 
@@ -5294,9 +5326,43 @@ public:
 
 若进入递归时发现num == n, 则代表终止递归, 当前path就是一个合法path
 
+<img src="C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240424172223962.png" alt="image-20240424172223962" style="zoom:50%;" />
+
 ----
 
 就这???????
+
+```Golang
+func generateParenthesis(n int) (res []string) {
+    left, right := 0, 0
+    path := make([]rune, 0)
+    var dfs func()
+    dfs = func() {
+        if left == right && left == n {
+            cp := make([]rune, 2 * n)
+            copy(cp, path)
+            res = append(res, string(cp))
+            return
+        }
+        if left < n {
+            path = append(path, '(')
+            left++
+            dfs()
+            path = path[:len(path) - 1]
+            left--
+        }
+        if left > right {
+            path = append(path, ')')
+            right++
+            dfs()
+            path = path[:len(path) - 1]
+            right--
+        }
+    }
+    dfs()
+    return
+}
+```
 
 ---
 
@@ -5306,38 +5372,34 @@ public:
 
 **这东西真得画决策树, 画了之后把规律找到就清楚了**
 
-> 有点像子集, 因为12 21是重复的
->
-> 又有点像全排列, 不是Ⅱ, 因为数组中没有重复元素
-
 找上面的规律, 每一行是一个for, 1选了之后, 要从2开始, 2选了, 从3开始, 3选了从4开始
 
 其实下面还会递归, 只是到了下一层递归之后发现个数已经满足, 直接返回终止递归
 
 ```C++
-class Solution {
-public:
-    vector<vector<int>> ret;
-    vector<int> path;
-    vector<vector<int>> combine(int n, int k) {
-        vector<int> v;
-        for(int i = 1; i <= n; ++i) v.push_back(i);
-        dfs(v, k, 0);
-        return ret;
+func combine(n int, k int) (res [][]int) {
+    nums := make([]int, 0)
+    path := make([]int, 0)
+    for i := 1; i <= n; i++ {
+        nums = append(nums, i)
     }
-    void dfs(vector<int> &v, int k, int pos) {
-        // pos为从pos开始for循环遍历v, k是path元素数量上限
-        if(path.size() == k) {
-            ret.push_back(path);
-            return ;  // 终止循环
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if len(path) == k {
+            cp := make([]int, k)
+            copy(cp, path)
+            res = append(res, cp)
+            return
         }
-        for(int i = pos; i < v.size(); ++i) {
-            path.push_back(v[i]);
-            dfs(v, k, i + 1);
-            path.pop_back();     // 恢复现场
+        for i := pos; i < len(nums); i++ {
+            path = append(path, nums[i])
+            dfs(i + 1)
+            path = path[:len(path) - 1]
         }
     }
-};
+    dfs(0)
+    return
+}
 ```
 
 最后这个for还真得注意一下
@@ -5350,9 +5412,7 @@ public:
 >
 > vector等大型参数不适合, 而int这种类型就很适合
 
-很简单哇, 其实每次递归只有一个元素的两种情况, 加或者减
-
-不用遍历, 每个元素两个情况即可
+很简单哇, 每次递归只有某个元素的两种情况, 加或者减   不用遍历, 每个元素两个情况即可
 
 ![image-20231114152353862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114152353862.png)
 
@@ -5383,7 +5443,31 @@ public:
 
 > 优雅
 
+```golang
+func findTargetSumWays(nums []int, target int) (res int) {
+    path := 0
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if pos == len(nums) {
+            if path == target {
+                res++
+            }
+            return
+        }
+        path += nums[pos]
+        dfs(pos + 1)    // 恢复现场
+        path -= 2 * nums[pos]
+        dfs(pos + 1)
+        path += nums[pos]  // 恢复现场
+    }
+    dfs(0)
+    return
+}
+```
+
 ### [39. 组合总和](https://leetcode.cn/problems/combination-sum/)
+
+决策树真的很重要 = =  不然你拿脑子想吗?????
 
 > 为什么第二次做需要看好久
 
@@ -5394,37 +5478,35 @@ public:
 **还是那样的, 2可以从2开始, 3可以从3开始**
 
 ```C++
-class Solution {
-public:
-    vector<vector<int>> ret;
-    vector<int> path;
-    int pathSum = 0;
-    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
-        sort(candidates.begin(), candidates.end());
-        dfs(candidates, target, 0);
-        return ret;
-    }
-    void dfs(vector<int> & candidates, int target, int pos) {
-        if(pathSum == target) {
-            ret.push_back(path);
-            return ;
+func combinationSum(candidates []int, target int) (res [][]int) {
+    path := make([]int, 0)
+    sum := 0
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if sum > target {
+            return
+        } else if sum == target {
+            cp := make([]int, len(path))
+            copy(cp, path)
+            res = append(res, cp)
+            return
         }
-        if(pathSum > target) {
-            return ;
-        }
-        // 从pos开始进行遍历
-        for(int i = pos; i < candidates.size(); ++i) {
-            path.push_back(candidates[i]);
-            pathSum += candidates[i];
-            dfs(candidates, target, i);
-            path.pop_back();            // 回溯 - 恢复现场
-            pathSum -= candidates[i];   // 回溯 - 恢复现场
+        for i := pos; i < len(candidates); i++ {
+            sum += candidates[i]
+            path = append(path, candidates[i])
+            dfs(i)
+            sum -= candidates[i]
+            path = path[:len(path) - 1]
         }
     }
-};
+    dfs(0)
+    return
+}
 ```
 
 没剪枝
+
+> 感觉来来回回也就那些套路
 
 ### [784. 字母大小写全排列](https://leetcode.cn/problems/letter-case-permutation/)
 
@@ -5443,51 +5525,47 @@ public:
 ![image-20231113160001193](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113160001193.png)
 
 ```C++
-class Solution {
-public:
-    vector<string> ret;
-    string path;
-    vector<string> letterCasePermutation(string s) {
-        dfs(s, 0);
-        return ret;
-    }
-    void dfs(string &s, int pos) {
-        if(pos == s.size()) {
-            ret.push_back(path);
-            return ;
+func letterCasePermutation(s string) (res []string) {
+    path := make([]rune, 0)
+    str := []rune(s)
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if pos == len(str) {
+            res = append(res, string(path))
+            return
         }
-        char ch = s[pos];
-        if(ch >= '0' && ch <= '9') {
-            path.push_back(ch);
-            // return dfs(s, pos + 1);
-            dfs(s, pos + 1);
-            path.pop_back();
-            return ;
+        ch := str[pos]
+        if ch >= '0' && ch <= '9' {
+            path = append(path, ch)
+            dfs(pos + 1)
+            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
+        } else {
+            var ch2 rune
+            if ch >= 'a' && ch <= 'z' {
+                ch2 = rune(ch - 32)  // 小写转大写, 就是-32
+            } else {
+                ch2 = rune(ch + 32)  // 大写转小写, 就是+32
+            }
+            path = append(path, ch)
+            dfs(pos + 1)
+            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
+            path = append(path, ch2)
+            dfs(pos + 1)
+            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
         }
-        // 分小写大写两个情况
-        if(ch >= 'a' && ch <= 'z') ch = (char)(ch - 32);
-        // ch一定是大写
-        path.push_back(ch);
-        dfs(s, pos + 1);
-        path.pop_back();  // 回溯
-        // 小写
-        path.push_back((char)(ch + 32));
-        dfs(s, pos + 1);
-        path.pop_back();
-        return ;
     }
-};
+    dfs(0)
+    return
+}
 ```
 
 **致命错误, 看中间的数字的递归逻辑, 递归之后, 不能直接返回的, 比如a1b2, 2递归进入, 发现pos == s.size() 返回, 返回到2这里, 难道直接返回吗? 必须恢复现场, 把2去掉 变为a1b, 再回到b这一层, 小写处理完, 处理大写, 且小写递归完了 还要恢复现场, 变为a1, 再插入B, 变为a1B, 再进一步递归**
 
 ### [526. 优美的排列](https://leetcode.cn/problems/beautiful-arrangement/)
 
-1 - n n个数字
+1 - n n个数字   逐个位置进行选择
 
-逐个位置进行选择
-
-从下标为0开始选, 候选项为所有数字, 每个位置遍历所有数字时都有两个条件: **之前没用过 且 符合条件**
+从下标为0开始选, 候选项为所有数字, 每个位置遍历所有数值时都有两个条件: **之前没用过 且 符合条件**
 
 <u>每个位置都可以遍历所有的数字, 只要这个数字没有被选过 且 符合条件, 就可以进一步递归</u>
 
@@ -5497,44 +5575,39 @@ public:
 
 比如n = 5吧
 
-第一个下标处选1 ? 2 3 4 5 ? 任何一个符合完美条件都可以进一步递归
+第一个下标处选1 ? 2 ? 3 ? 4 ? 5 ? 任何一个符合完美条件都可以进一步递归
 
-第二个下标选1 2 3 4 5 ? 条件是之前没选过 且这个数字符合完美条件
-
-主要是因为21 12 是不重复的
+第二个下标选1 2 3 4 5 ? 条件是之前没选过 且这个数字符合完美条件   主要是因为21 12 是不重复的
 
 这里不必记录path, 因为最终只要符合条件的path的数量, 所以只需要记录当前用过哪些数字, 当然这个东西(记录用过哪些数字的东西, 也就是哈希表啦~)也需要恢复现场
 
+问题是, 只记录哪些用过, 如何知道终止递归呢? 因为我们是逐个位置进行选择, 所以到了末尾就结束
+
 ```C++
-class Solution {
-public:
-    int ret = 0;
-    unordered_set<int> check;  // 记录已经使用过的元素, 存储值即可
-    int countArrangement(int n) {
-        vector<int> v;
-        for(int i = 1; i <= n; ++i) v.push_back(i);
-        dfs(v, 0);
-        return ret;
+func countArrangement(n int) (res int) {
+    nums := []int{}
+    for i := 1; i <= n; i++ {
+        nums = append(nums, i)
     }
-    void dfs(vector<int> &v, int pos) {
-        // v是候选的所有元素, pos是即将填入的下标
-        if(pos == v.size()) {
-            ret++;
-            return ;
+    used := make(map[int]bool)  // 下标是否用过
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if pos == len(nums) {
+            res++
+            return
         }
-        for(int i = 0; i < v.size(); ++i) {
-            if(check.find(v[i]) == check.end() && perfect(v[i], pos + 1)) {
-                check.insert(v[i]);
-                dfs(v, pos + 1);
-                check.erase(v[i]);
+        for i, v := range nums {
+            // pos位置放每个数字都试一下, 可以则递归
+            if used[i] == false && ((pos + 1) % v == 0 || v % (pos + 1) == 0) {
+                used[i] = true
+                dfs(pos + 1)
+                used[i] = false
             }
         }
     }
-    bool perfect(int num, int pos) {
-        if((num % pos == 0) || (pos % num == 0)) return true;
-        return false;
-    }
-};
+    dfs(0)
+    return
+}
 ```
 
 ### [667. 优美的排列 II](https://leetcode.cn/problems/beautiful-arrangement-ii/)
@@ -5553,31 +5626,55 @@ public:
 
 这B题用回溯根本解不了好吧??????
 
+## board回溯
+
 ### [79. 单词搜索](https://leetcode.cn/problems/word-search/)
 
 > hot100
 
-> 核心思路: 按照目标字符串进行逐个元素的搜索, 只有第一个元素是遍历整个矩阵, 后面每次递归其实都是某四个位置进行查找
->
-> 而这次递归的四个位置是取决于父递归的pos的, 那么, 其实可以直接把上次递归的位置传给这次递归, 就可以找到四个位置, 另一种思路就是, 直接把四个位置的vector传给下一次递归, 但是, 实际上是没有第一种更好的
->
-> 位置不越界, 位置没用过, 位置的字符是目标字符, 则代表着可以进一步递归
->
-> 最关键的是, 如何进行unordered_set<pair<int, int>> 去重: 别忘了,  unordered_set本身就是哈希表结构, 第二个模板参数: 求哈希值, 第三个: 判断是否相等
->
-> std::hash<int>()(p.second)   std::hash<int>()(i);
->
-> 其实, 两个int怎么求哈希值? 我直接i1 + i2不行吗? 其实也行~
+这思路很清晰的啊, dfs函数: 参数1 上一个的位置, 参数2要查找的字母   根据上一个的位置, 拓展出4个新的位置, 然后看这四个位置是否符合此次的要求, 如果可以, 则进一步扩展
 
-这个题的思路其实很简单, 按照目标字符串, 逐个字符进行查找即可
+这个无疑是比较简单的, 也就是根据上一次的位置, 这四个扩展位置, 只有可行, 才递归, 不可行则不递归
 
-且每次查找时并不是遍历整个board
+而第一个字母如何查找呢? 直接在main函数中, 遍历整个board找第一个
 
-只有找第一个字符时, 可以遍历, 只要找到一个字符, 那么下次递归进入之后找下一个字符的搜索区域就是固定的了, 只是上一个位置的周围四个而已
+需要一个bool二维数组记录某个位置是否使用过
 
-判断, 这个新的位置是否越界, 判断这个位置是否使用过, 判断这个位置是否是目标字符
 
-如果都满足, 则进一步递归...
+
+> 思路2: dfs函数的ij, 是此次的位置, 这个ij是否越界, 是否使用过, 是否合法是不知道的, 反正就去试, 如果可以, 则找出四个新的扩展位置, 去递归
+>
+> 这个每次递归中, 是否越界等等, 是不知道的, 先递归, 再检查
+>
+> 而上一个是参数为上一次的位置, 四个扩展位置在一个函数中, 如果可以, 则进一步找下一个. 而思路二为判断ij位置是否是目标字符
+
+思路1 : ij为上一次的位置, 扩展的四个位置在此次递归函数中查找是否有符合的, 若有, 则进一步递归
+
+思路2: ij为此次位置, 也就是, 每次找到符合的字符, 一定要递归四次, 在函数内部判断ij是否符合
+
+黑盒1: 判断ij周围四个扩展位置是否为目标字符, 若有, 则进一步递归
+
+黑盒2: 判断ij位置是否为目标字符, 若有, 则进一步递归
+
+
+
+---
+
+核心思路: 按照目标字符串进行逐个元素的搜索, **只有第一个元素是遍历整个矩阵, 后面每次递归其实都是某四个位置进行查找**
+
+而这次递归的四个位置是取决于父递归的pos的, 那么, 其实可以直接把上次递归的位置传给这次递归, 就可以找到四个位置, 另一种思路就是, 直接把四个位置的vector传给下一次递归, 但是, 实际上是没有第一种更好的
+
+位置不越界, 位置没用过, 位置的字符是目标字符, 则代表着可以进一步递归
+
+
+
+
+
+下面的不用看了= =
+
+> > 最关键的是, 如何进行unordered_set<pair<int, int>> 去重: 别忘了,  unordered_set本身就是哈希表结构, 第二个模板参数: 求哈希值, 第三个: 判断是否相等  std::hash<int>()(p.second)   std::hash<int>()(i);   其实, 两个int怎么求哈希值? 我直接i1 + i2不行吗? 其实也行~   
+
+
 
 ```C++
 struct PairHash {
