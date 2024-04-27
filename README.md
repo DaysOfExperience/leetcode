@@ -5612,19 +5612,7 @@ func countArrangement(n int) (res int) {
 
 ### [667. 优美的排列 II](https://leetcode.cn/problems/beautiful-arrangement-ii/)
 
-1- 选过的不能再选
-
-主要目的: 凑成n个时, 有k个不同的数字, 这个path 就符合条件
-
-为了避免超时
-
-1- 当找到了合法path, 后续都需要终止
-
-2- 如果到了某一个位置时的不同数字已经超了, 则直接返回, 不要递归下去?
-
----
-
-这B题用回溯根本解不了好吧??????
+??
 
 ## board回溯
 
@@ -6047,7 +6035,7 @@ CPP
 
 其实相比于上一个题, 起始点只有一个, 然后4个方向扩展呗, 这个起始点的所有路径都走一遍
 
-
+相当于从起始点开始的的所有可走的路径都走一遍, 若某个路径到了2的时候, 所有的0都走过一遍, 则res++, 路径不会有重复, **其实本质就是利用回溯进行矩阵所有路径的遍历啊**
 
 ---
 
@@ -6079,104 +6067,86 @@ DFS
 
 所以, 最初的1进入dfs递归后, 当dfs结束, 周围所有的相连的都会处理完毕, 这就是一个岛屿, 后面再遇到1, 就是新的岛屿了
 
-DFS, 每个dfs函数进入时, 有上一个位置的下标, 且已经处理过了, 则四个扩展位置若没越界, 且是1, 就置为0, 再递归扩展
-
-```C++
-class Solution {
-public:
-    int ret = 0;
-    int row, col;
-    int numIslands(vector<vector<char>>& grid) {
-        row = grid.size(), col = grid[0].size();
-        for(int i = 0; i < row; ++i) {
-            for(int j = 0; j < col; ++j) {
-                if(grid[i][j] == '1') {
-                    ret++;
-                    grid[i][j] = '0';
-                    dfs(grid, i, j);
-                }
-            }
-        }
-        return ret;
-    }
-    void dfs(vector<vector<char>> &grid, int r, int c) {
-        // rc是上一个位置, 已经处理过了
-        vector<pair<int, int>> choice = {{r, c - 1}, {r, c + 1}, {r + 1, c}, {r - 1, c}};
-        for(auto & ch : choice) {
-            if(ch.first >= 0 && ch.first < row && ch.second >= 0 && ch.second < col
-            && grid[ch.first][ch.second] == '1') {
-                grid[ch.first][ch.second] = '0';
-                dfs(grid, ch.first, ch.second);
-            }
-        }
-    }
-};
-```
+DFS, 每个dfs函数进入时, 有上一个位置的下标, 且已经处理过了, 则四个扩展位置若没越界, 且是1, 就置为0, 再继续递归扩展
 
 ### [695. 岛屿的最大面积](https://leetcode.cn/problems/max-area-of-island/)
 
-```C++
-class Solution {
-public:
-    int ret = 0;
-    int path = 0;
-    int row, col;
-    int maxAreaOfIsland(vector<vector<int>>& grid) {
-        row = grid.size(), col = grid[0].size();
-        for(int i = 0; i < row; ++i) {
-            for(int j = 0; j < col; ++j) {
-                if(grid[i][j] == 1) {
-                    dfs(grid, i, j);
-                    path = 0;
-                }
-            }
-        }
-        return ret;
-    }
-    void dfs(vector<vector<int>> &grid, int r, int c) {
-        // rc是1, 没有计数, path是当前岛屿的面积
-        if(++path > ret) ret = path;
-        grid[r][c] = 0;
-        vector<pair<int, int>> choice = {{r, c - 1}, {r, c + 1}, {r + 1, c}, {r - 1, c}};
-        for(auto & ch : choice) {
-            if(ch.first >= 0 && ch.first < row && ch.second >= 0 && ch.second < col
-            && grid[ch.first][ch.second] == 1) {
-                dfs(grid, ch.first, ch.second);
-            }
-        }
-    }
-};
-```
+看代码吧, 懒得说了
 
-这次的dfs逻辑是: 确定传入的rc位置是1, 且该位置的数量没有加过
+---
 
-dfs逻辑: rc位置加上, 然后四个扩展位置: 不越界且是1, 就进一步递归
-
-在最后一个1的时候, 进入递归, 加上该位置(可能会刷新ret), 但是周围四个不能扩展了, 就返回上一层, 最终返回到main函数的那个dfs下面
-
-此时一个岛屿的面积计算结束, 更新全局path, 然后若后面再遇到1, 就是新的岛屿了
+733 200 695都很相似
 
 ### [130. 被围绕的区域](https://leetcode.cn/problems/surrounded-regions/)
 
 main函数的for: 若该位置不是边界, 且四周没有边界且为O, 则可以递归? 可是这样也不对啊
 
-其实我可以找到边界, 然后从边界开始延展, 这些位置的O最终必须是O, 不能是X, 记录这些位置
+其实我可以找到边界, 然后从边界开始延展, 这些位置的O最终必须是O, 记录这些位置
 
-相反的其余的都可以置为X
+相反的其余的都需要置为X
 
 > 我他妈真是个天才, 举一反三算是被我学会了
+
+---
+
+> 不能直接使用map[[]int]bool    那就原生的二维bool矩阵吧
 
 ### [417. 太平洋大西洋水流问题](https://leetcode.cn/problems/pacific-atlantic-water-flow/)
 
 逆向思考, 正难则反
 
-其实还是四个方向扩展的问题罢了
+其实本质还是四个方向扩展的问题罢了
+
+```golang
+func pacificAtlantic(heights [][]int) (res [][]int) {
+    res = make([][]int, 0)
+    m, n := len(heights), len(heights[0])
+    top, down := make([][]bool, m), make([][]bool, m)  // 标记ij位置是否可以流向po/ao
+    for i := range top {
+        top[i] = make([]bool, n)
+        down[i] = make([]bool, n)
+    }
+    var dfs func(i, j int, grid *[][]bool)
+    dfs = func(i, j int, grid *[][]bool) {
+        // ij是可以流向的, 上一次的位置, 判断周围四个是否可以
+        pos := [][]int{{i + 1, j}, {i - 1, j}, {i, j - 1}, {i, j + 1}}
+        for _, p := range pos {
+            r, c := p[0], p[1]
+            if r >= 0 && r < m && c >= 0 && c < n && heights[r][c] >= heights[i][j] && (*grid)[r][c] == false {
+                // 该位置需要处理并进一步递归
+                (*grid)[r][c] = true
+                dfs(r, c, grid)
+            }
+        }
+    }
+    for i := range heights {
+        for j := range heights[i] {
+            if (i == 0 || j == 0) && top[i][j] == false {
+                top[i][j] = true
+                dfs(i, j, &top)
+            }
+            if (i == m - 1 || j == n - 1) && down[i][j] == false {
+                down[i][j] = true
+                dfs(i, j, &down)
+            }
+        }
+    }
+    for i := range heights {
+        for j := range heights[i] {
+            if top[i][j] && down[i][j] {
+                res = append(res, []int{i, j})
+            }
+        }
+    }
+    return
+}
+```
+
+
 
 ---
 
 剑指offer13.机器人的运动范围
-
-![image-20231212155022284](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231212155022284.png)
 
 起点固定, 某些位置不能去, 四个扩展方向, 问最多几个
 
