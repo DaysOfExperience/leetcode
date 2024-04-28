@@ -4794,6 +4794,10 @@ public:
 
 # 回溯(递归+搜索)
 
+[代码随想录 (programmercarl.com)](https://programmercarl.com/回溯算法理论基础.html#理论基础)
+
+---
+
 递归 > 搜索 > 回溯
 
 前言:
@@ -5173,6 +5177,14 @@ func permute(nums []int) (ret [][]int) {
 
 ### [78. 子集](https://leetcode.cn/problems/subsets/)
 
+[代码随想录 (programmercarl.com)](https://programmercarl.com/0078.子集.html#其他语言版本)
+
+可以好好看看
+
+12 21 重复, 又因为子集内部的元素肯定不能重复,  所以dfs(pos + 1)
+
+---
+
 第一步是想出一种策略, 把所有情况不重不漏地枚举出来, 这个其实就是决策树嘛
 
 再把决策树转化为代码即可
@@ -5181,7 +5193,7 @@ func permute(nums []int) (ret [][]int) {
 
 主要问题是 12选了之后, 21如何避免?  可以用一个unordered_set<vector<int\>\>  解决
 
-![image-20231112195827335](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112195827335.png)
+<img src="https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112195827335.png" alt="image-20231112195827335" style="zoom:67%;" />
 
 1. 这个决策树完全没想到: 其实就是对数组的每个元素进行选 / 不选, 而这两个情况都需要递归, 只有递归到最后一个元素时才会终止递归
 2. 下一步就是这个树转化为代码即可
@@ -5194,17 +5206,13 @@ func permute(nums []int) (ret [][]int) {
 
 <img src="https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112202635792.png" alt="image-20231112202635792" style="zoom:50%;" />
 
-**这他妈, 怎么做到选了2, 之后不选1?  答案: 只选比上一个选择的数大的数**
+dfs(pos + 1)
 
-可以看绿色和下面选择的关系, 1后面选23, 2后面选3, 3后面没有
+可以看到, 分叉的开始处是递归函数的入口处, 而选了某个元素就是for循环内部的逻辑, 选择 递归 恢复现场
 
-其实就是 我选了下标为1, 之后这个path只能选 2 / 3 / 4...
+所以我们需要在每次进入递归函数时就记录此时的path到res中
 
-
-
-----
-
-> 目前来看, 这两个回溯来说, 决策树很重要, 然后, 根据决策树的逻辑, 转化为代码
+> 无非就是dfs(0)  dfs(pos)  dfs(pos + 1)
 
 ### [1863. 找出所有子集的异或总和再求和](https://leetcode.cn/problems/sum-of-all-subset-xor-totals/)
 
@@ -5368,7 +5376,13 @@ func generateParenthesis(n int) (res []string) {
 
 ### [77. 组合](https://leetcode.cn/problems/combinations/)
 
-![image-20231113150040103](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113150040103.png)
+![image-20240428132635627](C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240428132635627.png)
+
+> 为什么选了1之后, 要从2开始.  选了2之后要从3开始?
+>
+> 其实这是根据题意得出的, 它要的是组合, 12 21 冲突, 22更不行, 所以这样
+>
+> 根据题意 -> 决策树 + 回溯代码实现
 
 **这东西真得画决策树, 画了之后把规律找到就清楚了**
 
@@ -5405,6 +5419,12 @@ func combine(n int, k int) (res [][]int) {
 最后这个for还真得注意一下
 
 **是从pos开始遍历, 且递归传参时是i + 1**
+
+### [216. 组合总和 III - 力扣（LeetCode）](https://leetcode.cn/problems/combination-sum-iii/description/)
+
+如果我找出所有k个数的组合, 筛选出和为n的不就行了
+
+> 相比于上一个题的改变, 只是和多个一个限制条件
 
 ### [494. 目标和](https://leetcode.cn/problems/target-sum/)
 
@@ -5473,6 +5493,21 @@ func findTargetSumWays(nums []int, target int) (res int) {
 
 ![image-20231113152239708](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113152239708.png)
 
+> 为什么需要pos?(为什么需要startIndex?)
+>
+> 因为, 233  323 332这些是重复的, 只能选一个!!!!
+>
+> 那pos传递给下一层递归时, 传pos + 1还是? 
+>
+> 传pos, 因为这个题中一个元素可以选择多次, 比如2222  target = 8
+>
+> 什么时候终止? sum >= target就终止
+>
+>
+> 所以说, **其实这个题本质还是找组合**, 我把所有组合全找出来, 找出sum == target的组合不就行了
+>
+> 但是, 又因为元素可以重复选择, 那, 组合就是无限的, 此时当sum >= target就终止, 这就是一个很好的终止条件
+
 这不就清晰了吗? 233 323 332都是重复的, 怎么办?
 
 **还是那样的, 2可以从2开始, 3可以从3开始**
@@ -5507,6 +5542,74 @@ func combinationSum(candidates []int, target int) (res [][]int) {
 没剪枝
 
 > 感觉来来回回也就那些套路
+
+### [40. 组合总和 II - 力扣（LeetCode）](https://leetcode.cn/problems/combination-sum-ii/description/)
+
+其实, 一个组合中每个元素只能用一次(组合综合Ⅰ中可以用无限次), 这个并不难处理, 只需要dfs(pos + 1)即可, 这样后续选择时, 就不会再选到pos了
+
+但是, **本题的难点在于：集合（数组candidates）有重复元素，但还不能有重复的组合**。
+
+` candidates = [2,5,2,1,2], target = 5,`
+
+例如上题, 221是一个组合  那后面其实还可以找出一个212, 这两个组合中的元素都没有重复使用, 但是却是冲突的, 所以这个问题怎么解决?
+
+我在想, 因为这一层(这个递归函数中的for)选过2, 后面就不让再选2, 是否不合适? 是否会漏掉一些选项?
+其实并不会, 因为, 如果后面的n-1个元素可以和后面这个2组合成一个组合, 那么一定也可以和前面这个2组合成一个组合, 且一定组合过了!
+这样其实, 可以减少一些重复, 但是还是有漏洞
+
+`candidates = [10,1,2,7,6,1,5], target = 8`
+
+比如这个, 我125是一个解  可是后面选215还是重复了, 也就是说, 只有当 1125的时候, 才能有效避免重复组合.  所以, 需要排序?
+排完序之后, 比如1125  就只会选出一个125, 达到去重的效果
+
+> carl的那个方法感觉没我这个好
+>
+> 树枝方面, 也就是一个组合内部, 一个元素不能重复选, 但是一个元素值不同元素可以重复选择
+> 树层方面, 选过的元素值不能重复选(通过map[int]bool + 排序来解决)
+
+> 这个去重为什么很难理解呢，**所谓去重，其实就是使用过的元素不能重复选取。** 这么一说好像很简单！
+>
+> 都知道组合问题可以抽象为树形结构，那么“使用过”在这个树形结构上是有两个维度的，一个维度是同一树枝上使用过，一个维度是同一树层上使用过。**没有理解这两个层面上的“使用过” 是造成大家没有彻底理解去重的根本原因。**
+
+### [131. 分割回文串 - 力扣（LeetCode）](https://leetcode.cn/problems/palindrome-partitioning/description/)
+
+> 一些同学可能想不清楚 回溯究竟是如何切割字符串呢？
+>
+> 因为回溯的本质是穷举，穷举所有可能，然后选出我们想要的答案
+
+**如何用回溯去穷举所有的切割方法, 然后选出其中切割之后各部分都是回文串的切割方法**
+
+思路: 第一部分: 一个字符, 两个字符, 三个字符, 四个字符...   基于第一部分, 第二部分: 一个字符, 两个字符, 三个字符.....
+
+一个递归内部for循环处理这一部分x个字符的问题, 递归处理第几部分问题
+
+只有当这一部分的x个字符是回文串的时候, 才递归下一部分, 否则此方案抛弃, 尝试切割为x + 1个字符
+
+![image-20240428170625361](C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240428170625361.png)
+
+### [93. 复原 IP 地址](https://leetcode.cn/problems/restore-ip-addresses/)
+
+![93.复原IP地址](https://code-thinking-1253855093.file.myqcloud.com/pics/20201123203735933-20230310132314109.png)
+
+你就细品吧
+
+其实还是那样, 利用回溯来进行切割字符串, 最基础的: 列举出所有的切割方法, 挑选出合理的. 又因为这个题一部分不可能大于4个字符, 就可以去除很多切割方案
+
+> 就是这样啊, 第一部分 我切割成一个字符, 2个 3个, 4个, 不管几个, 如果某次切割可以(指的是0-255), 那么第一部分就ok
+>
+> 递归处理第二部分, 第三部分... 第四部分
+>
+> 若到了第五部分, 此时用完了, 则ok, 这个方案可以, 如果str没用完, 则错误, 直接返回
+>
+> 此时返回是返回到第四部分, 那么第四部分的for循环继续运转
+>
+> 其实就是穷举这个str的所有切割方法, 又因为ok函数运算很快, 而如果到了四部分, 直接返回, 所以整体是可以的
+>
+> for是处理某一部分的若干字符
+>
+> 递归是处理第x部分
+>
+> 本质还是利用回溯去切割字符串
 
 ### [784. 字母大小写全排列](https://leetcode.cn/problems/letter-case-permutation/)
 
