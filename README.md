@@ -5083,98 +5083,6 @@ dfs函数的编写也很有规律:
 2. for循环遍历, 或者其它形式的逻辑
 3. 递归前大概率要记录什么, dfs进行递归, 递归后要恢复现场, 而for循环的逻辑或者其它方式的逻辑的编写都是依靠决策树的
 
-### [46. 全排列](https://leetcode.cn/problems/permutations/)
-
-穷举类的题    **画出决策树, 也就是所有的情况, 都列举出来 - 越详细越好    决策树只要能不重不漏的举出所有情况即可, 没有规定必须长什么样**
-
-这个题来说, 如果用树的DFS来做的话, 有点类似于求二叉树的所有路径, 这里完全可以用一个vector来记录, 过程中必然涉及到递归与回溯
-
-<u>这里的关键是, 比如第一个位置选了1, 那么后面的就不能再选1, 如何排除呢</u>
-
-**这里采用了一个set或者一个数组来记录你用过了哪些元素, 也就是说, 每次递归这个函数时, 都要把所有元素遍历一遍的, 选出第一个没有用过的即可**
-
-所以这里记录数据的path和记录使用情况的check数组要同步递归 + 恢复现场
-
-![image-20231112180725581](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112180725581.png)
-
-```C++
-class Solution {
-public:
-    vector<vector<int>> ret;  // 返回值
-    vector<int> path; // 记录该路径的数据
-    set<int> check;   // 记录该路径使用过的元素
-    vector<vector<int>> permute(vector<int>& nums) {
-        dfs(nums);
-        return ret;
-    }
-    void dfs(vector<int> &nums) {
-        // 选出第一个没有使用过的元素, 并递归
-        // if(nums.size() == path.size()) {
-        //     ret.push_back(path);
-        //     return
-        // }
-        for(int & i : nums) {
-            if(check.find(i) == check.end()) {
-                path.push_back(i);
-                check.insert(i);
-                if(nums.size() == path.size()) {
-                    ret.push_back(path);
-                    // 其实这一轮, nums中只有一个被选了, 选好之后, 这个for就结束了
-                    // 但是在返回上一层之前必须恢复现场
-                    path.pop_back();
-                    check.erase(i);
-                    return ;
-                }
-                dfs(nums);
-                // 回溯 : 恢复现场
-                path.pop_back();
-                check.erase(i);
-            }
-        }
-    }
-};
-```
-
-这里其实就是, 如何记录我之前已经用过哪些元素了? 用个set / unordered_set就不错
-
-这里分两种终止递归的方式, 一种是填满时直接终止, 一种是交给下一层递归, 这一层不加新元素
-
----
-
-```golang
-func permute(nums []int) (ret [][]int) {
-    choice := make([]bool, len(nums))  // 选过为true, 没选过为false
-    slice := make([]int, 0)
-    var dfs func()
-    dfs = func() {
-        // 此函数, 只需要关心决策树的某一个节点做什么即可
-        if len(slice) == len(nums) {
-            // 这里必须拷贝一个新的
-            cp := make([]int, len(slice))
-            copy(cp, slice)
-            ret = append(ret, cp)
-            return
-        }
-        for i := 0; i < len(nums); i++ {
-            if choice[i] == false {
-                slice = append(slice, nums[i])
-                choice[i] = true
-                dfs()   // 递归
-                // 回溯
-                // 其实这个回溯处理, 是指递归到下一层结束返回了
-                // 这一层比如i是某一个元素, 该for循环到下一个元素了
-                // 那么就需要先把i这个去掉, 再for循环下一个
-                // 这个过程可以结合决策树来思考, 否则有点抽象= =
-                choice[i] = false
-                slice = slice[:len(slice) - 1]
-            }
-        }
-    }
-    dfs()
-    return
-}
-```
-
 ### [78. 子集](https://leetcode.cn/problems/subsets/)
 
 [代码随想录 (programmercarl.com)](https://programmercarl.com/0078.子集.html#其他语言版本)
@@ -5223,65 +5131,6 @@ dfs(pos + 1)
 不用path, 直接用一个int来记录这个子集的目前为止所有元素的异或值  可是回溯应该怎么回溯呢?  也就是异或i的反操作是什么?   异或x, 再异或一次x, 就会抵消
 
 > 0选 / 不选, 1选 / 不选  nums.size() - 1选 / 不选
-
-### [47. 全排列 II](https://leetcode.cn/problems/permutations-ii/)
-
----
-
-相比于全排列Ⅰ, 也就是多了一个map, 记录一个for内部不能重复处理同样数值就好了
-
-> 先回顾一下全排列Ⅰ, 其实就是 1 2 3, 之前选过某元素, 之后就不能再选它了
->
-> 所以需要记录, 目前为止选了哪些元素, 用bool数组或者unordered_set都可以
-
-> 决策树的重要性!!!!!!!!!!!!!
-
-思路二 : 画出决策树发现, 1. 之前选过的, 现在不能再选, 这是最基本的, 2. **在一个for内部, 有几个相同的元素, 若某个被选了, 则后续不再选择等于这个元素的元素**
-
-![image-20231209183234110](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231209183234110.png)
-
-相比于之前的全排列Ⅰ: 全排列Ⅰ是, 记录目前path用过哪些下标的元素, 而这个题, 除了path里面有哪些下标的元素, 还要记录在一个for内部, 也就是一次递归函数的for的内部, 之前处理过的元素, 之后就不能再递归了, 比如第一行的1 1 2, 第二行第三组的112
-
-```C++
-class Solution {
-public:
-    vector<vector<int>> ret;
-    vector<int> path;
-    unordered_set<int> check;  // 记录之前选过的, 记录下标
-    vector<vector<int>> permuteUnique(vector<int>& nums) {
-        dfs(nums);
-        return ret;
-    }
-    void dfs(vector<int> &nums) {
-        if(path.size() == nums.size()) {
-            // 终止递归
-            ret.push_back(path);
-            return ;
-        }
-        unordered_set<int> used;  // 记录如果1递归过了, 则后续的1不再递归, 记录的是值
-        for(int i = 0; i < nums.size(); ++i) {
-            if(check.find(i) == check.end() && used.find(nums[i]) == used.end()) {
-                // 这个元素目前路径没有用过, 且不与之前递归过的元素重复
-                path.push_back(nums[i]);
-                check.insert(i);
-                dfs(nums);
-                path.pop_back();
-                check.erase(i);   // 恢复现场
-                used.insert(nums[i]);
-            }
-        }
-    }
-};
-```
-
-check记录的是path用过的下标
-
-而used只针对这个dfs函数, 也就是下面这个for循环, 递归过的后续不再递归
-
----
-
-> ![image-20231114145200862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114145200862.png)
->
 
 ### [17. 电话号码的字母组合](https://leetcode.cn/problems/letter-combinations-of-a-phone-number/)
 
@@ -5420,7 +5269,7 @@ func combine(n int, k int) (res [][]int) {
 
 **是从pos开始遍历, 且递归传参时是i + 1**
 
-### [216. 组合总和 III - 力扣（LeetCode）](https://leetcode.cn/problems/combination-sum-iii/description/)
+### [216. 组合总和 III](https://leetcode.cn/problems/combination-sum-iii/description/)
 
 如果我找出所有k个数的组合, 筛选出和为n的不就行了
 
@@ -5543,7 +5392,7 @@ func combinationSum(candidates []int, target int) (res [][]int) {
 
 > 感觉来来回回也就那些套路
 
-### [40. 组合总和 II - 力扣（LeetCode）](https://leetcode.cn/problems/combination-sum-ii/description/)
+### [40. 组合总和 II](https://leetcode.cn/problems/combination-sum-ii/description/)
 
 其实, 一个组合中每个元素只能用一次(组合综合Ⅰ中可以用无限次), 这个并不难处理, 只需要dfs(pos + 1)即可, 这样后续选择时, 就不会再选到pos了
 
@@ -5571,7 +5420,7 @@ func combinationSum(candidates []int, target int) (res [][]int) {
 >
 > 都知道组合问题可以抽象为树形结构，那么“使用过”在这个树形结构上是有两个维度的，一个维度是同一树枝上使用过，一个维度是同一树层上使用过。**没有理解这两个层面上的“使用过” 是造成大家没有彻底理解去重的根本原因。**
 
-### [131. 分割回文串 - 力扣（LeetCode）](https://leetcode.cn/problems/palindrome-partitioning/description/)
+### [131. 分割回文串](https://leetcode.cn/problems/palindrome-partitioning/description/)
 
 > 一些同学可能想不清楚 回溯究竟是如何切割字符串呢？
 >
@@ -5610,6 +5459,197 @@ func combinationSum(candidates []int, target int) (res [][]int) {
 > 递归是处理第x部分
 >
 > 本质还是利用回溯去切割字符串
+
+### [90. 子集 II](https://leetcode.cn/problems/subsets-ii/description/)
+
+组合总和 : 无重复的元素, 找出组合(虽然每个元素可以无限次选择, 其实也就是dfs(pos)而已)
+
+组合总和Ⅱ : **有重复的元素, 但是不能有重复的组合**
+某个元素使用过, 同一组合内后续不能再使用, 这个很简单, dfs(i + 1). 但是212  中, 21  12 是重复的, 如何解决?
+**先排序: 然后在dfs函数内部使用map[int]bool解决**  一定要先排序
+
+子集: 没有重复元素, 所以相对比较简单, 直接dfs(i + 1)即可
+
+子集Ⅱ: **有重复的元素, 但是不能有重复的组合(子集)**
+
+比如  212  21是一个  后面的12就重复了  此时解决方法依旧是**先排序, 再在一个递归函数中使用map[int]bool来解决**
+
+### [491. 非递减子序列](https://leetcode.cn/problems/non-decreasing-subsequences/description/)
+
+![image-20240428201953605](C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240428201953605.png)
+
+你就细品吧哥们
+
+dfs(i + 1)  同时因为需要非递减子序列, 所以, 要想入path 还需要大于等于之前的数
+
+同一个树层需要去重, 用map[int]bool即可
+
+
+
+条件: 同一树层没用过,   47 47重复     该元素大于等于path末尾的元素, 因为是递增子序列
+
+就这
+
+### [46. 全排列](https://leetcode.cn/problems/permutations/)
+
+> 如果说把前面的各种都看了, 我再看这个 其实就是
+>
+> 同一树层无所谓, 并且也不是dfs(pos) / dfs(pos + 1)
+>
+> 但是同一树枝下(其实就是选出的一个path中 / 一个排列中) 不能有重复的, 选过了2后面不能再选2, 所以要搞一个全局的map[int]bool 而不是将这个map定义在递归函数内部
+>
+> **而used数组，其实就是记录此时path里都有哪些元素使用了，一个排列里一个元素只能使用一次**。
+>
+> 大家此时可以感受出排列问题的不同：
+>
+> - 每层都是从0开始搜索而不是startIndex
+> - 需要used数组记录path里都放了哪些元素了
+
+穷举类的题    **画出决策树, 也就是所有的情况, 都列举出来 - 越详细越好    决策树只要能不重不漏的举出所有情况即可, 没有规定必须长什么样**
+
+这个题来说, 如果用树的DFS来做的话, 有点类似于求二叉树的所有路径, 这里完全可以用一个vector来记录, 过程中必然涉及到递归与回溯
+
+<u>这里的关键是, 比如第一个位置选了1, 那么后面的就不能再选1, 如何排除呢</u>
+
+**这里采用了一个set或者一个数组来记录你用过了哪些元素, 也就是说, 每次递归这个函数时, 都要把所有元素遍历一遍的, 选出第一个没有用过的即可**
+
+所以这里记录数据的path和记录使用情况的check数组要同步递归 + 恢复现场
+
+![image-20231112180725581](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112180725581.png)
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> ret;  // 返回值
+    vector<int> path; // 记录该路径的数据
+    set<int> check;   // 记录该路径使用过的元素
+    vector<vector<int>> permute(vector<int>& nums) {
+        dfs(nums);
+        return ret;
+    }
+    void dfs(vector<int> &nums) {
+        // 选出第一个没有使用过的元素, 并递归
+        // if(nums.size() == path.size()) {
+        //     ret.push_back(path);
+        //     return
+        // }
+        for(int & i : nums) {
+            if(check.find(i) == check.end()) {
+                path.push_back(i);
+                check.insert(i);
+                if(nums.size() == path.size()) {
+                    ret.push_back(path);
+                    // 其实这一轮, nums中只有一个被选了, 选好之后, 这个for就结束了
+                    // 但是在返回上一层之前必须恢复现场
+                    path.pop_back();
+                    check.erase(i);
+                    return ;
+                }
+                dfs(nums);
+                // 回溯 : 恢复现场
+                path.pop_back();
+                check.erase(i);
+            }
+        }
+    }
+};
+```
+
+这里其实就是, 如何记录我之前已经用过哪些元素了? 用个set / unordered_set就不错
+
+这里分两种终止递归的方式, 一种是填满时直接终止, 一种是交给下一层递归, 这一层不加新元素
+
+---
+
+```golang
+func permute(nums []int) (ret [][]int) {
+    choice := make([]bool, len(nums))  // 选过为true, 没选过为false
+    slice := make([]int, 0)
+    var dfs func()
+    dfs = func() {
+        // 此函数, 只需要关心决策树的某一个节点做什么即可
+        if len(slice) == len(nums) {
+            // 这里必须拷贝一个新的
+            cp := make([]int, len(slice))
+            copy(cp, slice)
+            ret = append(ret, cp)
+            return
+        }
+        for i := 0; i < len(nums); i++ {
+            if choice[i] == false {
+                slice = append(slice, nums[i])
+                choice[i] = true
+                dfs()   // 递归
+                // 回溯
+                // 其实这个回溯处理, 是指递归到下一层结束返回了
+                // 这一层比如i是某一个元素, 该for循环到下一个元素了
+                // 那么就需要先把i这个去掉, 再for循环下一个
+                // 这个过程可以结合决策树来思考, 否则有点抽象= =
+                choice[i] = false
+                slice = slice[:len(slice) - 1]
+            }
+        }
+    }
+    dfs()
+    return
+}
+```
+
+### [47. 全排列 II](https://leetcode.cn/problems/permutations-ii/)
+
+> 先回顾一下全排列Ⅰ, 其实就是 1 2 3, 之前选过某元素, 之后就不能再选它了
+>
+> 所以需要记录, 目前为止选了哪些元素, 用bool数组或者unordered_set都可以
+
+> 决策树的重要性!!!!!!!!!!!!!
+
+思路二 : 画出决策树发现, 1. 一个path中元素不能重复, 之前选过的, 现在不能再选, 这是最基本的  2. **在一个for内部, 有几个相同的元素, 若某个元素值被选过了, 则后续不再选择等于这个元素值的元素**
+
+![image-20231209183234110](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231209183234110.png)
+
+相比于之前的全排列Ⅰ: 全排列Ⅰ是, 记录目前path用过哪些下标的元素, 而这个题, 除了path里面有哪些下标的元素, 还要记录在一个for内部, 也就是一次递归函数的for的内部, 之前处理过的元素, 之后就不能再递归了, 比如第一行的1 1 2, 第二行第三组的112
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<int> path;
+    unordered_set<int> check;  // 记录之前选过的, 记录下标
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        dfs(nums);
+        return ret;
+    }
+    void dfs(vector<int> &nums) {
+        if(path.size() == nums.size()) {
+            // 终止递归
+            ret.push_back(path);
+            return ;
+        }
+        unordered_set<int> used;  // 记录如果1递归过了, 则后续的1不再递归, 记录的是值
+        for(int i = 0; i < nums.size(); ++i) {
+            if(check.find(i) == check.end() && used.find(nums[i]) == used.end()) {
+                // 这个元素目前路径没有用过, 且不与之前递归过的元素重复
+                path.push_back(nums[i]);
+                check.insert(i);
+                dfs(nums);
+                path.pop_back();
+                check.erase(i);   // 恢复现场
+                used.insert(nums[i]);
+            }
+        }
+    }
+};
+```
+
+check记录的是path用过的下标
+
+而used只针对这个dfs函数, 也就是下面这个for循环, 递归过的后续不再递归
+
+相比于全排列Ⅰ, 也就是多了一个map, 记录一个for内部不能重复处理同样数值就好了
+
+---
+
+> ![image-20231114145200862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114145200862.png)
 
 ### [784. 字母大小写全排列](https://leetcode.cn/problems/letter-case-permutation/)
 
