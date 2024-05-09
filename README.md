@@ -3590,9 +3590,7 @@ func lenLongestFibSubseq(arr []int) (res int) {
 
 3. 要么就是和其它的结合一下, 比较特殊 : 二维dp记录每个子串  +  一维dp  我记得是132题 和 单词拆分这个题很像
 
-12常见下`.
-
-
+12常见下
 
 ### [647. 回文子串](https://leetcode.cn/problems/palindromic-substrings/)
 
@@ -3604,13 +3602,11 @@ func lenLongestFibSubseq(arr []int) (res int) {
 
 ---
 
-三种解法, 此处只学习dp解法, 且这个解法虽说并不是这个问题的最佳解法, 但是它是可以解决回文问题的, 甚至有时候可以把hard -> easy
+> 三种解法, 此处只学习dp解法, 且这个解法虽说并不是这个问题的最佳解法, 但是它是可以解决回文问题的, 甚至有时候可以把hard -> easy
 
 (注 : 这个题中, 即使子串的内容相同, 只要开始和结尾不同, 那么就是不同的子串, 所以, **需要判断所有的子串**)
 
-dp解法核心思想:
-
-用一个dp表, 将所有子串是否是回文的信息, 保存在dp表中
+dp解法核心思想:   用一个dp表, 将所有子串是否是回文的信息, 保存在dp表中
 
 这样一来, 两层for即可, 外层for表示子串的起始, 内层for表示子串的结尾, 也就是一个二维dp表, 横坐标表示i, 纵坐标表示j, dp[i][j\]表示s[i, j\]这个子串是否是回文的, 且左闭右闭, 所以i <= j    j >= i
 
@@ -3622,21 +3618,53 @@ dp解法核心思想:
 
 ![image-20231106142701562](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231106142701562.png)
 
-初始化: 无需初始化, 因为不会越界, 因为特殊情况已经处理过了
+**初始化: 无需初始化, 因为不会越界, 因为特殊情况已经处理过了**
 
-填表顺序: 除了特殊情况, 那么, ij需要用到i+1, j-1, 所以在二维dp表中也就是用到左下方的值, 所以我们需要在dp表中从下往上, 而左右不需要考虑, 因为ij 只会用到下一行的左边那个, 只要下一行有值即可
+填表顺序: 除了特殊情况, 那么, ij需要用到i+1, j-1, 所以在二维dp表中也就是用到下方的值, 所以我们需要在dp表中从下往上, 而左右不需要考虑, 因为ij 只会用到下一行的左边那个, 只要下一行有值即可
 
 所以, dp表从下往上填表, 横坐标 - i代表起始, 也就是字符串起始位置要从右往左
 
 ![image-20231106144555744](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231106144555744.png)
 
+```golang
+func countSubstrings(s string) (res int) {
+    n := len(s)
+    dp := make([][]bool, n)
+    for i := range dp {
+        dp[i] = make([]bool, n)
+    }
+    // dp[i][j] 表示i到j字串是否为回文子串, i <= j 左闭右闭
+    for i := n - 1; i >= 0; i-- {   // 从下往上
+        for j := i; j < n; j++ {    // 从左往右
+            if str[i] != str[j] {
+                dp[i][j] = false
+            } else {
+                if i == j || i + 1 == j {  // 所以不会越界
+                    dp[i][j] = true
+                } else {
+                    dp[i][j] = dp[i + 1][j - 1]
+                }
+            }
+            if dp[i][j] == true {
+                res++
+            }
+        }
+    }
+    return
+}
+```
+
 ### [5. 最长回文子串](https://leetcode.cn/problems/longest-palindromic-substring/)
 
 > hot100
 
-**dp解回文子串问题: 可以用一个二维dp表, 将所有子串是否是回文串的信息保存在dp表中**, 
+**dp解回文子串问题: 可以用一个二维dp表, 将所有子串是否是回文串的信息保存在dp表中**
 
-稍微改一下上一题即可
+```golang
+            if dp[i][j] == true && j + 1 - i > len(res) {
+                res = string(str[i:j + 1])
+            }
+```
 
 ### [1745. 分割回文串 IV](https://leetcode.cn/problems/palindrome-partitioning-iv/)
 
@@ -3748,7 +3776,7 @@ i j元素相同的情况很好判断, 若不相同, 则这段区间的最长回�
 
 ![image-20231106180400083](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231106180400083.png)
 
-填表顺序: ij可能用到左下, 下, 左, 所以整体来说, 必须从下往上, 每一行从左往右进行处理
+填表顺序: ij可能用到左下, 下, 左, 所以整体来说, **必须从下往上, 每一行从左往右进行处理**
 
 初始化越界问题: 00 n-1n-1可能越界, 但是这是一个元素的情况, 直接特殊处理一下就不会越界了
 
@@ -3758,15 +3786,42 @@ i j元素相同的情况很好判断, 若不相同, 则这段区间的最长回�
 
 这样状态转移方程才能推出来
 
+```golang
+func longestPalindromeSubseq(s string) int {
+    n := len(s)
+    str := []rune(s)
+    dp := make([][]int, n)   // dp[i][j] 表示ij子串中, 最长回文子序列的长度  左闭右闭
+    for i := range dp {
+        dp[i] = make([]int, n)
+    }
+    for i := n - 1; i >= 0; i-- {  // 从下往上
+        for j := i; j < n; j++ {   // 从左往右
+            if str[i] == str[j] {
+                if i == j {        // 反向对角线
+                    dp[i][j] = 1
+                } else if i + 1 == j {   // 反向对角线右移
+                    dp[i][j] = 2
+                } else {
+                    dp[i][j] = dp[i + 1][j - 1] + 2
+                }
+            } else {
+                dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])  // 这里一定不是反向对角线, 所以这个题不需要处理越界!!!!
+            }
+        }
+    }
+    return dp[0][n - 1]
+}
+```
+
 ### [1312. 让字符串成为回文串的最少插入次数](https://leetcode.cn/problems/minimum-insertion-steps-to-make-a-string-palindrome/)
 
 不能说和上一题一模一样, 只能说一模一样= =
 
-边界问题搞清楚= =, i == j i +1 == j 其实就是反斜线, 以及反斜线上面一条都是处理过的 其余地方
+边界问题搞清楚, i == j i +1 == j 其实就是反斜线, 以及反斜线右移一格     都是处理过的 其余地方
 
 ---
 
-如果一维dp, dpi表示以i元素为结尾的字符串成为回文串的最少插入次数, 发现状态转移方程根本推出不来, 其实就是dp[i]和dp[i - 1]等元素很难联系起来
+> 如果一维dp, dpi表示以i元素为结尾的字符串成为回文串的最少插入次数, 发现状态转移方程根本推出不来, 其实就是dp[i]和dp[i - 1]等元素很难联系起来
 
 二维dp: i表示字符串起始, j表示字符串结尾, dp[i][j\]表示该字符串成为回文串的最少插入次数
 
@@ -3774,19 +3829,45 @@ i j元素相同的情况很好判断, 若不相同, 则这段区间的最长回�
 
 所以初始化顺序: 下到上, 左到右   i从右到左(纵坐标下到上), j从左到右
 
+```golang
+func minInsertions(s string) int {
+    n := len(s)
+    str := []rune(s)
+    dp := make([][]int, n)   // dp[i][j] 表示ij子串成为回文串的最小插入次数 左闭右闭
+    for i := range dp {
+        dp[i] = make([]int, n)
+    }
+    for i := n - 1; i >= 0; i-- {    // 从下往上
+        for j := i; j < n; j++ {     // 从左往右
+            if str[i] == str[j] {
+                if i == j {         // 反斜线
+                    dp[i][j] = 0
+                } else if i + 1 == j {   // 反斜线右移(不包括全部)
+                    dp[i][j] = 0
+                } else {
+                    dp[i][j] = dp[i + 1][j - 1]  // 不会越界
+                }
+            } else {
+                dp[i][j] = min(dp[i + 1][j] + 1, dp[i][j - 1] + 1)   // 不会越界(不可能是反斜线)
+            }
+        }
+    }
+    return dp[0][n - 1]
+}
+```
+
 ![image-20231106184448441](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231106184448441.png)
 
 
 
 ----
 
-> 1. 回文串且子串的问题中, 典型的是二维dp把每个子串是否是回文串记录下来, 其实就是遍历所有子串, O(N^2)
+> 1. 二维dp把每个子串是否是回文串记录下来, 其实就是遍历所有子串, O(N^2)  dp[i][j\]表示ij子串是否是回文串, 左闭右闭
+> 2. <u>**二维dp, 一维表示子串起始, 一维表示子串的终止**</u> 其实和1很像, 只是这里的目的不是判断是否子串了 516 1312
 >
-> 2. <u>**二维dp, 一维表示子串起始, 一维表示子串的终止**</u>
+> > 要么就是和其它的结合一下, 比较特殊 : 二维dp记录每个子串  +  一维dp  132题 和 单词拆分这个题很像
 >
-> 3. 要么就是和其它的结合一下, 比较特殊 : 二维dp记录每个子串  +  一维dp  我记得是132题 和 单词拆分这个题很像
->
-> 12常见
+> 回文串问题中, 处理掉反斜线, 那么就不会越界, i == j || i + 1 == j 不需要多一行多一列, 不需要初始化, 但是需要搞清楚动态转移方程 -> 处理顺序
 
 ## 两个数组的dp问题
 
