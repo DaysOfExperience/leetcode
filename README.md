@@ -5196,25 +5196,334 @@ dfs函数的编写也很有规律:
 
 1. 一定搞清楚终止条件, if xxx   则终止  
 2. for循环遍历, 或者其它形式的逻辑
-3. 递归前大概率要记录什么, dfs进行递归, 递归后要恢复现场, 而for循环的逻辑或者其它方式的逻辑的编写都是依靠决策树的
+3. 递归前大概率要记录什么, dfs进行递归, 递归后要恢复现场, 而for循环的逻辑或者其它形式的逻辑的编写都是依靠决策树的
+
+### [46. 全排列](https://leetcode.cn/problems/permutations/)
+
+if for
+
+> 同一树枝下(其实就是选出的一个path中 / 一个排列中) 不能有重复的, 选过了2后面不能再选2, 所以要搞一个全局的map[int]bool 而不是将这个map定义在递归函数内部
+>
+> **而used数组，其实就是记录此时path里都有哪些元素使用了，一个排列里一个元素只能使用一次**。
+>
+> 大家此时可以感受出排列问题的不同：
+>
+> - 每层都是从0开始搜索而不是startIndex
+> - 需要used数组记录path里都放了哪些元素了
+
+穷举类的题    **画出决策树, 也就是所有的情况, 都列举出来 - 越详细越好    决策树只要能不重不漏的举出所有情况即可, 没有规定必须长什么样**
+
+这个题来说, 如果用树的DFS来做的话, 有点类似于求二叉树的所有路径, 这里完全可以用一个vector来记录, 过程中必然涉及到递归与回溯
+
+<u>这里的关键是, 比如第一个位置选了1, 那么后面的就不能再选1, 如何排除呢</u>
+
+**这里采用了一个set或者一个数组来记录你用过了哪些元素, 也就是说, 每次递归这个函数时, 都要把所有元素遍历一遍的, 选出第一个没有用过的即可**
+
+所以这里记录数据的path和记录使用情况的check数组要同步递归 + 恢复现场
+
+> 这里的回溯, 指的是, 这一个位置选过了x元素, 此时递归完了, 回到这里, 要把x使用过的这个标记去除, for循环下一个, 也就是这个位置选下一个元素
+
+<img src="https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112180725581.png" alt="image-20231112180725581" style="zoom: 67%;" />
+
+```golang
+func permute(nums []int) (ret [][]int) {
+    choice := make([]bool, len(nums))  // 选过为true, 没选过为false
+    slice := make([]int, 0)
+    var dfs func()
+    dfs = func() {
+        // 此函数, 只需要关心决策树的某一个节点做什么即可
+        if len(slice) == len(nums) {
+            // 这里必须拷贝一个新的
+            cp := make([]int, len(slice))
+            copy(cp, slice)
+            ret = append(ret, cp)
+            return
+        }
+        for i := 0; i < len(nums); i++ {
+            if choice[i] == false {
+                slice = append(slice, nums[i])
+                choice[i] = true
+                dfs()   // 递归
+                // 回溯
+                // 其实这个回溯处理, 是指递归到下一层结束返回了
+                // 这一层比如i是某一个元素, 该for循环到下一个元素了
+                // 那么就需要先把i这个去掉, 再for循环下一个
+                // 这个过程可以结合决策树来思考, 否则有点抽象= =
+                choice[i] = false
+                slice = slice[:len(slice) - 1]
+            }
+        }
+    }
+    dfs()
+    return
+}
+```
+
+### [47. 全排列 II](https://leetcode.cn/problems/permutations-ii/)
+
+if for
+
+> 先回顾一下全排列Ⅰ, 其实就是 1 2 3, 之前选过某元素, 之后就不能再选它了
+>
+> 所以需要记录, 目前为止选了哪些元素, 用bool数组或者unordered_set都可以
+
+> 决策树的重要性!!!!!!!!!!!!!
+
+思路二 : 画出决策树发现, 1. 一个path中元素不能重复, 之前选过的, 现在不能再选, 这是最基本的  2. **在一个for内部, 有几个相同的元素, 若某个元素值被选过了, 则后续不再选择等于这个元素值的元素**
+
+![image-20231209183234110](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231209183234110.png)
+
+相比于之前的全排列Ⅰ: 全排列Ⅰ是, 记录目前path用过哪些下标的元素, 而这个题, 除了path里面有哪些下标的元素, 还要记录在一个for内部, 也就是一次递归函数的for的内部, 之前处理过的元素, 之后就不能再递归了, 比如第一行的1 1 2, 第二行第三组的112
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<int> path;
+    unordered_set<int> check;  // 记录之前选过的, 记录下标
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        dfs(nums);
+        return ret;
+    }
+    void dfs(vector<int> &nums) {
+        if(path.size() == nums.size()) {
+            // 终止递归
+            ret.push_back(path);
+            return ;
+        }
+        unordered_set<int> used;  // 记录如果1递归过了, 则后续的1不再递归, 记录的是值
+        for(int i = 0; i < nums.size(); ++i) {
+            if(check.find(i) == check.end() && used.find(nums[i]) == used.end()) {
+                // 这个元素目前路径没有用过, 且不与之前递归过的元素重复
+                path.push_back(nums[i]);
+                check.insert(i);
+                dfs(nums);
+                path.pop_back();
+                check.erase(i);   // 恢复现场
+                used.insert(nums[i]);
+            }
+        }
+    }
+};
+```
+
+check记录的是path用过的下标
+
+而used只针对这个dfs函数, 也就是下面这个for循环, 递归过的后续不再递归
+
+相比于全排列Ⅰ, 也就是多了一个map, 记录一个for内部不能重复处理同样数值就好了
+
+---
+
+> ![image-20231114145200862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114145200862.png)
+
+### [1863. 找出所有子集的异或总和再求和](https://leetcode.cn/problems/sum-of-all-subset-xor-totals/)
+
+if for
+
+按位与 & 按位或 | 且 && 或 || 非 ! 按位异或 ^
+
+其实就是上一题求出所有的**子集**的同时求一个每个子集的按位异或的和即可
+
+不用path, 直接用一个int来记录这个子集的目前为止所有元素的异或值  可是回溯应该怎么回溯呢?  也就是异或i的反操作是什么?   异或x, 再异或一次x, 就会抵消
+
+> 0选 / 不选, 1选 / 不选  nums.size() - 1选 / 不选
+
+### [494. 目标和](https://leetcode.cn/problems/target-sum/)
+
+> 如果path以值传递的方式在递归函数的某个参数中传递, 则不需要进行恢复现场
+>
+> vector等大型参数不适合, 而int这种类型就很适合
+
+很简单哇, 每次递归只有某个元素的两种情况, 加或者减   不用遍历, 每个元素两个情况即可   **本质就是穷举**
+
+![image-20231114152353862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114152353862.png)
+
+如果是数组类的, 比如vector就不适合做参数了, 适合做全局, 因为如果是参数的话, 构造新的vector代价比较大, 而全局vector自始至终只会有一个.  像这种一个int, 做参数是比较合适的
+
+且这个题做参数不超时, 做全局就超时, 因为做参数会有一点点的优化
+
+```C++
+class Solution {
+public:
+    int ret = 0;
+    int findTargetSumWays(vector<int>& nums, int target) {
+        dfs(nums, target, 0, 0);
+        return ret;
+    }
+    void dfs(vector<int> &nums, int target, int path, int pos) {
+        // 该处理pos下标的元素了
+        if(pos == nums.size()) {
+            if(path == target) ret++;  // 这是一种情况
+            return ;   // 终止递归
+        }
+        dfs(nums, target, path + nums[pos], pos + 1);
+        // 上一次dfs递归结束之后, 这里的path并没有改变
+        dfs(nums, target, path - nums[pos], pos + 1);
+    }
+};
+```
+
+> 优雅
+
+```golang
+func findTargetSumWays(nums []int, target int) (res int) {
+    path := 0
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if pos == len(nums) {
+            if path == target {
+                res++
+            }
+            return
+        }
+        path += nums[pos]
+        dfs(pos + 1)    
+        path -= nums[pos]   // 恢复现场
+        path -= nums[pos]
+        dfs(pos + 1)
+        path += nums[pos]  // 恢复现场
+    }
+    dfs(0)
+    return
+}
+```
+
+### [784. 字母大小写全排列](https://leetcode.cn/problems/letter-case-permutation/)
+
+if for  只是这里不是for了, 而是变了个形式
+
+---
+
+每次递归不用遍历, 只需要对当前元素处理即可
+
+如果是字母, 则大小写两种递归, 如果不是字母, 直接加到path中
+
+> a - z 97 - 122   A - Z 65 - 90  
+>
+> A -> a += 32   妈的
+
+即使是数字也要恢复现场, 因为你可能是由英文字母的第一个情况递归来的
+
+> 太nb了我, 上面这句话是第二次直接看代码想出来的
+
+![image-20231113160001193](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113160001193.png)
+
+```C++
+func letterCasePermutation(s string) (res []string) {
+    path := make([]rune, 0)
+    str := []rune(s)
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if pos == len(str) {
+            res = append(res, string(path))
+            return
+        }
+        ch := str[pos]
+        if ch >= '0' && ch <= '9' {
+            path = append(path, ch)
+            dfs(pos + 1)
+            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
+        } else {
+            var ch2 rune
+            if ch >= 'a' && ch <= 'z' {
+                ch2 = rune(ch - 32)  // 小写转大写, 就是-32
+            } else {
+                ch2 = rune(ch + 32)  // 大写转小写, 就是+32
+            }
+            path = append(path, ch)
+            dfs(pos + 1)
+            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
+            path = append(path, ch2)
+            dfs(pos + 1)
+            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
+        }
+    }
+    dfs(0)
+    return
+}
+```
+
+致命错误, 看中间的数字的递归逻辑, 递归之后, 不能直接返回的, 比如a1b2, 2递归进入, 发现pos == s.size() 返回, 返回到2这里, 难道直接返回吗? **必须恢复现场**, 把2去掉 变为a1b, 再回到b这一层, 小写处理完, 处理大写, 且小写递归完了 还要恢复现场, 变为a1, 再插入B, 变为a1B, 再进一步递归
+
+### [526. 优美的排列](https://leetcode.cn/problems/beautiful-arrangement/)
+
+典的不能再典的 if  for   **穷举!!!!!**
+
+---
+
+1 - n n个数字   逐个位置进行选择
+
+从下标为0开始选, 候选项为所有数字, 每个位置遍历所有数值时都有两个条件: **之前没用过 且 符合条件**
+
+<u>每个位置可以遍历所有的数字, 只要这个数字没有被选过 且 符合条件, 就可以进一步递归</u>
+
+之前选了x, 之后不能再选x  因为path内部的元素不能重复 也就是每个数字只能用一次 只能在path中出现一次
+
+---
+
+比如n = 5吧
+
+第一个下标处选1 ? 2 ? 3 ? 4 ? 5 ? 任何一个符合完美条件都可以进一步递归
+
+第二个下标选1 2 3 4 5 ? 条件是之前没选过 且这个数字符合完美条件
+
+这里不必记录path, 因为最终只要符合条件的path的数量, 所以只需要记录当前用过哪些数字, 当然这个东西(记录用过哪些数字的东西, 也就是哈希表啦~)也需要恢复现场
+
+问题是, 只记录哪些用过, 如何知道终止递归呢? 因为我们是逐个位置进行选择, 所以到了末尾就结束
+
+```C++
+func countArrangement(n int) (res int) {
+    nums := []int{}
+    for i := 1; i <= n; i++ {
+        nums = append(nums, i)
+    }
+    used := make(map[int]bool)  // 下标是否用过
+    var dfs func(pos int)
+    dfs = func(pos int) {
+        if pos == len(nums) {
+            res++
+            return
+        }
+        for i, v := range nums {
+            // pos位置放每个数字都试一下, 可以则递归
+            if used[i] == false && ((pos + 1) % v == 0 || v % (pos + 1) == 0) {
+                used[i] = true
+                dfs(pos + 1)
+                used[i] = false
+            }
+        }
+    }
+    dfs(0)
+    return
+}
+```
+
+[667. 优美的排列 II](https://leetcode.cn/problems/beautiful-arrangement-ii/)
+
+??
+
+### [332. 重新安排行程](https://leetcode.cn/problems/reconstruct-itinerary/description/)
+
+if for
+
+---
+
+什么是合理的行程?   从JFK开始, 中间不间断能连续起来, 所有的机票都走一次就是合理的行程
+
+**既然是用回溯, 那么回溯其实就是穷举**
+
+我们知道JFK开始, 那么下一步到哪里? 都试一遍呗, 假设到达ABC, 那么ABC下一步走哪里? 都试一遍(一个递归函数内部), 假设到达DEF, 下一步走哪里, 依旧是一个递归函数都试一遍
+
+假设, ABC的下一步没有, 或者说ABC的所有下一步都试了, 没有合理的行程, 则肯定是返回false给JFK的这个递归函数, 他会选择下一个目的地, 也就是换ABC为下一个
+
+基本思路有了, 但是要求字典序排列最小的合理行程, 如何解决? 比如JFK开始, 有几个可选下一个目的地, 此时如果选出字典序最小目的地, 如果这个目的地最终形成了合理的行程, 那么这个其实就是字典序最小的合理行程!!!
 
 ### [77. 组合](https://leetcode.cn/problems/combinations/)
 
 ![image-20240428132635627](C:\Users\yangzilong\Desktop\markdown\github仓库\leetcode\README.assets\image-20240428132635627.png)
 
-> 为什么选了1之后, 要从2开始.  选了2之后要从3开始?   其实这是根据题意得出的, 它要的是组合, 12 21 冲突, 22更不行, 所以这样
->
-> 根据题意 -> 决策树 + 回溯代码实现
->
-> ---
->
-> 第一个位置选1 2 3 4  第二个位置选2 3 4....
-
-**这东西真得画决策树, 画了之后把规律找到就清楚了**
-
-找上面的规律, 每一行是一个for, 1选了之后, 要从2开始, 2选了, 从3开始, 3选了从4开始
-
-其实下面还会递归, 只是到了下一层递归之后发现个数已经满足, 直接返回终止递归
+组合, 所以 12 21重复/冲突, 且一个元素只能用一次, 所以直接dfs(i + 1)
 
 ```C++
 func combine(n int, k int) (res [][]int) {
@@ -5349,7 +5658,7 @@ func generateParenthesis(n int) (res []string) {
 
 > 这是组合, 不是排列, 12 21是重复的, 且一个元素只能用一次, 所以递归时一定是dfs(pos + 1) 
 
-如果我找出所有k个数的组合, 筛选出和为n的不就行了   相比于上一个题的改变, 只是和多个一个限制条件
+如果我找出所有k个数的组合, 筛选出和为n的不就行了   相比于组合, 只是和多个一个限制条件组合总和的限制条件
 
 if for
 
@@ -5386,30 +5695,18 @@ func combinationSum3(k int, n int) (res [][]int) {
 
 ### [39. 组合总和](https://leetcode.cn/problems/combination-sum/)
 
-决策树真的很重要 = =  不然你拿脑子想吗?????
-
 if for
 
 ![image-20231113152239708](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113152239708.png)
 
-> 为什么需要pos?(为什么需要startIndex?)
->
-> 因为, 233  323 332这些是重复的, 只能选一个!!!!
->
-> 那pos传递给下一层递归时, 传pos + 1还是? 
->
-> 传pos, 因为这个题中一个元素可以选择多次, 比如2222  target = 8
->
-> 什么时候终止? sum >= target就终止
->
->
-> 所以说, **其实这个题本质还是找组合**, 我把所有组合全找出来, 找出sum == target的组合不就行了
->
-> 但是, 又因为元素可以重复选择, 那, 组合就是无限的, 此时当sum >= target就终止, 这就是一个很好的终止条件
+组合问题, 所以12  21重复, 而又因为可以重复选择同一个元素, 所以dfs(i)
 
-这不就清晰了吗? 233 323 332都是重复的, 怎么办?
+什么时候终止? sum >= target就终止
 
-**还是那样的, 2可以从2开始, 3可以从3开始**
+
+所以说, **其实这个题本质还是找组合**, 我把所有组合全找出来, 找出sum == target的组合不就行了
+
+但是, 又因为元素可以重复选择, 那, 组合就是无限的, 此时当sum >= target就终止, 这就是一个很好的终止条件
 
 ```C++
 func combinationSum(candidates []int, target int) (res [][]int) {
@@ -5437,10 +5734,6 @@ func combinationSum(candidates []int, target int) (res [][]int) {
     return
 }
 ```
-
-没剪枝
-
-> 感觉来来回回也就那些套路
 
 ### [40. 组合总和 II ***](https://leetcode.cn/problems/combination-sum-ii/description/)
 
@@ -5617,11 +5910,7 @@ if   for
 
 dfs(i + 1)  同时因为需要非递减子序列, 所以, 要想入path 还需要大于等于之前的数
 
-同一个树层需要去重, 用map[int]bool即可
-
-
-
-条件: 同一树层没用过,   47 47重复     该元素大于等于path末尾的元素, 因为是递增子序列
+同一个树层需要去重, 因为 477 中 47 47是重复的
 
 ---
 
@@ -5630,333 +5919,6 @@ dfs(i + 1)  同时因为需要非递减子序列, 所以, 要想入path 还需�
 **而为什么比如之前选过7了, 后面不能再选7?  因为比如后面的7匹配出 78     789 79  这些和前面的7一定也组成过了, 所以需要去重**
 
 基本上子集 子序列 组合, 总是一个数组中找出符合某条件的数组时, 基本上就是, **树层去重或者树枝去重**, 就这些, 还有注意一下筛选条件即可
-
-### [46. 全排列](https://leetcode.cn/problems/permutations/)
-
-if for
-
-> 同一树层无所谓, 并且也不是dfs(pos) / dfs(pos + 1)
->
-> 但是同一树枝下(其实就是选出的一个path中 / 一个排列中) 不能有重复的, 选过了2后面不能再选2, 所以要搞一个全局的map[int]bool 而不是将这个map定义在递归函数内部
->
-> **而used数组，其实就是记录此时path里都有哪些元素使用了，一个排列里一个元素只能使用一次**。
->
-> 大家此时可以感受出排列问题的不同：
->
-> - 每层都是从0开始搜索而不是startIndex
-> - 需要used数组记录path里都放了哪些元素了
-
-穷举类的题    **画出决策树, 也就是所有的情况, 都列举出来 - 越详细越好    决策树只要能不重不漏的举出所有情况即可, 没有规定必须长什么样**
-
-这个题来说, 如果用树的DFS来做的话, 有点类似于求二叉树的所有路径, 这里完全可以用一个vector来记录, 过程中必然涉及到递归与回溯
-
-<u>这里的关键是, 比如第一个位置选了1, 那么后面的就不能再选1, 如何排除呢</u>
-
-**这里采用了一个set或者一个数组来记录你用过了哪些元素, 也就是说, 每次递归这个函数时, 都要把所有元素遍历一遍的, 选出第一个没有用过的即可**
-
-所以这里记录数据的path和记录使用情况的check数组要同步递归 + 恢复现场
-
-![image-20231112180725581](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112180725581.png)
-
-这里其实就是, 如何记录我之前已经用过哪些元素了? 用个set / unordered_set就不错
-
-这里分两种终止递归的方式, 一种是填满时直接终止, 一种是交给下一层递归, 这一层不加新元素
-
----
-
-```golang
-func permute(nums []int) (ret [][]int) {
-    choice := make([]bool, len(nums))  // 选过为true, 没选过为false
-    slice := make([]int, 0)
-    var dfs func()
-    dfs = func() {
-        // 此函数, 只需要关心决策树的某一个节点做什么即可
-        if len(slice) == len(nums) {
-            // 这里必须拷贝一个新的
-            cp := make([]int, len(slice))
-            copy(cp, slice)
-            ret = append(ret, cp)
-            return
-        }
-        for i := 0; i < len(nums); i++ {
-            if choice[i] == false {
-                slice = append(slice, nums[i])
-                choice[i] = true
-                dfs()   // 递归
-                // 回溯
-                // 其实这个回溯处理, 是指递归到下一层结束返回了
-                // 这一层比如i是某一个元素, 该for循环到下一个元素了
-                // 那么就需要先把i这个去掉, 再for循环下一个
-                // 这个过程可以结合决策树来思考, 否则有点抽象= =
-                choice[i] = false
-                slice = slice[:len(slice) - 1]
-            }
-        }
-    }
-    dfs()
-    return
-}
-```
-
-### [47. 全排列 II](https://leetcode.cn/problems/permutations-ii/)
-
-if for
-
-> 先回顾一下全排列Ⅰ, 其实就是 1 2 3, 之前选过某元素, 之后就不能再选它了
->
-> 所以需要记录, 目前为止选了哪些元素, 用bool数组或者unordered_set都可以
-
-> 决策树的重要性!!!!!!!!!!!!!
-
-思路二 : 画出决策树发现, 1. 一个path中元素不能重复, 之前选过的, 现在不能再选, 这是最基本的  2. **在一个for内部, 有几个相同的元素, 若某个元素值被选过了, 则后续不再选择等于这个元素值的元素**
-
-![image-20231209183234110](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231209183234110.png)
-
-相比于之前的全排列Ⅰ: 全排列Ⅰ是, 记录目前path用过哪些下标的元素, 而这个题, 除了path里面有哪些下标的元素, 还要记录在一个for内部, 也就是一次递归函数的for的内部, 之前处理过的元素, 之后就不能再递归了, 比如第一行的1 1 2, 第二行第三组的112
-
-```C++
-class Solution {
-public:
-    vector<vector<int>> ret;
-    vector<int> path;
-    unordered_set<int> check;  // 记录之前选过的, 记录下标
-    vector<vector<int>> permuteUnique(vector<int>& nums) {
-        dfs(nums);
-        return ret;
-    }
-    void dfs(vector<int> &nums) {
-        if(path.size() == nums.size()) {
-            // 终止递归
-            ret.push_back(path);
-            return ;
-        }
-        unordered_set<int> used;  // 记录如果1递归过了, 则后续的1不再递归, 记录的是值
-        for(int i = 0; i < nums.size(); ++i) {
-            if(check.find(i) == check.end() && used.find(nums[i]) == used.end()) {
-                // 这个元素目前路径没有用过, 且不与之前递归过的元素重复
-                path.push_back(nums[i]);
-                check.insert(i);
-                dfs(nums);
-                path.pop_back();
-                check.erase(i);   // 恢复现场
-                used.insert(nums[i]);
-            }
-        }
-    }
-};
-```
-
-check记录的是path用过的下标
-
-而used只针对这个dfs函数, 也就是下面这个for循环, 递归过的后续不再递归
-
-相比于全排列Ⅰ, 也就是多了一个map, 记录一个for内部不能重复处理同样数值就好了
-
----
-
-> ![image-20231114145200862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114145200862.png)
-
-### [1863. 找出所有子集的异或总和再求和](https://leetcode.cn/problems/sum-of-all-subset-xor-totals/)
-
-if for
-
-按位与 & 按位或 | 且 && 或 || 非 ! 按位异或 ^
-
-其实就是上一题求出所有的**子集**的同时求一个每个子集的按位异或的和即可
-
-不用path, 直接用一个int来记录这个子集的目前为止所有元素的异或值  可是回溯应该怎么回溯呢?  也就是异或i的反操作是什么?   异或x, 再异或一次x, 就会抵消
-
-> 0选 / 不选, 1选 / 不选  nums.size() - 1选 / 不选
-
-### [494. 目标和](https://leetcode.cn/problems/target-sum/)
-
-> 如果path以值传递的方式在递归函数的某个参数中传递, 则不需要进行恢复现场
->
-> vector等大型参数不适合, 而int这种类型就很适合
-
-很简单哇, 每次递归只有某个元素的两种情况, 加或者减   不用遍历, 每个元素两个情况即可   本质就是穷举
-
-![image-20231114152353862](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231114152353862.png)
-
-如果是数组类的, 比如vector就不适合做参数了, 适合做全局, 因为如果是参数的话, 构造新的vector代价比较大, 而全局vector自始至终只会有一个.  像这种一个int, 做参数是比较合适的
-
-且这个题做参数不超时, 做全局就超时, 因为做参数会有一点点的优化
-
-```C++
-class Solution {
-public:
-    int ret = 0;
-    int findTargetSumWays(vector<int>& nums, int target) {
-        dfs(nums, target, 0, 0);
-        return ret;
-    }
-    void dfs(vector<int> &nums, int target, int path, int pos) {
-        // 该处理pos下标的元素了
-        if(pos == nums.size()) {
-            if(path == target) ret++;  // 这是一种情况
-            return ;   // 终止递归
-        }
-        dfs(nums, target, path + nums[pos], pos + 1);
-        // 上一次dfs递归结束之后, 这里的path并没有改变
-        dfs(nums, target, path - nums[pos], pos + 1);
-    }
-};
-```
-
-> 优雅
-
-```golang
-func findTargetSumWays(nums []int, target int) (res int) {
-    path := 0
-    var dfs func(pos int)
-    dfs = func(pos int) {
-        if pos == len(nums) {
-            if path == target {
-                res++
-            }
-            return
-        }
-        path += nums[pos]
-        dfs(pos + 1)    
-        path -= nums[pos]   // 恢复现场
-        path -= nums[pos]
-        dfs(pos + 1)
-        path += nums[pos]  // 恢复现场
-    }
-    dfs(0)
-    return
-}
-```
-
-### [784. 字母大小写全排列](https://leetcode.cn/problems/letter-case-permutation/)
-
-if for  只是这里不是for了, 而是变了个形式
-
----
-
-每次递归不用遍历, 只需要对当前元素处理即可
-
-如果是字母, 则大小写两种递归, 如果不是字母, 直接加到path中
-
-> a - z 97 - 122   A - Z 65 - 90  
->
-> A -> a += 32   妈的
-
-即使是数字也要恢复现场, 因为你可能是由英文字母的第一个情况递归来的
-
-> 太nb了我, 上面这句话是第二次直接看代码想出来的
-
-![image-20231113160001193](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231113160001193.png)
-
-```C++
-func letterCasePermutation(s string) (res []string) {
-    path := make([]rune, 0)
-    str := []rune(s)
-    var dfs func(pos int)
-    dfs = func(pos int) {
-        if pos == len(str) {
-            res = append(res, string(path))
-            return
-        }
-        ch := str[pos]
-        if ch >= '0' && ch <= '9' {
-            path = append(path, ch)
-            dfs(pos + 1)
-            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
-        } else {
-            var ch2 rune
-            if ch >= 'a' && ch <= 'z' {
-                ch2 = rune(ch - 32)  // 小写转大写, 就是-32
-            } else {
-                ch2 = rune(ch + 32)  // 大写转小写, 就是+32
-            }
-            path = append(path, ch)
-            dfs(pos + 1)
-            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
-            path = append(path, ch2)
-            dfs(pos + 1)
-            path = path[:len(path) - 1]  // 恢复现场, 比如1, 恢复到上一层
-        }
-    }
-    dfs(0)
-    return
-}
-```
-
-致命错误, 看中间的数字的递归逻辑, 递归之后, 不能直接返回的, 比如a1b2, 2递归进入, 发现pos == s.size() 返回, 返回到2这里, 难道直接返回吗? **必须恢复现场**, 把2去掉 变为a1b, 再回到b这一层, 小写处理完, 处理大写, 且小写递归完了 还要恢复现场, 变为a1, 再插入B, 变为a1B, 再进一步递归
-
-### [526. 优美的排列](https://leetcode.cn/problems/beautiful-arrangement/)
-
-典的不能再典的 if  for   穷举!!!!!
-
----
-
-1 - n n个数字   逐个位置进行选择
-
-从下标为0开始选, 候选项为所有数字, 每个位置遍历所有数值时都有两个条件: **之前没用过 且 符合条件**
-
-<u>每个位置都可以遍历所有的数字, 只要这个数字没有被选过 且 符合条件, 就可以进一步递归</u>
-
-之前选了x, 之后不能再选x  因为path内部的元素不能重复 也就是每个数字只能用一次 只能在path中出现一次
-
----
-
-比如n = 5吧
-
-第一个下标处选1 ? 2 ? 3 ? 4 ? 5 ? 任何一个符合完美条件都可以进一步递归
-
-第二个下标选1 2 3 4 5 ? 条件是之前没选过 且这个数字符合完美条件
-
-这里不必记录path, 因为最终只要符合条件的path的数量, 所以只需要记录当前用过哪些数字, 当然这个东西(记录用过哪些数字的东西, 也就是哈希表啦~)也需要恢复现场
-
-问题是, 只记录哪些用过, 如何知道终止递归呢? 因为我们是逐个位置进行选择, 所以到了末尾就结束
-
-```C++
-func countArrangement(n int) (res int) {
-    nums := []int{}
-    for i := 1; i <= n; i++ {
-        nums = append(nums, i)
-    }
-    used := make(map[int]bool)  // 下标是否用过
-    var dfs func(pos int)
-    dfs = func(pos int) {
-        if pos == len(nums) {
-            res++
-            return
-        }
-        for i, v := range nums {
-            // pos位置放每个数字都试一下, 可以则递归
-            if used[i] == false && ((pos + 1) % v == 0 || v % (pos + 1) == 0) {
-                used[i] = true
-                dfs(pos + 1)
-                used[i] = false
-            }
-        }
-    }
-    dfs(0)
-    return
-}
-```
-
-[667. 优美的排列 II](https://leetcode.cn/problems/beautiful-arrangement-ii/)
-
-??
-
-### [332. 重新安排行程](https://leetcode.cn/problems/reconstruct-itinerary/description/)
-
-if for
-
----
-
-什么是合理的行程?   从JFK开始, 中间不间断能连续起来, 所有的机票都走一次就是合理的行程
-
-**既然是用回溯, 那么回溯其实就是穷举**
-
-我们知道JFK开始, 那么下一步到哪里? 都试一遍呗, 假设到达ABC, 那么ABC下一步走哪里? 都试一遍(一个递归函数内部), 假设到达DEF, 下一步走哪里, 依旧是一个递归函数都试一遍
-
-假设, ABC的下一步没有, 或者说ABC的所有下一步都试了, 没有合理的行程, 则肯定是返回false给JFK的这个递归函数, 他会选择下一个目的地, 也就是换ABC为下一个
-
-基本思路有了, 但是要求字典序排列最小的合理行程, 如何解决? 比如JFK开始, 有几个可选下一个目的地, 此时如果选出字典序最小目的地, 如果这个目的地最终形成了合理的行程, 那么这个其实就是字典序最小的合理行程!!!
 
 ## board回溯
 
