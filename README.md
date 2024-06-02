@@ -1545,6 +1545,10 @@ public:
 
 层序
 
+### [116. 填充每个节点的下一个右侧节点指针](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/)
+
+是ヾ(≧▽≦*)oφ(*￣0￣)q(≧▽≦q)ψ(｀∇´)ψ（￣︶￣）
+
 ### [114. 二叉树展开为链表](https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/)
 
 > 如果可以递归
@@ -1589,13 +1593,15 @@ public:
 };
 ```
 
-
-
 ### [226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
 
 只需要遍历每个节点, 具体处理方式是swap左右孩子即可, 所以直接递归前序即可(后序, 层序都可以)
 
 > 递归的中序不可以, 为什么呢?
+
+### [100. 相同的树](https://leetcode.cn/problems/same-tree/description/)
+
+= =
 
 ### [101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/)
 
@@ -1901,6 +1907,49 @@ public:
 
 写的真不错呀
 
+**借机学习一下回溯 + 恢复现场      +   剪枝**
+
+> **简单题不用全局变量, 很多时候的DFS的参数已经自动恢复现场了, 所以不明显**
+>
+> **难题一定要用到全局变量, 此时的恢复现场十分重要**
+
+回溯+恢复现场  :  因为递归之后会改变全局变量, 这样递归结束回溯的时候, 这个全局变量被改变了, 此时需要恢复现场!
+
+![image-20231112171345169](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112171345169.png)
+
+1. 这个题用全局的path确实麻烦, 但是可以体现出恢复现场. 而如果用参数的话, 自动恢复现场, 我们只能学到前序DFS
+   其实如果参数里的string path是引用的话, 也需要手动恢复现场
+2. 之前有过这样的情况: 判断左不为空才递归左, 右不为空才递归右, 这个操作其实就是一个剪枝, 也就是把空孩子剪掉了
+   而如果这个情况不剪枝, 就在函数最开始处理一下空树, 直接返回, 其实就是函数终止条件/情况之一
+
+```C++
+class Solution {
+public:
+    vector<string> ret;
+    vector<string> binaryTreePaths(TreeNode* root) {
+        string s = to_string(root->val);
+        dfs(root->left, s);
+        dfs(root->right, s);
+        if(ret.empty()) ret.push_back(s);
+        return ret;
+    }
+    void dfs(TreeNode *root, string s) {
+        if(root == nullptr) return;
+        s += "->";
+        s += to_string(root->val);
+        if(root->left == nullptr && root->right == nullptr) {
+            ret.push_back(s);
+            return;
+        }
+        dfs(root->left, s);
+        // 自动恢复现场
+        dfs(root->right, s);
+    }
+};
+```
+
+**这个自动恢复现场很重要!!!    因为传过去的s不影响我这里的s, 所以递归结束, 回溯时不需要恢复现场**
+
 ### [404. 左叶子之和](https://leetcode.cn/problems/sum-of-left-leaves/)
 
 没难度, 前序即可
@@ -2098,16 +2147,6 @@ func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
 ### [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
 
 递归遍历判断左小于, 右大于是不对的, 因为不能保证全局, 所以其实中序有序比较好
-
-
-
-
-
----
-
-
-
-
 
 ```C++
 class Solution {
@@ -2522,10 +2561,6 @@ public:
 
 上方内容指的是另外写一个函数进行递归处理 记得保持边界不变量, 左闭右闭 左闭右开, 要始终统一!
 
-
-
-
-
 ---
 
 ```golang
@@ -2597,6 +2632,101 @@ public:
 后序, 每个节点先获取左右返回值, 再尝试刷新res, 返回值是最长单向的路径节点个数, 每个节点的最长路径没有多种可能, 就左右返回值连起来尝试刷新即可, 就是一个后序罢了
 
 这他妈ez的一批啊(本来就ez)
+
+### [2331. 计算布尔二叉树的值](https://leetcode.cn/problems/evaluate-boolean-binary-tree/)
+
+> 全新的视角!!!!!!!!
+>
+> 这个函数就是可以返回一颗子树的计算结果!
+>
+> 那, 你想求一棵树的结果, 根节点的情况知道了, 肯定要先求它的左右子树的啊
+
+> 深搜就是深度优先遍历时的目标是搜索
+
+宏观的视角来看, 我们相信, dfs这个函数传给它一个根节点, 它就可以计算某树的值, 所以, 在求root的时候, 先计算出左右子树的值, 才能计算出根节点的值. 也就是把dfs看作一个黑盒, 并相信它可以完成这个任务
+
+对于原始的思路, 也就是从过程 / 细节的角度来说: 必须先知道左右子树的值, 才能算根节点的值, 所以一定是从下往上的, 所以就是后序遍历 先左右, 后根
+
+### [814. 二叉树剪枝](https://leetcode.cn/problems/binary-tree-pruning/)
+
+前序的话: 中左右, 这时候左右的情况都不知道, 怎么处理中呢? 所以前序不可行
+
+所以, 后序, 左右中, 左右都处理完, 根据左右的处理结果才能进一步地处理根节点, 所以一定后序
+
+这他妈典型的后序
+
+---
+
+宏观视角
+
+把这个函数看作一个黑盒, 它的作用就是如果这个子树只有0没有1, 就会去除它, 并返回处理完成之后的这个树的结果
+
+所以, 对某颗子树进行处理时, 先对左右孩子子树进行剪枝处理, 然后根据左右剪枝的结果, 以及val的值, 进行处理这颗子树, 只有左右处理完返回的是空, 且根节点val == 0时才会返回nullptr, 也就代表着这颗子树处理完结果是nullptr
+
+**所以要加返回值**  动作统一 每一个都要有返回值, 就很方便的获取左右子树结果, 并更新左右子树
+
+----
+
+通过模拟这个过程, 就可以想出这个题怎么解
+
+### [129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
+
+之前的视角: 前序遍历
+
+```golang
+func sumNumbers(root *TreeNode) (res int) {
+    var dfs func(root *TreeNode, num int)
+    // 前序
+    dfs = func(root *TreeNode, num int) {
+        if root == nil {
+            return
+        }
+        if root.Left == nil && root.Right == nil {
+            // 叶子节点
+            res += num * 10 + root.Val
+        }
+        // 非叶子
+        dfs(root.Left, num * 10 + root.Val)
+        dfs(root.Right, num * 10 + root.Val)
+    }
+    dfs(root, 0)
+    return
+}
+```
+
+---
+
+宏观视角: 除了叶子节点, 其实每一个非叶子结点都是这样的操作: 下图的1234, 1是计算一下, 23是递归, 获取到左右子树的所有叶子节点的返回值之后, 4是返回给父节点的值, 代表这颗子树的返回值
+
+其实也是**前序**
+
+> 相信这个函数, 传入一个根节点, 就可以返回最终结果
+>
+> 当然还是有内部其它逻辑的
+
+![image-20231112153030770](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112153030770.png)
+
+```C++
+func sumNumbers(root *TreeNode) int {
+    return dfs(root, 0)  // 相信这个函数
+}
+
+func dfs(root *TreeNode, prevSum int) int {
+    if root == nil {
+        return 0
+    }
+    if root.Left == nil && root.Right == nil {
+        return prevSum * 10 + root.Val
+    }
+    left := dfs(root.Left, prevSum * 10 + root.Val)
+    right := dfs(root.Right, prevSum * 10 + root.Val)
+    return left + right
+}
+```
+
+---
+
+> 这个题还是前序更合适点
 
 # 动态规划
 
@@ -2834,7 +2964,7 @@ n*n 则dp 为n+2 * n+2 dp[i]\[j] 表示到达ij下标时的下降路径最小和
 
 > 每天都有两个状态(两种可能) : 选该天 / 不选该天
 
-状态表示: 为什么说多状态呢? 因为每天都有两个状态, 选还是不选, 选当前值时, 总的最大预约时长 , 不选当前值时, 总的最大预约时长   (而对于路径问题, 并不是多状态的,  因为每个位置都必须到达, 只是前一步可以从上方, 可以从下方)
+状态表示: 为什么说多状态呢? 因为每天都有两个状态, 选还是不选, 选当前值时, 总的最大预约时长 , 不选当前值时, 总的最大预约时长
 
 则每个下标都对应存储两个值, 选择该位置的情况下的最大预约时长, 不选该位置的情况下的最大预约时长
 
@@ -2891,9 +3021,29 @@ func dp(root *TreeNode) (yes, no int) {
     no = max(l1, l2) + max(r1, r2) // 根节点不偷, 左右子树的根节点偷不偷都行, 而不是必须偷
     return
 }
+func rob(root *TreeNode) int {
+    // 前序不行  必须后序
+    // dfs: 可以得到该子树的根节点偷与不偷情况下整颗子树的最高收益
+    var dfs func(root *TreeNode) (yes, no int)
+    dfs = func(root *TreeNode) (yes, no int) {
+        // yes, no为子结点在偷与不偷情况下的最大收益
+        if root == nil {
+            return 0, 0
+        }
+        l1, l2 := dfs(root.Left)   // 偷 不偷
+        r1, r2 := dfs(root.Right)  // 偷 不偷
+        yes = root.Val + l2 + r2
+        no = max(l1, l2) + max(r1, r2)
+        return
+    }
+    y, n := dfs(root)
+    return max(y, n)
+}
 ```
 
 为什么前序不行呢?
+
+可能矛盾
 
 ```golang
  // 前序+dp
@@ -2916,8 +3066,6 @@ func rob(root *TreeNode) (res int) {
     return
 }
 ```
-
-
 
 ### [740. 删除并获得点数](https://leetcode.cn/problems/delete-and-earn/)
 
@@ -4248,7 +4396,7 @@ func integerBreak(n int) int {
 
 **只要是N个连续的结点组成的BST的种类数就是一样的,  比如1234 6789**
 
-**只需要记录这棵树有几个结点就可以了, 默认它们的结点值是连续的**
+**只需要记录这棵树有几个结点就可以了, 它们的结点值是连续的**
 
 ---
 
@@ -5023,168 +5171,6 @@ func reverseList(head *ListNode) *ListNode {
 <img src="https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111182718603.png" alt="image-20231111182718603" style="zoom:50%;" />
 
 <img src="https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231111183534433.png" alt="image-20231111183534433" style="zoom:50%;" />
-
-## 二叉树的深度优先搜索(深度优先遍历)
-
-### [2331. 计算布尔二叉树的值](https://leetcode.cn/problems/evaluate-boolean-binary-tree/)
-
-> 全新的视角!!!!!!!!
->
-> 这个函数就是可以返回一颗子树的计算结果!
->
-> 那, 你想求一棵树的结果, 根节点的情况知道了, 肯定要先求它的左右子树的啊
-
-> 深搜就是深度优先遍历时的目标是搜索
-
-宏观的视角来看, 我们相信, dfs这个函数传给它一个根节点, 它就可以计算某树的值, 所以, 在求root的时候, 先计算出左右子树的值, 才能计算出根节点的值. 也就是把dfs看作一个黑盒, 并相信它可以完成这个任务
-
-对于原始的思路, 也就是从过程 / 细节的角度来说: 必须先知道左右子树的值, 才能算根节点的值, 所以一定是从下往上的, 所以就是后序遍历 先左右, 后根
-
-### [129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
-
-之前的视角: 前序遍历
-
-```golang
-func sumNumbers(root *TreeNode) (res int) {
-    var dfs func(root *TreeNode, num int)
-    // 前序
-    dfs = func(root *TreeNode, num int) {
-        if root == nil {
-            return
-        }
-        if root.Left == nil && root.Right == nil {
-            // 叶子节点
-            res += num * 10 + root.Val
-        }
-        // 非叶子
-        dfs(root.Left, num * 10 + root.Val)
-        dfs(root.Right, num * 10 + root.Val)
-    }
-    dfs(root, 0)
-    return
-}
-```
-
----
-
-宏观视角: 除了叶子节点, 其实每一个非叶子结点都是这样的操作: 下图的1234, 1是计算一下, 23是递归, 获取到左右子树的所有叶子节点的返回值之后, 4是返回给父节点的值, 代表这颗子树的返回值
-
-其实也是**前序**
-
-> 相信这个函数, 传入一个根节点, 就可以返回最终结果
->
-> 当然还是有内部其它逻辑的
-
-![image-20231112153030770](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112153030770.png)
-
-```C++
-func sumNumbers(root *TreeNode) int {
-    return dfs(root, 0)  // 相信这个函数
-}
-
-func dfs(root *TreeNode, prevSum int) int {
-    if root == nil {
-        return 0
-    }
-    if root.Left == nil && root.Right == nil {
-        return prevSum * 10 + root.Val
-    }
-    left := dfs(root.Left, prevSum * 10 + root.Val)
-    right := dfs(root.Right, prevSum * 10 + root.Val)
-    return left + right
-}
-```
-
----
-
-> 这个题还是前序更合适点
-
-### [814. 二叉树剪枝](https://leetcode.cn/problems/binary-tree-pruning/)
-
-前序的话: 中左右, 这时候左右的情况都不知道, 怎么处理中呢? 所以前序不可行
-
-所以, 后序, 左右中, 左右都处理完, 根据左右的处理结果才能进一步地处理根节点, 所以一定后序
-
-这他妈典型的后序
-
----
-
-宏观视角
-
-把这个函数看作一个黑盒, 它的作用就是如果这个子树只有0没有1, 就会去除它, 并返回处理完成之后的这个树的结果
-
-所以, 对某颗子树进行处理时, 先对左右孩子子树进行剪枝处理, 然后根据左右剪枝的结果, 以及val的值, 进行处理这颗子树, 只有左右处理完返回的是空, 且根节点val == 0时才会返回nullptr, 也就代表着这颗子树处理完结果是nullptr
-
-**所以要加返回值**  动作统一 每一个都要有返回值, 就很方便的获取左右子树结果, 并更新左右子树
-
-----
-
-通过模拟这个过程, 就可以想出这个题怎么解
-
-### [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
-
-核心: 利用二叉搜索树的中序有序性, 以及全局变量存储中序的上一个值来判断
-
-宏观来说, 这个函数就是接收一个根节点, 返回这个子树是否是二叉搜索树
-
-整体肯定是要中序的, 先判断左, 判断自己是否符合, 判断右, 最终返回左&&自己&&右
-
-剪枝就是: 当左子树返回false, 证明左子树中有元素不符合二叉搜索树的定义了, 这时候直接返回false即可, 后续的自己以及右子树都不需要进行   如果自己是false, 直接返回, 不用处理右 = =
-
-### [230. 二叉搜索树中第K小的元素](https://leetcode.cn/problems/kth-smallest-element-in-a-bst/)
-
-> 又做过
-
-中序有序 + 两个全局变量即可
-
-可以剪枝的时候要剪枝, 也就是比如左子树完了, 第K小元素已经有了, 那么自己, 右子树都不需要再处理, 直接返回
-
-### [257. 二叉树的所有路径](https://leetcode.cn/problems/binary-tree-paths/)
-
-> 又做过.. 前序即可~
-
-**借机学习一下回溯 + 恢复现场      +   剪枝**
-
-> **简单题不用全局变量, 很多时候的DFS的参数已经自动恢复现场了, 所以不明显**
->
-> **难题一定要用到全局变量, 此时的恢复现场十分重要**
-
-回溯+恢复现场  :  因为递归之后会改变全局变量, 这样递归结束回溯的时候, 这个全局变量被改变了, 此时需要恢复现场!
-
-![image-20231112171345169](https://cdn.jsdelivr.net/gh/DaysOfExperience/blogImage@main/img/image-20231112171345169.png)
-
-1. 这个题用全局的path确实麻烦, 但是可以体现出恢复现场. 而如果用参数的话, 自动恢复现场, 我们只能学到前序DFS
-   其实如果参数里的string path是引用的话, 也需要手动恢复现场
-2. 之前有过这样的情况: 判断左不为空才递归左, 右不为空才递归右, 这个操作其实就是一个剪枝, 也就是把空孩子剪掉了
-   而如果这个情况不剪枝, 就在函数最开始处理一下空树, 直接返回, 其实就是函数终止条件/情况之一
-
-```C++
-class Solution {
-public:
-    vector<string> ret;
-    vector<string> binaryTreePaths(TreeNode* root) {
-        string s = to_string(root->val);
-        dfs(root->left, s);
-        dfs(root->right, s);
-        if(ret.empty()) ret.push_back(s);
-        return ret;
-    }
-    void dfs(TreeNode *root, string s) {
-        if(root == nullptr) return;
-        s += "->";
-        s += to_string(root->val);
-        if(root->left == nullptr && root->right == nullptr) {
-            ret.push_back(s);
-            return;
-        }
-        dfs(root->left, s);
-        // 自动恢复现场
-        dfs(root->right, s);
-    }
-};
-```
-
-**这个自动恢复现场很重要!!!    因为传过去的s不影响我这里的s, 所以递归结束, 回溯时不需要恢复现场**
 
 ## 穷举vs暴搜vs深搜vs回溯vs剪枝
 
